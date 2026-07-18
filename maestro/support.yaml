@@ -4,8 +4,8 @@ env:
   TEST_PASSWORD: "teste1234"
 
 ---
-# E2E Test: Dark Mode Toggle
-# Tests the dark mode appearance toggle
+# E2E Test: Support Screen
+# Tests the support/help screen content and navigation
 - launchApp:
     clearState: true
 
@@ -29,37 +29,33 @@ env:
 - assertVisible:
     text: "Settings"
 
-# Navigate to Appearance
+# Navigate to Help & Support
 - tapOn:
-    text: "Appearance"
+    text: "Help & Support"
 - assertVisible:
-    text: "Appearance"
+    text: "Support"
 
-# Verify theme options are visible
+# Verify support content
 - assertVisible:
-    text: "Theme"
+    text: "How can we help?"
 - assertVisible:
-    text: "System"
-- assertVisible:
-    text: "Light"
-- assertVisible:
-    text: "Dark"
+    text: "We're here to help. Reach out"
 
-# Verify display options
+# Verify contact options
 - assertVisible:
-    text: "Display"
+    text: "Email Us"
 - assertVisible:
-    text: "Font Size"
+    text: "support@nestfeed.app"
 - assertVisible:
-    text: "Language"
+    text: "FAQ"
+- assertVisible:
+    text: "Common questions and answers"
 
-# Verify accessibility options
+# Verify response time info
 - assertVisible:
-    text: "Accessibility"
+    text: "Response Time"
 - assertVisible:
-    text: "Animations"
-- assertVisible:
-    text: "Reduce Motion"
+    text: "24-48 hours"
 
 # Navigate back to settings
 - swipe:

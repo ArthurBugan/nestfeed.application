@@ -87,15 +87,14 @@ jest.mock('expo-crypto', () => ({
   digest: jest.fn(() => Promise.resolve('test-digest')),
 }));
 
-// Mock sonner-native
-jest.mock('sonner-native', () => ({
+// Mock burnt (toast library)
+jest.mock('burnt', () => ({
   toast: {
     success: jest.fn(),
     error: jest.fn(),
     info: jest.fn(),
     warning: jest.fn(),
   },
-  Toaster: jest.fn(),
 }));
 
 // Mock @sentry/react-native
@@ -307,11 +306,6 @@ jest.mock('react-native-enriched-markdown', () => ({
 
 // Mock @huymobile/react-native-iconify
 jest.mock('@huymobile/react-native-iconify', () => ({
-  IconifyIcon: 'IconifyIcon',
-}));
-
-// Mock react-native-iconify
-jest.mock('react-native-iconify', () => ({
   IconifyIcon: 'IconifyIcon',
 }));
 

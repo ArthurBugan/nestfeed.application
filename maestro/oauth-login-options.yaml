@@ -5,8 +5,12 @@ appId: com.groupifyapp
 # Tests the OAuth login buttons visibility and interaction
 - launchApp:
     clearState: true
+
+# Verify initial screen
 - assertVisible:
     text: "Welcome Back"
+- assertVisible:
+    text: "Welcome to Nestfeed"
 
 # Verify OAuth buttons are visible
 - assertVisible:
@@ -15,38 +19,31 @@ appId: com.groupifyapp
     text: "Sign in with Discord"
 - assertVisible:
     text: "Sign in with Apple"
-    optional: true
 
-# Try Google login (will fail without proper setup, but tests UI)
-- tapOn:
-    text: "Sign in with Google"
+# Verify divider text
 - assertVisible:
-    text: "Google Login Failed"
-    optional: true
-- assertVisible:
-    text: "Unable to sign in with Google"
-    optional: true
+    text: "or continue with"
 
-# Dismiss error
-- tapOn:
-    text: "OK"
-    optional: true
+# Verify email/password form is visible
 - assertVisible:
-    text: "Welcome Back"
+    text: "Email"
+- assertVisible:
+    text: "Password"
 
-# Try Discord login
-- tapOn:
-    text: "Sign in with Discord"
+# Verify forgot password link
 - assertVisible:
-    text: "Discord Login Failed"
-    optional: true
-- assertVisible:
-    text: "Unable to sign in with Discord"
-    optional: true
+    text: "Forgot Password?"
 
-# Dismiss error
+# Verify sign up link
+- assertVisible:
+    text: "Don't have an account?"
 - tapOn:
-    text: "OK"
-    optional: true
+    text: "Sign Up"
+- assertVisible:
+    text: "Create Account"
+
+# Navigate back to login
+- tapOn:
+    text: "Already have an account?"
 - assertVisible:
     text: "Welcome Back"

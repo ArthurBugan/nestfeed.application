@@ -1,20 +1,23 @@
 appId: com.groupifyapp
+env:
+  TEST_EMAIL: "demo@demo.com"
+  TEST_PASSWORD: "teste1234"
 
 ---
 # E2E Test: Complete App Navigation Flow
 # Tests the complete navigation flow through all main sections
 - launchApp:
     clearState: true
-- assertVisible:
-    text: "Welcome Back"
 
 # Login
+- assertVisible:
+    text: "Welcome Back"
 - tapOn:
     text: "Email"
-- inputText: "demo@demo.com"
+- inputText: "${TEST_EMAIL}"
 - tapOn:
     text: "Password"
-- inputText: "teste1234"
+- inputText: "${TEST_PASSWORD}"
 - tapOn: "Sign In"
 - waitForAnimationToEnd
 - assertVisible:
@@ -25,6 +28,8 @@ appId: com.groupifyapp
     text: "Groups"
 - assertVisible:
     text: "Groups"
+- assertVisible:
+    text: "Search groups..."
 - swipe:
     direction: "down"
     speed: "fast"
@@ -36,7 +41,8 @@ appId: com.groupifyapp
     text: "Channels"
 - assertVisible:
     text: "Channels"
-    optional: true
+- assertVisible:
+    text: "Search channels..."
 - swipe:
     direction: "down"
     speed: "fast"
@@ -48,7 +54,6 @@ appId: com.groupifyapp
     text: "Animes"
 - assertVisible:
     text: "Animes"
-    optional: true
 - swipe:
     direction: "down"
     speed: "fast"
@@ -60,7 +65,8 @@ appId: com.groupifyapp
     text: "Websites"
 - assertVisible:
     text: "Websites"
-    optional: true
+- assertVisible:
+    text: "Search websites..."
 - swipe:
     direction: "down"
     speed: "fast"
@@ -72,7 +78,8 @@ appId: com.groupifyapp
     text: "Group Shelf"
 - assertVisible:
     text: "Group Shelf"
-    optional: true
+- assertVisible:
+    text: "Search shelves..."
 - swipe:
     direction: "down"
     speed: "fast"
@@ -84,7 +91,6 @@ appId: com.groupifyapp
     text: "Share Links"
 - assertVisible:
     text: "Share Links"
-    optional: true
 - swipe:
     direction: "down"
     speed: "fast"
@@ -96,7 +102,8 @@ appId: com.groupifyapp
     text: "Blog"
 - assertVisible:
     text: "Blog"
-    optional: true
+- assertVisible:
+    text: "Blog Posts"
 - swipe:
     direction: "down"
     speed: "fast"
@@ -119,7 +126,6 @@ appId: com.groupifyapp
     text: "New Group"
 - assertVisible:
     text: "New Group"
-    optional: true
 - swipe:
     direction: "down"
     speed: "fast"
@@ -131,7 +137,6 @@ appId: com.groupifyapp
     text: "Add Channel"
 - assertVisible:
     text: "Channels"
-    optional: true
 - swipe:
     direction: "down"
     speed: "fast"
@@ -143,9 +148,14 @@ appId: com.groupifyapp
     text: "Add Anime"
 - assertVisible:
     text: "Animes"
-    optional: true
 - swipe:
     direction: "down"
     speed: "fast"
 - assertVisible:
     text: "Dashboard"
+
+# Verify we can navigate back to all sections from dashboard
+- assertVisible:
+    text: "Dashboard"
+- assertVisible:
+    text: "Your content at a glance"

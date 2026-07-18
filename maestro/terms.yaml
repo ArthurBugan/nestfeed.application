@@ -4,8 +4,8 @@ env:
   TEST_PASSWORD: "teste1234"
 
 ---
-# E2E Test: User Logout Flow
-# Tests the complete logout process
+# E2E Test: Terms of Service Screen
+# Tests the terms of service screen content and navigation
 - launchApp:
     clearState: true
 
@@ -29,43 +29,36 @@ env:
 - assertVisible:
     text: "Settings"
 
-# Verify Sign Out button is visible
-- assertVisible:
-    text: "Sign Out"
-
-# Tap Sign Out from settings
+# Navigate to Terms & Privacy
 - tapOn:
-    text: "Sign Out"
+    text: "Terms & Privacy"
 - assertVisible:
-    text: "Sign Out"
-- assertVisible:
-    text: "Are you sure you want to sign out?"
+    text: "Terms of Service"
 
-# Cancel logout
-- tapOn:
-    text: "Cancel"
+# Verify terms content sections
+- assertVisible:
+    text: "Last updated: May 2025"
+- assertVisible:
+    text: "Acceptance of Terms"
+- assertVisible:
+    text: "User Responsibilities"
+- assertVisible:
+    text: "Privacy"
+- assertVisible:
+    text: "Prohibited Activities"
+- assertVisible:
+    text: "Termination"
+
+# Navigate back to settings
+- swipe:
+    direction: "down"
+    speed: "fast"
 - assertVisible:
     text: "Settings"
 
-# Try logout again
-- tapOn:
-    text: "Sign Out"
+# Navigate back to dashboard
+- swipe:
+    direction: "down"
+    speed: "fast"
 - assertVisible:
-    text: "Sign Out"
-
-# Confirm logout
-- tapOn:
-    text: "Sign Out"
-- waitForAnimationToEnd
-
-# Should be back on login screen
-- assertVisible:
-    text: "Welcome Back"
-
-# Verify login screen elements after logout
-- assertVisible:
-    text: "Email"
-- assertVisible:
-    text: "Password"
-- assertVisible:
-    text: "Sign In"
+    text: "Dashboard"

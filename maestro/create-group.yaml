@@ -1,20 +1,23 @@
 appId: com.groupifyapp
+env:
+  TEST_EMAIL: "demo@demo.com"
+  TEST_PASSWORD: "teste1234"
 
 ---
 # E2E Test: Create New Group
 # Tests the complete group creation flow
 - launchApp:
     clearState: true
-- assertVisible:
-    text: "Welcome Back"
 
 # Login first
+- assertVisible:
+    text: "Welcome Back"
 - tapOn:
     text: "Email"
-- inputText: "demo@demo.com"
+- inputText: "${TEST_EMAIL}"
 - tapOn:
     text: "Password"
-- inputText: "teste1234"
+- inputText: "${TEST_PASSWORD}"
 - tapOn: "Sign In"
 - waitForAnimationToEnd
 - assertVisible:
@@ -31,25 +34,18 @@ appId: com.groupifyapp
     text: "+ New"
 - assertVisible:
     text: "New Group"
-    optional: true
 - assertVisible:
     text: "Group Name"
-    optional: true
 
 # Fill in group details
 - tapOn:
     text: "Group Name"
-    optional: true
 - inputText: "My Test Group"
-
 - tapOn:
     text: "Description"
-    optional: true
 - inputText: "This is a test group created via E2E test"
-
 - tapOn:
     text: "Category"
-    optional: true
 - inputText: "entertainment"
 
 # Submit form
@@ -60,8 +56,12 @@ appId: com.groupifyapp
     text: "Save"
     optional: true
 - assertVisible:
-    text: "Group created"
-    optional: true
-- assertVisible:
     text: "My Test Group"
     optional: true
+
+# Navigate back to dashboard
+- swipe:
+    direction: "down"
+    speed: "fast"
+- assertVisible:
+    text: "Dashboard"

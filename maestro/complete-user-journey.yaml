@@ -22,6 +22,14 @@ env:
 - tapOn:
     text: "Password"
 - inputText: "${TEST_PASSWORD}"
+
+# Verify social login options on register
+- assertVisible:
+    text: "Sign up with Google"
+- assertVisible:
+    text: "Sign up with Discord"
+
+# Submit registration
 - tapOn: "Sign Up"
 - assertVisible:
     text: "Creating account..."
@@ -49,7 +57,7 @@ env:
 - assertVisible:
     text: "Your content at a glance"
 
-# Step 4: Explore dashboard shortcuts
+# Step 4: Verify dashboard shortcuts
 - assertVisible:
     text: "Groups"
 - assertVisible:
@@ -63,7 +71,7 @@ env:
 - assertVisible:
     text: "Share Links"
 
-# Step 5: Explore quick actions
+# Step 5: Verify quick actions
 - assertVisible:
     text: "New Group"
 - assertVisible:
@@ -80,6 +88,8 @@ env:
     text: "Groups"
 - assertVisible:
     text: "Search groups..."
+- assertVisible:
+    text: "+ New"
 
 # Step 7: Navigate to Settings
 - swipe:
@@ -106,6 +116,5 @@ env:
     speed: "fast"
 - assertVisible:
     text: "Dashboard"
-
 - assertVisible:
     text: "Dashboard"

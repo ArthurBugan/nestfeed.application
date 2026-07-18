@@ -4,8 +4,8 @@ env:
   TEST_PASSWORD: "teste1234"
 
 ---
-# E2E Test: Dark Mode Toggle
-# Tests the dark mode appearance toggle
+# E2E Test: More Tab Screen
+# Tests the More tab screen content and navigation
 - launchApp:
     clearState: true
 
@@ -23,54 +23,54 @@ env:
 - assertVisible:
     text: "Dashboard"
 
-# Navigate to Settings
+# Navigate to More tab
+- tapOn:
+    text: "More"
+- assertVisible:
+    text: "More"
+
+# Verify profile card
+- assertVisible:
+    text: "User"
+
+# Verify menu items
+- assertVisible:
+    text: "Websites"
+- assertVisible:
+    text: "Share Links"
+- assertVisible:
+    text: "Groupshelf"
+- assertVisible:
+    text: "Blog"
+- assertVisible:
+    text: "Settings"
+
+# Verify Sign Out button
+- assertVisible:
+    text: "Sign Out"
+
+# Navigate to Websites from More
+- tapOn:
+    text: "Websites"
+- assertVisible:
+    text: "Websites"
+
+# Navigate back to More
+- swipe:
+    direction: "down"
+    speed: "fast"
+- assertVisible:
+    text: "More"
+
+# Navigate to Settings from More
 - tapOn:
     text: "Settings"
 - assertVisible:
     text: "Settings"
 
-# Navigate to Appearance
-- tapOn:
-    text: "Appearance"
-- assertVisible:
-    text: "Appearance"
-
-# Verify theme options are visible
-- assertVisible:
-    text: "Theme"
-- assertVisible:
-    text: "System"
-- assertVisible:
-    text: "Light"
-- assertVisible:
-    text: "Dark"
-
-# Verify display options
-- assertVisible:
-    text: "Display"
-- assertVisible:
-    text: "Font Size"
-- assertVisible:
-    text: "Language"
-
-# Verify accessibility options
-- assertVisible:
-    text: "Accessibility"
-- assertVisible:
-    text: "Animations"
-- assertVisible:
-    text: "Reduce Motion"
-
-# Navigate back to settings
+# Navigate back to More
 - swipe:
     direction: "down"
     speed: "fast"
 - assertVisible:
-    text: "Settings"
-
-# Navigate back to dashboard
-- swipe:
-    direction: "down"
-    speed: "fast"
-- assertVisible:
-    text: "Dashboard"
+    text: "More"

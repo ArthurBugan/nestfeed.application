@@ -32,7 +32,10 @@
               "host": "nestfeed.app"
             }
           ],
-          "category": ["BROWSABLE", "DEFAULT"]
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
         }
       ]
     },
@@ -154,7 +157,8 @@
           "iapkitApiKey": "${process.env.EXPO_PUBLIC_IAPKIT_API_KEY}"
         }
       ],
-      "expo-tracking-transparency"
+      "expo-tracking-transparency",
+      "expo-status-bar"
     ],
     "icon": "./assets/images/ios-icon-default.png",
     "web": {

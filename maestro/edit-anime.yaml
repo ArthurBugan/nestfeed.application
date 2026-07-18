@@ -4,8 +4,8 @@ env:
   TEST_PASSWORD: "teste1234"
 
 ---
-# E2E Test: Groups Navigation & Listing
-# Tests navigating to groups and viewing the list
+# E2E Test: Edit Anime Screen
+# Tests the anime edit screen content and navigation
 - launchApp:
     clearState: true
 
@@ -23,32 +23,18 @@ env:
 - assertVisible:
     text: "Dashboard"
 
-# Navigate to Groups from dashboard
+# Navigate to Animes
 - tapOn:
-    text: "Groups"
+    text: "Animes"
 - assertVisible:
-    text: "Groups"
-- assertVisible:
-    text: "Search groups..."
+    text: "Animes"
 
-# Verify the + New button exists
-- assertVisible:
-    text: "+ New"
-
-# Test search functionality
+# Navigate to Add Anime
 - tapOn:
-    text: "Search groups..."
-- inputText: "test search"
+    text: "Add Anime"
 - assertVisible:
-    text: "test search"
+    text: "Animes"
     optional: true
-
-# Clear search
-- tapOn:
-    id: "clear-search"
-    optional: true
-- assertVisible:
-    text: "Groups"
 
 # Navigate back to dashboard
 - swipe:

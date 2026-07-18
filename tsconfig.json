@@ -3,6 +3,8 @@
   "compilerOptions": {
     "strict": true,
     "baseUrl": ".",
+    "ignoreDeprecations": "6.0",
+    "rootDir": "src",
     "paths": {
       "@/*": ["src/*"],
       "@/components/*": ["src/components/*"],

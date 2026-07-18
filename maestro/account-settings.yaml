@@ -1,20 +1,23 @@
 appId: com.groupifyapp
+env:
+  TEST_EMAIL: "demo@demo.com"
+  TEST_PASSWORD: "teste1234"
 
 ---
 # E2E Test: Account Settings
 # Tests the account settings page navigation and content
 - launchApp:
     clearState: true
-- assertVisible:
-    text: "Welcome Back"
 
 # Login first
+- assertVisible:
+    text: "Welcome Back"
 - tapOn:
     text: "Email"
-- inputText: "demo@demo.com"
+- inputText: "${TEST_EMAIL}"
 - tapOn:
     text: "Password"
-- inputText: "teste1234"
+- inputText: "${TEST_PASSWORD}"
 - tapOn: "Sign In"
 - waitForAnimationToEnd
 - assertVisible:
@@ -31,22 +34,37 @@ appId: com.groupifyapp
     text: "Account"
 - assertVisible:
     text: "Account"
-    optional: true
 
 # Verify account-related elements
 - assertVisible:
-    text: "Email"
-    optional: true
+    text: "Personal Information"
 - assertVisible:
     text: "Name"
-    optional: true
+- assertVisible:
+    text: "Email"
+- assertVisible:
+    text: "Security"
+- assertVisible:
+    text: "Push Notifications"
+- assertVisible:
+    text: "Two-Factor Authentication"
+- assertVisible:
+    text: "Change Password"
+- assertVisible:
+    text: "Delete Account"
 
-# Navigate back
+# Verify Save button
+- assertVisible:
+    text: "Save"
+
+# Navigate back to settings
 - swipe:
     direction: "down"
     speed: "fast"
 - assertVisible:
     text: "Settings"
+
+# Navigate back to dashboard
 - swipe:
     direction: "down"
     speed: "fast"

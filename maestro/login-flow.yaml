@@ -5,45 +5,58 @@ env:
 
 ---
 # E2E Test: User Login Flow
-# Tests the complete login process
+# Tests the complete login process with valid credentials
 - launchApp:
     clearState: true
-- waitForAnimationToEnd
-- tapOn:
-    text: ".*Sign In.*"
+
+# Verify initial screen
 - assertVisible:
-    text: ".*Signing in.*"
-    optional: true
-- waitForAnimationToEnd
+    text: "Welcome Back"
+- assertVisible:
+    text: "Welcome to Nestfeed"
 
 # Fill in login credentials
 - tapOn:
-    text: ".*Email.*"
+    text: "Email"
 - inputText: "${TEST_EMAIL}"
+- assertVisible:
+    text: "demo@demo.com"
 - tapOn:
-    text: ".*Password.*"
+    text: "Password"
 - inputText: "${TEST_PASSWORD}"
 
 # Submit login
-- tapOn:
-    text: ".*Sign In.*"
+- tapOn: "Sign In"
 - assertVisible:
-    text: ".*Signing in.*"
-    optional: true
+    text: "Signing in..."
 - waitForAnimationToEnd
 
 # After login, should see the dashboard
 - assertVisible:
-    text: ".*Dashboard.*"
+    text: "Dashboard"
 - assertVisible:
-    text: ".*Your content.*"
+    text: "Your content at a glance"
 
 # Verify dashboard shortcuts are visible
 - assertVisible:
-    text: ".*Groups.*"
+    text: "Groups"
 - assertVisible:
-    text: ".*Channels.*"
+    text: "Channels"
+- assertVisible:
+    text: "Animes"
+- assertVisible:
+    text: "Websites"
+- assertVisible:
+    text: "Group Shelf"
+- assertVisible:
+    text: "Share Links"
 
 # Verify quick actions are visible
 - assertVisible:
-    text: ".*Settings.*"
+    text: "New Group"
+- assertVisible:
+    text: "Add Channel"
+- assertVisible:
+    text: "Settings"
+- assertVisible:
+    text: "Blog"

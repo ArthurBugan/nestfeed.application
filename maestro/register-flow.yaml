@@ -9,38 +9,50 @@ env:
 # Tests the complete registration process from start to finish
 - launchApp:
     clearState: true
+
+# Verify initial screen
 - assertVisible:
     text: "Create Account"
 - assertVisible:
     text: "Join us today"
-- assertVisible:
-    text: "Name"
-- assertVisible:
-    text: "Email"
-- assertVisible:
-    text: "Password"
 
 # Fill in registration form
 - tapOn:
-    id: "name-input"
-    optional: true
-- inputText: "Test User"
+    text: "Name"
+- inputText: "${TEST_NAME}"
+- assertVisible:
+    text: "Test User"
 - tapOn:
-    id: "email-input"
-    optional: true
-- inputText: "demo@demo.com"
+    text: "Email"
+- inputText: "${TEST_EMAIL}"
 - tapOn:
-    id: "password-input"
-    optional: true
-- inputText: "teste1234"
+    text: "Password"
+- inputText: "${TEST_PASSWORD}"
+
+# Verify social login options are visible
+- assertVisible:
+    text: "or continue with"
+- assertVisible:
+    text: "Sign up with Google"
+- assertVisible:
+    text: "Sign up with Discord"
 
 # Submit registration (will fail without backend, but tests UI flow)
 - tapOn: "Sign Up"
 - assertVisible:
     text: "Creating account..."
-    optional: true
 - waitForAnimationToEnd
+
+# Navigate to login
 - tapOn:
     text: "Already have an account?"
 - assertVisible:
     text: "Welcome Back"
+
+# Verify sign in link on login page
+- assertVisible:
+    text: "Don't have an account?"
+- tapOn:
+    text: "Sign Up"
+- assertVisible:
+    text: "Create Account"

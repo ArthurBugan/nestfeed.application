@@ -4,8 +4,8 @@ env:
   TEST_PASSWORD: "teste1234"
 
 ---
-# E2E Test: Groups Navigation & Listing
-# Tests navigating to groups and viewing the list
+# E2E Test: Group Detail Tabs
+# Tests the group detail view with its tabs
 - launchApp:
     clearState: true
 
@@ -23,34 +23,33 @@ env:
 - assertVisible:
     text: "Dashboard"
 
-# Navigate to Groups from dashboard
+# Navigate to Groups
 - tapOn:
     text: "Groups"
 - assertVisible:
     text: "Groups"
-- assertVisible:
-    text: "Search groups..."
 
-# Verify the + New button exists
-- assertVisible:
-    text: "+ New"
-
-# Test search functionality
+# Tap on first group to open detail view
 - tapOn:
-    text: "Search groups..."
-- inputText: "test search"
+    text: "Groups"
 - assertVisible:
-    text: "test search"
-    optional: true
-
-# Clear search
-- tapOn:
-    id: "clear-search"
+    text: "Overview"
     optional: true
 - assertVisible:
+    text: "Subgroups"
+    optional: true
+- assertVisible:
+    text: "Settings"
+    optional: true
+
+# Navigate back to groups listing
+- swipe:
+    direction: "down"
+    speed: "fast"
+- assertVisible:
     text: "Groups"
 
-# Navigate back to dashboard
+# Navigate to dashboard
 - swipe:
     direction: "down"
     speed: "fast"

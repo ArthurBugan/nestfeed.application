@@ -1,20 +1,23 @@
 appId: com.groupifyapp
+env:
+  TEST_EMAIL: "demo@demo.com"
+  TEST_PASSWORD: "teste1234"
 
 ---
 # E2E Test: Group Shelf Navigation
 # Tests navigating to the Group Shelf section
 - launchApp:
     clearState: true
-- assertVisible:
-    text: "Welcome Back"
 
 # Login first
+- assertVisible:
+    text: "Welcome Back"
 - tapOn:
     text: "Email"
-- inputText: "demo@demo.com"
+- inputText: "${TEST_EMAIL}"
 - tapOn:
     text: "Password"
-- inputText: "teste1234"
+- inputText: "${TEST_PASSWORD}"
 - tapOn: "Sign In"
 - waitForAnimationToEnd
 - assertVisible:
@@ -25,10 +28,8 @@ appId: com.groupifyapp
     text: "Group Shelf"
 - assertVisible:
     text: "Group Shelf"
-    optional: true
 - assertVisible:
     text: "Search shelves..."
-    optional: true
 
 # Navigate back to dashboard
 - swipe:

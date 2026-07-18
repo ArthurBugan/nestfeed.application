@@ -6,7 +6,7 @@ jest.mock('expo-secure-store', () => ({
   deleteItemAsync: jest.fn(),
 }));
 
-jest.mock('sonner-native', () => ({
+jest.mock('burnt', () => ({
   toast: {
     error: jest.fn(),
     success: jest.fn(),

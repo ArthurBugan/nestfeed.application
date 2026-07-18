@@ -4,8 +4,8 @@ env:
   TEST_PASSWORD: "teste1234"
 
 ---
-# E2E Test: Dark Mode Toggle
-# Tests the dark mode appearance toggle
+# E2E Test: Billing Screen
+# Tests the billing/subscription screen
 - launchApp:
     clearState: true
 
@@ -29,37 +29,27 @@ env:
 - assertVisible:
     text: "Settings"
 
-# Navigate to Appearance
+# Navigate to Billing
 - tapOn:
-    text: "Appearance"
+    text: "Billing"
 - assertVisible:
-    text: "Appearance"
+    text: "Billing"
 
-# Verify theme options are visible
+# Verify billing content
 - assertVisible:
-    text: "Theme"
+    text: "Current Plan"
 - assertVisible:
-    text: "System"
+    text: "Free Plan"
 - assertVisible:
-    text: "Light"
-- assertVisible:
-    text: "Dark"
+    text: "Basic features included"
 
-# Verify display options
+# Verify plans section
 - assertVisible:
-    text: "Display"
-- assertVisible:
-    text: "Font Size"
-- assertVisible:
-    text: "Language"
+    text: "Plans"
 
-# Verify accessibility options
+# Verify restore purchases option
 - assertVisible:
-    text: "Accessibility"
-- assertVisible:
-    text: "Animations"
-- assertVisible:
-    text: "Reduce Motion"
+    text: "Restore Purchases"
 
 # Navigate back to settings
 - swipe:

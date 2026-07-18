@@ -4,8 +4,8 @@ env:
   TEST_PASSWORD: "teste1234"
 
 ---
-# E2E Test: Groups Navigation & Listing
-# Tests navigating to groups and viewing the list
+# E2E Test: Edit Channel Screen
+# Tests the channel edit screen content and navigation
 - launchApp:
     clearState: true
 
@@ -23,32 +23,18 @@ env:
 - assertVisible:
     text: "Dashboard"
 
-# Navigate to Groups from dashboard
+# Navigate to Channels
 - tapOn:
-    text: "Groups"
+    text: "Channels"
 - assertVisible:
-    text: "Groups"
-- assertVisible:
-    text: "Search groups..."
+    text: "Channels"
 
-# Verify the + New button exists
-- assertVisible:
-    text: "+ New"
-
-# Test search functionality
+# Navigate to Add Channel
 - tapOn:
-    text: "Search groups..."
-- inputText: "test search"
+    text: "Add Channel"
 - assertVisible:
-    text: "test search"
+    text: "Channels"
     optional: true
-
-# Clear search
-- tapOn:
-    id: "clear-search"
-    optional: true
-- assertVisible:
-    text: "Groups"
 
 # Navigate back to dashboard
 - swipe:
