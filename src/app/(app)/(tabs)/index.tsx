@@ -1,8 +1,12 @@
-import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, RefreshControl } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useDashboard } from '@/hooks';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { IconifyIcon } from '@/components/ui/IconifyIcon';
+import { IconifyIcon } from '@/components/IconifyIcon';
+import { useState, useCallback } from 'react';
+import { getThemeColor } from '@/theme/themeColors';
+import { useTheme } from '@/theme/ThemeProvider';
+import * as Haptics from 'expo-haptics';
 
 const shortcuts = [
   { label: 'Groups', count: 'groups', route: '/groups', icon: 'lucide:folder', gradient: 'from-rose-400/80 to-pink-500/80' },
@@ -25,6 +29,14 @@ export default function DashboardHomeScreen() {
   const router = useRouter();
   const { data: dashboard, isLoading } = useDashboard();
   const insets = useSafeAreaInsets();
+  const { isDark } = useTheme();
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const handleRefresh = useCallback(async () => {
+    Haptics.selectionAsync();
+    setIsRefreshing(true);
+    setTimeout(() => setIsRefreshing(false), 1000);
+  }, []);
 
   const getCount = (key: string | null) => {
     if (!key) return '';
@@ -34,59 +46,67 @@ export default function DashboardHomeScreen() {
 
   return (
     <ScrollView
-      style={{
-        paddingTop: insets.top,
-        paddingLeft: insets.left,
-        paddingRight: insets.right,
-        paddingBottom: insets.bottom,
-      }}
-      className="flex-1 bg-background"
+      contentContainerStyle={{ flexGrow: 1 }}
+      className="bg-background"
       showsVerticalScrollIndicator={false}
+      refreshControl={
+        <RefreshControl 
+          refreshing={isRefreshing} 
+          onRefresh={handleRefresh}
+          tintColor={getThemeColor('accent', isDark)}
+          colors={[getThemeColor('accent', isDark)]}
+        />
+      }
     >
-      <View className="px-4 pb-6">
-        <Text className="text-3xl font-bold text-foreground">Dashboard</Text>
-        <Text className="text-sm text-muted mt-1">Your content at a glance</Text>
-      </View>
-
-      {/* Shortcut cards */}
-      <View className="px-4 pb-6">
-        <View className="flex-row flex-wrap justify-between">
-          {shortcuts.map((s) => (
-            <TouchableOpacity
-              key={s.label}
-              className={`w-[48%] rounded-2xl p-4 bg-gradient-to-br ${s.gradient} mb-3`}
-              onPress={() => router.push(s.route)}
-            >
-              <IconifyIcon name={s.icon} size={22} color="rgba(255,255,255,0.85)" />
-              {s.count ? (
-                <>
-                  <Text className="text-2xl font-bold text-white mt-3">{getCount(s.count)}</Text>
-                  <Text className="text-sm text-white/70 mt-0.5">{s.label}</Text>
-                </>
-              ) : (
-                <Text className="text-base font-semibold text-white mt-3">{s.label}</Text>
-              )}
-            </TouchableOpacity>
-          ))}
+      <View style={{ paddingLeft: insets.left, paddingRight: insets.right, paddingBottom: 32 }}>
+        {/* Header */}
+        <View className="px-5 pt-4 pb-6">
+          <Text className="text-3xl font-bold text-foreground">Dashboard</Text>
+          <Text className="text-base text-muted mt-1">Your content at a glance</Text>
         </View>
-      </View>
 
-      {/* Quick actions */}
-      <View className="px-4">
-        <Text className="text-sm font-semibold text-muted uppercase tracking-wider mb-3">
-          Quick Actions
-        </Text>
-        <View className="flex-row flex-wrap gap-2">
-          {actions.map((a) => (
-            <TouchableOpacity
-              key={a.label}
-              className="flex-row items-center gap-2 bg-surface border border-border rounded-xl px-4 py-3"
-              onPress={() => router.push(a.route)}
-            >
-              <IconifyIcon name={a.icon} size={18} color="rgba(255,255,255,0.85)" />
-              <Text className="text-sm font-semibold text-foreground">{a.label}</Text>
-            </TouchableOpacity>
-          ))}
+        {/* Shortcut cards */}
+        <View className="px-5 pb-8">
+          <View className="flex-row flex-wrap justify-between">
+            {shortcuts.map((s) => (
+              <TouchableOpacity
+                key={s.label}
+                className={`w-[48%] rounded-2xl p-4 bg-gradient-to-br ${s.gradient} mb-3`}
+                onPress={() => { Haptics.selectionAsync(); router.push(s.route); }}
+                activeOpacity={0.7}
+              >
+                <IconifyIcon name={s.icon} size={22} color="rgba(255,255,255,0.85)" />
+                {s.count ? (
+                  <>
+                    <Text className="text-2xl font-bold text-white mt-3">{getCount(s.count)}</Text>
+                    <Text className="text-sm text-white/70 mt-0.5">{s.label}</Text>
+                  </>
+                ) : (
+                  <Text className="text-base font-semibold text-white mt-3">{s.label}</Text>
+                )}
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+
+        {/* Quick actions */}
+        <View className="px-5">
+          <Text className="text-sm font-semibold text-muted uppercase tracking-wider mb-3">
+            Quick Actions
+          </Text>
+          <View className="flex-row flex-wrap gap-2">
+            {actions.map((a) => (
+              <TouchableOpacity
+                key={a.label}
+                className="flex-row items-center gap-2 bg-surface border border-border rounded-xl px-4 py-3"
+                onPress={() => { Haptics.selectionAsync(); router.push(a.route); }}
+                activeOpacity={0.7}
+              >
+                <IconifyIcon name={a.icon} size={18} color={getThemeColor('accent', isDark)} />
+                <Text className="text-sm font-medium text-foreground">{a.label}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
         </View>
       </View>
     </ScrollView>

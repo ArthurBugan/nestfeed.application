@@ -5,6 +5,7 @@ import type { PaginatedResponse, Group } from '@/types';
 
 export function useGroupsInfinite(options: { page?: number; search?: string; limit?: number } = {}) {
   const [search, setSearch] = useState(options.search ?? '');
+  const [isActive, setIsActive] = useState(false);
 
   const query = useInfiniteQuery<PaginatedResponse<Group>>({
     queryKey: ['groups', search],
@@ -17,6 +18,7 @@ export function useGroupsInfinite(options: { page?: number; search?: string; lim
       ? lastPage.pagination.page + 1 
       : undefined,
     initialPageParam: 1,
+    enabled: isActive,
   });
 
   const groups = useMemo(() => 
@@ -38,5 +40,6 @@ export function useGroupsInfinite(options: { page?: number; search?: string; lim
     search,
     setSearch,
     refetch: query.refetch,
+    setIsActive,
   };
 }

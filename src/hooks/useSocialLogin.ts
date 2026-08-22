@@ -111,7 +111,14 @@ export function useHandleOAuthCallback() {
 
   const handleCallback = useCallback(async (url: string) => {
     try {
-      const token = url;
+      // Extract token from URL (e.g., nestfeed://oauth?provider=google&token=xxx)
+      let token: string | null = null;
+
+      // Try to parse token from URL query parameters
+      if (url.includes('token=')) {
+        const urlObj = new URL(url);
+        token = urlObj.searchParams.get('token');
+      }
 
       if (token) {
         await storage.setToken(token);

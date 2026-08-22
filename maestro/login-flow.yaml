@@ -1,0 +1,62 @@
+appId: com.groupifyapp
+env:
+  TEST_EMAIL: "demo@demo.com"
+  TEST_PASSWORD: "teste1234"
+
+---
+# E2E Test: User Login Flow
+# Tests the complete login process with valid credentials
+- launchApp:
+    clearState: true
+
+# Verify initial screen
+- assertVisible:
+    text: "Welcome Back"
+- assertVisible:
+    text: "Welcome to Nestfeed"
+
+# Fill in login credentials
+- tapOn:
+    text: "Email"
+- inputText: "${TEST_EMAIL}"
+- assertVisible:
+    text: "demo@demo.com"
+- tapOn:
+    text: "Password"
+- inputText: "${TEST_PASSWORD}"
+
+# Submit login
+- tapOn: "Sign In"
+- assertVisible:
+    text: "Signing in..."
+- waitForAnimationToEnd
+
+# After login, should see the dashboard
+- assertVisible:
+    text: "Dashboard"
+- assertVisible:
+    text: "Your content at a glance"
+
+# Verify dashboard shortcuts are visible
+- assertVisible:
+    text: "Groups"
+- assertVisible:
+    text: "Channels"
+- assertVisible:
+    text: "Animes"
+- assertVisible:
+    text: "Websites"
+- assertVisible:
+    text: "Group Shelf"
+- assertVisible:
+    text: "Share Links"
+
+# Verify quick actions are visible
+- assertVisible:
+    text: "New Group"
+- assertVisible:
+    text: "Add Channel"
+- assertVisible:
+    text: "Settings"
+- assertVisible:
+    text: "Blog"

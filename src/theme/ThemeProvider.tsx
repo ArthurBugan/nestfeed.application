@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { useColorScheme } from 'react-native';
+import { Appearance } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAppStore } from '../stores';
 
@@ -16,32 +16,34 @@ interface ThemeContextValue {
 const ThemeContext = createContext<ThemeContextValue | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const systemColorScheme = useColorScheme();
+  const systemColorScheme = Appearance.getColorScheme();
   const { isDarkMode, setDarkMode } = useAppStore();
   const [theme, setThemeState] = useState<ThemeMode>('system');
-  const [isLoaded, setIsLoaded] = useState(false);
 
-  // Load saved theme on mount
+  // Load saved theme on mount (non-blocking)
   useEffect(() => {
-    async function loadTheme() {
-      try {
-        const saved = await AsyncStorage.getItem(THEME_KEY);
-        if (saved === 'light' || saved === 'dark' || saved === 'system') {
-          setThemeState(saved);
-        }
-      } catch (error) {
-        console.error('Failed to load theme:', error);
-      } finally {
-        setIsLoaded(true);
+    AsyncStorage.getItem(THEME_KEY).then((saved) => {
+      if (saved === 'light' || saved === 'dark' || saved === 'system') {
+        setThemeState(saved);
       }
-    }
-    loadTheme();
+    }).catch((error) => {
+      console.error('Failed to load theme:', error);
+    });
+  }, []);
+
+  // Subscribe to system theme changes
+  useEffect(() => {
+    const sub = Appearance.addChangeListener((pref) => {
+    });
+    return () => sub.remove();
   }, []);
 
   // Determine if dark mode is active
+  const resolvedSystemScheme = systemColorScheme ?? 'light';
   const isDark = theme === 'system' 
-    ? systemColorScheme === 'dark'
+    ? resolvedSystemScheme === 'dark'
     : theme === 'dark';
+
 
   // Sync with app store
   useEffect(() => {
@@ -59,10 +61,6 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
       console.error('Failed to save theme:', error);
     }
   };
-
-  if (!isLoaded) {
-    return null;
-  }
 
   return (
     <ThemeContext.Provider value={{ theme, isDark, setTheme }}>

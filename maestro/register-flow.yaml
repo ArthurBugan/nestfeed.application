@@ -1,0 +1,58 @@
+appId: com.groupifyapp
+env:
+  TEST_EMAIL: "demo@demo.com"
+  TEST_PASSWORD: "teste1234"
+  TEST_NAME: "Test User"
+
+---
+# E2E Test: User Registration Flow
+# Tests the complete registration process from start to finish
+- launchApp:
+    clearState: true
+
+# Verify initial screen
+- assertVisible:
+    text: "Create Account"
+- assertVisible:
+    text: "Join us today"
+
+# Fill in registration form
+- tapOn:
+    text: "Name"
+- inputText: "${TEST_NAME}"
+- assertVisible:
+    text: "Test User"
+- tapOn:
+    text: "Email"
+- inputText: "${TEST_EMAIL}"
+- tapOn:
+    text: "Password"
+- inputText: "${TEST_PASSWORD}"
+
+# Verify social login options are visible
+- assertVisible:
+    text: "or continue with"
+- assertVisible:
+    text: "Sign up with Google"
+- assertVisible:
+    text: "Sign up with Discord"
+
+# Submit registration (will fail without backend, but tests UI flow)
+- tapOn: "Sign Up"
+- assertVisible:
+    text: "Creating account..."
+- waitForAnimationToEnd
+
+# Navigate to login
+- tapOn:
+    text: "Already have an account?"
+- assertVisible:
+    text: "Welcome Back"
+
+# Verify sign in link on login page
+- assertVisible:
+    text: "Don't have an account?"
+- tapOn:
+    text: "Sign Up"
+- assertVisible:
+    text: "Create Account"

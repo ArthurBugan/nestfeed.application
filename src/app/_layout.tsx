@@ -3,6 +3,9 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Slot } from 'expo-router';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useEffect, useRef } from 'react';
+import { useFonts } from 'expo-font';
+import * as SplashScreen from 'expo-splash-screen';
+import { Inter_400Regular, Inter_500Medium, Inter_600SemiBold, Inter_700Bold } from '@expo-google-fonts/inter';
 import * as Linking from 'expo-linking';
 import { router } from 'expo-router';
 import { ThemeProvider, useTheme } from '@/theme/ThemeProvider';
@@ -10,9 +13,8 @@ import { Uniwind } from 'uniwind';
 import { useHandleOAuthCallback } from '@/hooks';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Host } from 'react-native-portalize';
-import AdMobManager from '@/components/ui/Admob';
+import AdMobManager from '@/components/Admob';
 import * as Sentry from "@sentry/react-native";
-import { Toaster } from 'sonner-native';
 import { HeroUINativeProvider } from 'heroui-native';
 
 Sentry.init({
@@ -84,6 +86,7 @@ function AppContentWithTheme() {
   const { isDark } = useTheme();
 
   useEffect(() => {
+    console.log('[AppContentWithTheme] isDark:', isDark, '-> Uniwind.setTheme:', isDark ? 'dark' : 'light');
     Uniwind.setTheme(isDark ? 'dark' : 'light');
   }, [isDark]);
 
@@ -91,6 +94,21 @@ function AppContentWithTheme() {
 }
 
 function RootLayout() {
+  const [fontsLoaded] = useFonts({
+    'Inter-Regular': Inter_400Regular,
+    'Inter-Medium': Inter_500Medium,
+    'Inter-SemiBold': Inter_600SemiBold,
+    'Inter-Bold': Inter_700Bold,
+  });
+
+  useEffect(() => {
+    if (fontsLoaded) {
+      SplashScreen.hideAsync();
+    }
+  }, [fontsLoaded]);
+
+  if (!fontsLoaded) return null;
+
   return (
     <SafeAreaProvider>
       <ThemeProvider>
@@ -100,7 +118,6 @@ function RootLayout() {
               <QueryClientProvider client={queryClient}>
                 <AppContentWithTheme />
                 <AdMobManager style={{ marginTop: 10 }} />
-                <Toaster />
               </QueryClientProvider>
             </HeroUINativeProvider>
           </Host>

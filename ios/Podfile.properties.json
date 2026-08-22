@@ -2,10 +2,10 @@
   "expo.jsEngine": "hermes",
   "EX_DEV_CLIENT_NETWORK_INSPECTOR": "true",
   "expo.inlineModules.watchedDirectories": "[]",
+  "expo.inlineModules.xcodeProjectTargets": "{\"mainTarget\":\"Nestfeed\",\"targets\":[]}",
   "ios.deploymentTarget": "26.1",
   "ios.useFrameworks": "static",
   "ios.forceStaticLinking": "[]",
   "apple.privacyManifestAggregationEnabled": "true",
-  "EXPO_USE_PRECOMPILED_MODULES": "false",
-  "expo-image.disable-libdav1d": "false"
+  "EXPO_USE_PRECOMPILED_MODULES": "true"
 }

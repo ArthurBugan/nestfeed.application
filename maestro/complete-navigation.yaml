@@ -1,0 +1,161 @@
+appId: com.groupifyapp
+env:
+  TEST_EMAIL: "demo@demo.com"
+  TEST_PASSWORD: "teste1234"
+
+---
+# E2E Test: Complete App Navigation Flow
+# Tests the complete navigation flow through all main sections
+- launchApp:
+    clearState: true
+
+# Login
+- assertVisible:
+    text: "Welcome Back"
+- tapOn:
+    text: "Email"
+- inputText: "${TEST_EMAIL}"
+- tapOn:
+    text: "Password"
+- inputText: "${TEST_PASSWORD}"
+- tapOn: "Sign In"
+- waitForAnimationToEnd
+- assertVisible:
+    text: "Dashboard"
+
+# Navigate to Groups
+- tapOn:
+    text: "Groups"
+- assertVisible:
+    text: "Groups"
+- assertVisible:
+    text: "Search groups..."
+- swipe:
+    direction: "down"
+    speed: "fast"
+- assertVisible:
+    text: "Dashboard"
+
+# Navigate to Channels
+- tapOn:
+    text: "Channels"
+- assertVisible:
+    text: "Channels"
+- assertVisible:
+    text: "Search channels..."
+- swipe:
+    direction: "down"
+    speed: "fast"
+- assertVisible:
+    text: "Dashboard"
+
+# Navigate to Animes
+- tapOn:
+    text: "Animes"
+- assertVisible:
+    text: "Animes"
+- swipe:
+    direction: "down"
+    speed: "fast"
+- assertVisible:
+    text: "Dashboard"
+
+# Navigate to Websites
+- tapOn:
+    text: "Websites"
+- assertVisible:
+    text: "Websites"
+- assertVisible:
+    text: "Search websites..."
+- swipe:
+    direction: "down"
+    speed: "fast"
+- assertVisible:
+    text: "Dashboard"
+
+# Navigate to Group Shelf
+- tapOn:
+    text: "Group Shelf"
+- assertVisible:
+    text: "Group Shelf"
+- assertVisible:
+    text: "Search shelves..."
+- swipe:
+    direction: "down"
+    speed: "fast"
+- assertVisible:
+    text: "Dashboard"
+
+# Navigate to Share Links
+- tapOn:
+    text: "Share Links"
+- assertVisible:
+    text: "Share Links"
+- swipe:
+    direction: "down"
+    speed: "fast"
+- assertVisible:
+    text: "Dashboard"
+
+# Navigate to Blog
+- tapOn:
+    text: "Blog"
+- assertVisible:
+    text: "Blog"
+- assertVisible:
+    text: "Blog Posts"
+- swipe:
+    direction: "down"
+    speed: "fast"
+- assertVisible:
+    text: "Dashboard"
+
+# Navigate to Settings
+- tapOn:
+    text: "Settings"
+- assertVisible:
+    text: "Settings"
+- swipe:
+    direction: "down"
+    speed: "fast"
+- assertVisible:
+    text: "Dashboard"
+
+# Navigate to New Group
+- tapOn:
+    text: "New Group"
+- assertVisible:
+    text: "New Group"
+- swipe:
+    direction: "down"
+    speed: "fast"
+- assertVisible:
+    text: "Dashboard"
+
+# Navigate to Add Channel
+- tapOn:
+    text: "Add Channel"
+- assertVisible:
+    text: "Channels"
+- swipe:
+    direction: "down"
+    speed: "fast"
+- assertVisible:
+    text: "Dashboard"
+
+# Navigate to Add Anime
+- tapOn:
+    text: "Add Anime"
+- assertVisible:
+    text: "Animes"
+- swipe:
+    direction: "down"
+    speed: "fast"
+- assertVisible:
+    text: "Dashboard"
+
+# Verify we can navigate back to all sections from dashboard
+- assertVisible:
+    text: "Dashboard"
+- assertVisible:
+    text: "Your content at a glance"

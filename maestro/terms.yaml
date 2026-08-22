@@ -1,0 +1,64 @@
+appId: com.groupifyapp
+env:
+  TEST_EMAIL: "demo@demo.com"
+  TEST_PASSWORD: "teste1234"
+
+---
+# E2E Test: Terms of Service Screen
+# Tests the terms of service screen content and navigation
+- launchApp:
+    clearState: true
+
+# Login first
+- assertVisible:
+    text: "Welcome Back"
+- tapOn:
+    text: "Email"
+- inputText: "${TEST_EMAIL}"
+- tapOn:
+    text: "Password"
+- inputText: "${TEST_PASSWORD}"
+- tapOn: "Sign In"
+- waitForAnimationToEnd
+- assertVisible:
+    text: "Dashboard"
+
+# Navigate to Settings
+- tapOn:
+    text: "Settings"
+- assertVisible:
+    text: "Settings"
+
+# Navigate to Terms & Privacy
+- tapOn:
+    text: "Terms & Privacy"
+- assertVisible:
+    text: "Terms of Service"
+
+# Verify terms content sections
+- assertVisible:
+    text: "Last updated: May 2025"
+- assertVisible:
+    text: "Acceptance of Terms"
+- assertVisible:
+    text: "User Responsibilities"
+- assertVisible:
+    text: "Privacy"
+- assertVisible:
+    text: "Prohibited Activities"
+- assertVisible:
+    text: "Termination"
+
+# Navigate back to settings
+- swipe:
+    direction: "down"
+    speed: "fast"
+- assertVisible:
+    text: "Settings"
+
+# Navigate back to dashboard
+- swipe:
+    direction: "down"
+    speed: "fast"
+- assertVisible:
+    text: "Dashboard"

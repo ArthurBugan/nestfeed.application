@@ -11,7 +11,8 @@
       "appleTeamId": "UM6SZWPURL",
       "usesAppleSignIn": true,
       "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false
+        "ITSAppUsesNonExemptEncryption": false,
+        "GADDelayAppMeasurementInit": true
       },
       "supportsTablet": true
     },
@@ -20,7 +21,23 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/android-icon-background.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "autoVerify": true,
+          "data": [
+            {
+              "scheme": "https",
+              "host": "nestfeed.app"
+            }
+          ],
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
+        }
+      ]
     },
     "plugins": [
       "expo-router",
@@ -34,7 +51,8 @@
           "android": {
             "compileSdkVersion": 36,
             "targetSdkVersion": 36,
-            "buildToolsVersion": "36.0.0"
+            "buildToolsVersion": "36.0.0",
+            "kotlinVersion": "2.3.0"
           },
           "ios": {
             "deploymentTarget": "26.1",
@@ -133,8 +151,14 @@
           "imageWidth": 200
         }
       ],
-      "react-native-enriched-markdown",
-      "expo-image"
+      [
+        "expo-iap",
+        {
+          "iapkitApiKey": "${process.env.EXPO_PUBLIC_IAPKIT_API_KEY}"
+        }
+      ],
+      "expo-tracking-transparency",
+      "expo-status-bar"
     ],
     "icon": "./assets/images/ios-icon-default.png",
     "web": {
@@ -149,6 +173,6 @@
       }
     },
     "owner": "arthurbugan",
-    "version": "1.12.0"
+    "version": "1.19.0"
   }
 }

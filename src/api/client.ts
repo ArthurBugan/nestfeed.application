@@ -1,6 +1,6 @@
 import axios, { AxiosInstance, AxiosError } from 'axios';
 import * as SecureStore from 'expo-secure-store';
-import { toast } from 'sonner-native';
+import { toast } from 'burnt';
 import storage from '@/services/storage';
 import type { ApiError } from '../types';
 import { router } from 'expo-router';
@@ -42,8 +42,10 @@ class ApiClient {
           await this.removeAuthToken();
           await storage.removeToken();
           router.replace('/login');
-          toast.error('Session expired', {
-            description: 'Please log in again',
+          toast({
+            title: 'Session expired',
+            message: 'Please log in again',
+            preset: 'error',
           });
         }
         return Promise.reject(error);

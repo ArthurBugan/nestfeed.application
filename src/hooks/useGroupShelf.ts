@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { groupShelfApi } from '@/api/endpoints/groupShelf';
 import type { UpdateGroupShelfRequest } from '@/api/endpoints/groupShelf';
-import { toast } from 'sonner-native';
+import { toast } from 'burnt';
 
 export const useGroupShelf = () => {
   return useQuery({
@@ -37,13 +37,17 @@ export const useCopyShelf = () => {
     mutationFn: (shelfId: string) => groupShelfApi.copy(shelfId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['groupShelves'] });
-      toast.success('Group shelf copied', {
-        description: 'The group shelf has been copied successfully.',
+      toast({
+        title: 'Group shelf copied',
+        message: 'The group shelf has been copied successfully.',
+        preset: 'done',
       });
     },
     onError: (error: Error) => {
-      toast.error('Failed to copy group shelf', {
-        description: error.message || 'Please try again later.',
+      toast({
+        title: 'Failed to copy group shelf',
+        message: error.message || 'Please try again later.',
+        preset: 'error',
       });
     },
   });

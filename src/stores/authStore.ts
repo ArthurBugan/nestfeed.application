@@ -51,10 +51,6 @@ checkAuth: async () => {
     set({ user, isAuthenticated: !!user });
   },
 
-  setAuthenticated: (value: boolean) => {
-    set({ isAuthenticated: value });
-  },
-
   setOAuthLoading: (value: boolean) => {
     set({ isOAuthLoading: value });
   },

@@ -1,0 +1,44 @@
+appId: com.groupifyapp
+env:
+  TEST_EMAIL: "demo@demo.com"
+  TEST_PASSWORD: "teste1234"
+
+---
+# E2E Test: Edit Channel Screen
+# Tests the channel edit screen content and navigation
+- launchApp:
+    clearState: true
+
+# Login first
+- assertVisible:
+    text: "Welcome Back"
+- tapOn:
+    text: "Email"
+- inputText: "${TEST_EMAIL}"
+- tapOn:
+    text: "Password"
+- inputText: "${TEST_PASSWORD}"
+- tapOn: "Sign In"
+- waitForAnimationToEnd
+- assertVisible:
+    text: "Dashboard"
+
+# Navigate to Channels
+- tapOn:
+    text: "Channels"
+- assertVisible:
+    text: "Channels"
+
+# Navigate to Add Channel
+- tapOn:
+    text: "Add Channel"
+- assertVisible:
+    text: "Channels"
+    optional: true
+
+# Navigate back to dashboard
+- swipe:
+    direction: "down"
+    speed: "fast"
+- assertVisible:
+    text: "Dashboard"

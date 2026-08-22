@@ -11,6 +11,9 @@ expo-env.d.ts
 .skills
 screenshots
 
+docs/**
+graphify-out/**
+
 # Native
 *.orig.*
 *.jks

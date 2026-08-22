@@ -1,0 +1,72 @@
+appId: com.groupifyapp
+env:
+  TEST_EMAIL: "demo@demo.com"
+  TEST_PASSWORD: "teste1234"
+
+---
+# E2E Test: Support Screen
+# Tests the support/help screen content and navigation
+- launchApp:
+    clearState: true
+
+# Login first
+- assertVisible:
+    text: "Welcome Back"
+- tapOn:
+    text: "Email"
+- inputText: "${TEST_EMAIL}"
+- tapOn:
+    text: "Password"
+- inputText: "${TEST_PASSWORD}"
+- tapOn: "Sign In"
+- waitForAnimationToEnd
+- assertVisible:
+    text: "Dashboard"
+
+# Navigate to Settings
+- tapOn:
+    text: "Settings"
+- assertVisible:
+    text: "Settings"
+
+# Navigate to Help & Support
+- tapOn:
+    text: "Help & Support"
+- assertVisible:
+    text: "Support"
+
+# Verify support content
+- assertVisible:
+    text: "How can we help?"
+- assertVisible:
+    text: "We're here to help. Reach out"
+
+# Verify contact options
+- assertVisible:
+    text: "Email Us"
+- assertVisible:
+    text: "support@nestfeed.app"
+- assertVisible:
+    text: "FAQ"
+- assertVisible:
+    text: "Common questions and answers"
+
+# Verify response time info
+- assertVisible:
+    text: "Response Time"
+- assertVisible:
+    text: "24-48 hours"
+
+# Navigate back to settings
+- swipe:
+    direction: "down"
+    speed: "fast"
+- assertVisible:
+    text: "Settings"
+
+# Navigate back to dashboard
+- swipe:
+    direction: "down"
+    speed: "fast"
+- assertVisible:
+    text: "Dashboard"

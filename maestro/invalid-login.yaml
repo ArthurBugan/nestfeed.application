@@ -1,0 +1,58 @@
+appId: com.groupifyapp
+
+---
+# E2E Test: Invalid Login Credentials
+# Tests error handling when login fails with wrong credentials
+- launchApp:
+    clearState: true
+
+# Verify initial screen
+- assertVisible:
+    text: "Welcome Back"
+
+# Enter invalid credentials
+- tapOn:
+    text: "Email"
+- inputText: "invalid@example.com"
+- tapOn:
+    text: "Password"
+- inputText: "wrongpassword"
+
+# Submit login
+- tapOn: "Sign In"
+- assertVisible:
+    text: "Signing in..."
+- waitForAnimationToEnd
+
+# Should show error message
+- assertVisible:
+    text: "Login Failed"
+- assertVisible:
+    text: "Invalid email or password"
+
+# Dismiss error
+- tapOn: "OK"
+
+# Verify we're back on login screen
+- assertVisible:
+    text: "Welcome Back"
+
+# Try with empty fields - should show validation error
+- tapOn: "Sign In"
+- assertVisible:
+    text: "Please fill in all fields"
+
+# Dismiss error
+- tapOn: "OK"
+
+# Verify we're back on login screen
+- assertVisible:
+    text: "Welcome Back"
+
+# Verify social login buttons are still visible
+- assertVisible:
+    text: "or continue with"
+- assertVisible:
+    text: "Sign in with Google"
+- assertVisible:
+    text: "Sign in with Discord"

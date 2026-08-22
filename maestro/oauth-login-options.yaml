@@ -1,0 +1,49 @@
+appId: com.groupifyapp
+
+---
+# E2E Test: OAuth Login Options
+# Tests the OAuth login buttons visibility and interaction
+- launchApp:
+    clearState: true
+
+# Verify initial screen
+- assertVisible:
+    text: "Welcome Back"
+- assertVisible:
+    text: "Welcome to Nestfeed"
+
+# Verify OAuth buttons are visible
+- assertVisible:
+    text: "Sign in with Google"
+- assertVisible:
+    text: "Sign in with Discord"
+- assertVisible:
+    text: "Sign in with Apple"
+
+# Verify divider text
+- assertVisible:
+    text: "or continue with"
+
+# Verify email/password form is visible
+- assertVisible:
+    text: "Email"
+- assertVisible:
+    text: "Password"
+
+# Verify forgot password link
+- assertVisible:
+    text: "Forgot Password?"
+
+# Verify sign up link
+- assertVisible:
+    text: "Don't have an account?"
+- tapOn:
+    text: "Sign Up"
+- assertVisible:
+    text: "Create Account"
+
+# Navigate back to login
+- tapOn:
+    text: "Already have an account?"
+- assertVisible:
+    text: "Welcome Back"

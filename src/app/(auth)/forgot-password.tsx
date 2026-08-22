@@ -1,11 +1,13 @@
 import { useState } from 'react';
-import { View, Text, TouchableOpacity, Alert, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
-import { Input as TextInput } from 'heroui-native';
+import { View, Text, TouchableOpacity, Alert, KeyboardAvoidingView, Platform, ScrollView, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useForgotPassword } from '@/hooks';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { IconifyIcon } from '@/components/ui/IconifyIcon';
+import { IconifyIcon } from '@/components/IconifyIcon';
+import { Input } from 'heroui-native';
+import { getThemeColor } from '@/theme/themeColors';
+import * as Haptics from 'expo-haptics';
 
 export default function ForgotPasswordScreen() {
   const router = useRouter();
@@ -15,6 +17,7 @@ export default function ForgotPasswordScreen() {
   const forgotPassword = useForgotPassword();
 
   const handleSubmit = async () => {
+    Haptics.selectionAsync();
     if (!email) {
       Alert.alert('Error', 'Please enter your email');
       return;
@@ -39,51 +42,62 @@ export default function ForgotPasswordScreen() {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <ScrollView 
-        contentContainerClassName="flex-grow p-6" 
+        contentContainerClassName="flex-grow"
         keyboardShouldPersistTaps="handled"
-        style={{ paddingTop: insets.top + 16 }}
+        showsVerticalScrollIndicator={false}
       >
-        <View className="flex-row items-center mb-8">
-          <TouchableOpacity onPress={() => router.back()} className="mr-3 p-2 -ml-2">
-            <IconifyIcon name="lucide:arrow-left" size={24} className="text-foreground" />
+        <View style={{ paddingTop: Math.max(insets.top, 24), paddingHorizontal: 24 }}>
+          {/* Back button */}
+          <TouchableOpacity 
+            onPress={() => { Haptics.selectionAsync(); router.back(); }}
+            className="w-10 h-10 rounded-full items-center justify-center mb-8"
+            style={{ backgroundColor: getThemeColor('surface', isDark) }}
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          >
+            <IconifyIcon name="lucide:arrow-left" size={20} color={getThemeColor('foreground', isDark)} />
           </TouchableOpacity>
-          <Text className="text-2xl font-bold text-foreground">Reset Password</Text>
-        </View>
 
-        <View className="flex-1">
-          <Text className="text-base text-muted mb-8">
-            Enter your email to receive reset instructions
-          </Text>
+          {/* Header */}
+          <View className="mb-10">
+            <Text className="text-3xl font-bold text-foreground mb-2">Reset Password</Text>
+            <Text className="text-base text-muted">Enter your email to receive reset instructions</Text>
+          </View>
 
-          <View className="gap-4">
-            <TextInput
+          {/* Form */}
+          <View className="gap-4 mb-8">
+            <Input
               placeholder="Email"
               value={email}
               onChangeText={setEmail}
               keyboardType="email-address"
               autoCapitalize="none"
-              placeholderTextColor={isDark ? '#94a3b8' : '#9CA3AF'}
+              autoCorrect={false}
+              returnKeyType="done"
+              onSubmitEditing={handleSubmit}
+              placeholderTextColor={getThemeColor('field-placeholder', isDark)}
             />
 
             <TouchableOpacity
-              className="bg-accent rounded-xl p-4 items-center mt-2"
+              className="bg-accent rounded-xl p-4 items-center"
               onPress={handleSubmit}
               disabled={forgotPassword.isPending}
+              activeOpacity={0.7}
             >
               <Text className="text-accent-foreground text-base font-semibold">
                 {forgotPassword.isPending ? 'Sending...' : 'Send Reset Link'}
               </Text>
             </TouchableOpacity>
           </View>
-        </View>
 
-        <View className="flex-row justify-center mt-8 pb-8">
-          <TouchableOpacity onPress={() => router.push('/(auth)/login')}>
-            <View className="flex-row items-center gap-2">
-              <IconifyIcon name="lucide:chevron-left" size={16} className="text-accent" />
-              <Text className="text-accent text-sm font-medium">Back to Sign In</Text>
-            </View>
-          </TouchableOpacity>
+          {/* Back to login */}
+          <View className="items-center pb-8">
+            <TouchableOpacity onPress={() => { Haptics.selectionAsync(); router.push('/(auth)/login'); }}>
+              <View className="flex-row items-center gap-2">
+                <IconifyIcon name="lucide:chevron-left" size={16} color={getThemeColor('accent', isDark)} />
+                <Text className="text-accent text-sm font-medium">Back to Sign In</Text>
+              </View>
+            </TouchableOpacity>
+          </View>
         </View>
       </ScrollView>
     </KeyboardAvoidingView>

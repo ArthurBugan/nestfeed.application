@@ -7,3 +7,4 @@ export { shareLinksApi } from './shareLinks';
 export { blogApi } from './blog';
 export { dashboardApi } from './dashboard';
 export { groupShelfApi } from './groupShelf';
+export { paymentsApi } from './payments';

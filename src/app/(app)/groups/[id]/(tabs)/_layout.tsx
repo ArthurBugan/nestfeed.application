@@ -1,12 +1,13 @@
 import { Tabs } from 'expo-router';
-import { useColorScheme, Platform } from 'react-native';
-import { IconifyIcon } from '@/components/ui/IconifyIcon';
+import { IconifyIcon } from '@/components/IconifyIcon';
+import { getThemeColor } from '@/theme/themeColors';
+import { useTheme } from '@/theme/ThemeProvider';
 
 export default function GroupDetailTabs() {
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === 'dark';
-  const activeColor = isDark ? '#39d08a' : '#39d08a';
-  const inactiveColor = isDark ? '#94a3b8' : '#9CA3AF';
+  const { isDark } = useTheme();
+  console.log('[GroupDetailTabs] useTheme isDark:', isDark);
+  const activeColor = getThemeColor('accent', isDark);
+  const inactiveColor = getThemeColor('muted', isDark);
 
   return (
     <Tabs
@@ -14,15 +15,21 @@ export default function GroupDetailTabs() {
         tabBarActiveTintColor: activeColor,
         tabBarInactiveTintColor: inactiveColor,
         tabBarStyle: {
-          backgroundColor: isDark ? '#0a0a0a' : '#fafafa',
-          borderTopWidth: Platform.OS === 'ios' ? 0 : 1,
-          borderTopColor: isDark ? '#1e1e1e' : '#e5e7eb',
-          paddingTop: Platform.OS === 'ios' ? 8 : 4,
-          height: Platform.OS === 'ios' ? 88 : 60,
+          backgroundColor: isDark ? 'hsl(150 12% 5%)' : 'hsl(120 20% 98%)',
+          borderTopWidth: 0,
+          borderTopColor: 'transparent',
+          paddingTop: 8,
+          height: 88,
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: -2 },
+          shadowOpacity: 0.05,
+          shadowRadius: 10,
+          elevation: 0,
         },
         tabBarLabelStyle: {
           fontSize: 10,
           fontWeight: '500',
+          marginTop: 2,
         },
         headerShown: false,
       }}
@@ -34,7 +41,7 @@ export default function GroupDetailTabs() {
           tabBarIcon: ({ focused }) => (
             <IconifyIcon
               name="lucide:info"
-              size={24}
+              size={22}
               color={focused ? activeColor : inactiveColor}
             />
           ),
@@ -47,7 +54,7 @@ export default function GroupDetailTabs() {
           tabBarIcon: ({ focused }) => (
             <IconifyIcon
               name="lucide:folder-open"
-              size={24}
+              size={22}
               color={focused ? activeColor : inactiveColor}
             />
           ),
@@ -60,7 +67,7 @@ export default function GroupDetailTabs() {
           tabBarIcon: ({ focused }) => (
             <IconifyIcon
               name="lucide:settings"
-              size={24}
+              size={22}
               color={focused ? activeColor : inactiveColor}
             />
           ),

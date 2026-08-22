@@ -1,3 +1,13 @@
+/**
+ * @DEPRECATED — legacy hardcoded-hex palette.
+ *
+ * `theme/themeColors.ts` (HSL design tokens) is the single source of truth for
+ * app theming and is used by every screen via `getThemeColor`. This module is
+ * retained ONLY for backward compatibility with `__tests__/theme/theme.test.ts`
+ * and for static, theme-agnostic constants (`statusColors`, `categoryColors`,
+ * `shadows`, `borderRadius`). Do NOT add new app theming from here — use
+ * `themeColors` / `getThemeColor` instead.
+ */
 export const colors = {
   light: {
     background: '#fafafa',

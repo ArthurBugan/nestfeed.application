@@ -3,16 +3,17 @@ import { useInfiniteQuery } from '@tanstack/react-query';
 import { websitesApi } from '@/api/endpoints/websites';
 import type { PaginatedResponse, Website } from '@/types';
 
-export function useWebsitesInfinite({ limit = 20, page, search }: { limit?: number; page?: number; search?: string } = {}) {
+export function useWebsitesInfinite({ limit = 20, page, search, enabled = true }: { limit?: number; page?: number; search?: string; enabled?: boolean }) {
   const [searchText, setSearchText] = useState(search ?? '');
 
   const query = useInfiniteQuery<PaginatedResponse<Website>>({
     queryKey: ['websites', searchText],
-    queryFn: ({ pageParam = 1 }) => websitesApi.list({ page: page ?? pageParam, limit, ...(searchText ? { search: searchText } : {}) }),
+    queryFn: ({ pageParam = 1 }) => websitesApi.list({ page: pageParam ?? page, limit, ...(searchText ? { search: searchText } : {}) }),
     getNextPageParam: (lastPage) => lastPage?.pagination && lastPage.pagination.page < lastPage.pagination.totalPages 
       ? lastPage.pagination.page + 1 
       : undefined,
     initialPageParam: 1,
+    enabled,
   });
 
   return {

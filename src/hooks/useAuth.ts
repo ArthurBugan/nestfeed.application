@@ -22,9 +22,9 @@ export const useLogin = () => {
   return useMutation({
     mutationFn: (credentials: LoginCredentials) => authApi.login(credentials),
     onSuccess: async (data) => {
-      if (data) {
-        await apiClient.setAuthToken(data);
-        await storage.setToken(data);
+      if (data?.token) {
+        await apiClient.setAuthToken(data.token);
+        await storage.setToken(data.token);
         setAuthenticated(true);
       } else {
         console.log('No token in response');
@@ -55,5 +55,18 @@ export const useRegister = () => {
 export const useForgotPassword = () => {
   return useMutation({
     mutationFn: (data: ForgotPasswordRequest) => authApi.forgotPassword(data),
+  });
+};
+
+export const useDeleteAccount = () => {
+  const queryClient = useQueryClient();
+  const logout = useAuthStore((s) => s.logout);
+
+  return useMutation({
+    mutationFn: () => authApi.deleteAccount(),
+    onSuccess: async () => {
+      await logout();
+      queryClient.clear();
+    },
   });
 };

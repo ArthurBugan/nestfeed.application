@@ -15,53 +15,85 @@
 
     @variant light {
       --background: hsl(120 20% 98%);
+      --color-background: var(--background);
       --foreground: hsl(145 18% 12%);
+      --color-foreground: var(--foreground);
 
       --surface: hsl(0 0% 100%);
+      --color-surface: var(--surface);
       --surface-foreground: hsl(145 18% 12%);
+      --color-surface-foreground: var(--surface-foreground);
 
       --surface-secondary: hsl(140 18% 95%);
+      --color-surface-secondary: var(--surface-secondary);
       --surface-secondary-foreground: hsl(145 18% 14%);
+      --color-surface-secondary-foreground: var(--surface-secondary-foreground);
 
       --surface-tertiary: hsl(140 14% 91%);
+      --color-surface-tertiary: var(--surface-tertiary);
       --surface-tertiary-foreground: hsl(145 18% 14%);
+      --color-surface-tertiary-foreground: var(--surface-tertiary-foreground);
 
       --overlay: hsl(0 0% 100%);
+      --color-overlay: var(--overlay);
       --overlay-foreground: hsl(145 18% 14%);
+      --color-overlay-foreground: var(--overlay-foreground);
 
       --backdrop: hsl(0 0% 0% / 24%);
+      --color-backdrop: var(--backdrop);
 
       /* MAIN BRAND */
       --accent: hsl(158 72% 38%);
+      --color-accent: var(--accent);
       --accent-foreground: hsl(0 0% 100%);
+      --color-accent-foreground: var(--accent-foreground);
 
       --muted: hsl(145 8% 44%);
+      --color-muted: var(--muted);
 
       --default: hsl(140 18% 94%);
+      --color-default: var(--default);
       --default-foreground: hsl(145 24% 18%);
+      --color-default-foreground: var(--default-foreground);
 
       --field-background: hsl(0 0% 100%);
+      --color-field-background: var(--field-background);
       --field-foreground: var(--foreground);
+      --color-field-foreground: var(--field-foreground);
       --field-placeholder: hsl(145 8% 58%);
+      --color-field-placeholder: var(--field-placeholder);
       --field-border: hsl(140 10% 86%);
+      --color-field-border: var(--field-border);
 
       --success: hsl(155 68% 40%);
+      --color-success: var(--success);
       --success-foreground: hsl(0 0% 100%);
+      --color-success-foreground: var(--success-foreground);
 
       --warning: hsl(38 92% 52%);
+      --color-warning: var(--warning);
       --warning-foreground: hsl(0 0% 100%);
+      --color-warning-foreground: var(--warning-foreground);
 
       --danger: hsl(0 78% 56%);
+      --color-danger: var(--danger);
       --danger-foreground: hsl(0 0% 100%);
+      --color-danger-foreground: var(--danger-foreground);
 
       --border: hsl(140 12% 88%);
+      --color-border: var(--border);
       --separator: hsl(140 10% 90%);
+      --color-separator: var(--separator);
 
       --focus: hsl(158 72% 42%);
+      --color-focus: var(--focus);
       --link: hsl(160 72% 36%);
+      --color-link: var(--link);
 
       --segment: hsl(140 16% 96%);
+      --color-segment: var(--segment);
       --segment-foreground: var(--foreground);
+      --color-segment-foreground: var(--segment-foreground);
 
       --surface-shadow:
         0 1px 2px rgba(0,0,0,0.03),
@@ -80,53 +112,85 @@
 
     @variant dark {
       --background: hsl(150 12% 5%);
+      --color-background: var(--background);
       --foreground: hsl(140 16% 94%);
+      --color-foreground: var(--foreground);
 
       --surface: hsl(150 10% 8%);
+      --color-surface: var(--surface);
       --surface-foreground: hsl(140 16% 94%);
+      --color-surface-foreground: var(--surface-foreground);
 
       --surface-secondary: hsl(150 10% 12%);
+      --color-surface-secondary: var(--surface-secondary);
       --surface-secondary-foreground: hsl(140 16% 92%);
+      --color-surface-secondary-foreground: var(--surface-secondary-foreground);
 
       --surface-tertiary: hsl(150 10% 16%);
+      --color-surface-tertiary: var(--surface-tertiary);
       --surface-tertiary-foreground: hsl(140 16% 92%);
+      --color-surface-tertiary-foreground: var(--surface-tertiary-foreground);
 
       --overlay: hsl(150 10% 10%);
+      --color-overlay: var(--overlay);
       --overlay-foreground: hsl(140 16% 94%);
+      --color-overlay-foreground: var(--overlay-foreground);
 
       --backdrop: hsl(0 0% 0% / 72%);
+      --color-backdrop: var(--backdrop);
 
       /* PREMIUM GREEN */
       --accent: hsl(158 78% 48%);
+      --color-accent: var(--accent);
       --accent-foreground: hsl(155 24% 8%);
+      --color-accent-foreground: var(--accent-foreground);
 
       --muted: hsl(145 8% 64%);
+      --color-muted: var(--muted);
 
       --default: hsl(150 10% 14%);
+      --color-default: var(--default);
       --default-foreground: hsl(140 12% 92%);
+      --color-default-foreground: var(--default-foreground);
 
       --field-background: hsl(150 10% 10%);
+      --color-field-background: var(--field-background);
       --field-foreground: var(--foreground);
+      --color-field-foreground: var(--field-foreground);
       --field-placeholder: hsl(145 8% 52%);
+      --color-field-placeholder: var(--field-placeholder);
       --field-border: hsl(150 8% 18%);
+      --color-field-border: var(--field-border);
 
       --success: hsl(158 78% 48%);
+      --color-success: var(--success);
       --success-foreground: hsl(155 24% 8%);
+      --color-success-foreground: var(--success-foreground);
 
       --warning: hsl(40 92% 56%);
+      --color-warning: var(--warning);
       --warning-foreground: hsl(0 0% 100%);
+      --color-warning-foreground: var(--warning-foreground);
 
       --danger: hsl(0 78% 60%);
+      --color-danger: var(--danger);
       --danger-foreground: hsl(0 0% 100%);
+      --color-danger-foreground: var(--danger-foreground);
 
       --border: hsl(150 8% 18%);
+      --color-border: var(--border);
       --separator: hsl(150 8% 16%);
+      --color-separator: var(--separator);
 
       --focus: hsl(158 78% 52%);
+      --color-focus: var(--focus);
       --link: hsl(160 88% 62%);
+      --color-link: var(--link);
 
       --segment: hsl(150 10% 9%);
+      --color-segment: var(--segment);
       --segment-foreground: var(--foreground);
+      --color-segment-foreground: var(--segment-foreground);
 
       --surface-shadow:
         0 2px 4px rgba(0,0,0,0.35),
@@ -146,53 +210,85 @@
     @variant groupify {
       /* DARK EMERALD + MINT */
       --background: hsl(160 18% 4%);
+      --color-background: var(--background);
       --foreground: hsl(150 22% 95%);
+      --color-foreground: var(--foreground);
 
       --surface: hsl(158 16% 7%);
+      --color-surface: var(--surface);
       --surface-foreground: hsl(150 22% 95%);
+      --color-surface-foreground: var(--surface-foreground);
 
       --surface-secondary: hsl(158 14% 11%);
+      --color-surface-secondary: var(--surface-secondary);
       --surface-secondary-foreground: hsl(150 18% 94%);
+      --color-surface-secondary-foreground: var(--surface-secondary-foreground);
 
       --surface-tertiary: hsl(158 12% 16%);
+      --color-surface-tertiary: var(--surface-tertiary);
       --surface-tertiary-foreground: hsl(150 18% 92%);
+      --color-surface-tertiary-foreground: var(--surface-tertiary-foreground);
 
       --overlay: hsl(158 16% 9%);
+      --color-overlay: var(--overlay);
       --overlay-foreground: hsl(150 22% 95%);
+      --color-overlay-foreground: var(--overlay-foreground);
 
       --backdrop: hsl(0 0% 0% / 76%);
+      --color-backdrop: var(--backdrop);
 
       /* BRAND COLOR */
       --accent: hsl(164 84% 46%);
+      --color-accent: var(--accent);
       --accent-foreground: hsl(160 32% 8%);
+      --color-accent-foreground: var(--accent-foreground);
 
       --muted: hsl(150 8% 62%);
+      --color-muted: var(--muted);
 
       --default: hsl(158 12% 13%);
+      --color-default: var(--default);
       --default-foreground: hsl(150 16% 92%);
+      --color-default-foreground: var(--default-foreground);
 
       --field-background: hsl(158 14% 9%);
+      --color-field-background: var(--field-background);
       --field-foreground: var(--foreground);
+      --color-field-foreground: var(--field-foreground);
       --field-placeholder: hsl(150 8% 50%);
+      --color-field-placeholder: var(--field-placeholder);
       --field-border: hsl(158 10% 18%);
+      --color-field-border: var(--field-border);
 
       --success: hsl(164 84% 46%);
+      --color-success: var(--success);
       --success-foreground: hsl(160 32% 8%);
+      --color-success-foreground: var(--success-foreground);
 
       --warning: hsl(40 92% 56%);
+      --color-warning: var(--warning);
       --warning-foreground: hsl(0 0% 100%);
+      --color-warning-foreground: var(--warning-foreground);
 
       --danger: hsl(0 82% 60%);
+      --color-danger: var(--danger);
       --danger-foreground: hsl(0 0% 100%);
+      --color-danger-foreground: var(--danger-foreground);
 
       --border: hsl(158 10% 18%);
+      --color-border: var(--border);
       --separator: hsl(158 10% 16%);
+      --color-separator: var(--separator);
 
       --focus: hsl(164 84% 52%);
+      --color-focus: var(--focus);
       --link: hsl(164 90% 58%);
+      --color-link: var(--link);
 
       --segment: hsl(158 14% 8%);
+      --color-segment: var(--segment);
       --segment-foreground: var(--foreground);
+      --color-segment-foreground: var(--segment-foreground);
 
       --surface-shadow:
         0 2px 4px rgba(0,0,0,0.4),

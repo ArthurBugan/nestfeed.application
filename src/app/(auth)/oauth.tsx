@@ -1,20 +1,20 @@
 import { useEffect } from 'react';
-import { View, Text } from 'react-native';
+import { View, Text, ActivityIndicator } from 'react-native';
 import { useRouter, useGlobalSearchParams } from 'expo-router';
-import { ActivityIndicator } from 'react-native';
 import { useHandleOAuthCallback } from '@/hooks';
 import * as WebBrowser from 'expo-web-browser';
+import { useTheme } from '@/theme/ThemeProvider';
+import { getThemeColor } from '@/theme/themeColors';
+import { IconifyIcon } from '@/components/IconifyIcon';
 
 export default function OAuthCallback() {
   const { token } = useGlobalSearchParams();
-
   const router = useRouter();
   const { handleCallback } = useHandleOAuthCallback();
+  const { isDark } = useTheme();
 
   useEffect(() => {
     const processCallback = async () => {
-      console.log('OAuth Callback - Search Params received:', token);
-      
       try {
         await WebBrowser.dismissBrowser();
       } catch (error) {
@@ -23,24 +23,25 @@ export default function OAuthCallback() {
 
       const result = await handleCallback(token as string);
       if (result.success) {
-        console.log('OAuth Callback - Success, navigating to app...');
-        await new Promise(r => setTimeout(r, 1000));
         router.replace('/(app)');
       } else {
-        console.log('OAuth Callback - Failed, navigating to login...');
         router.replace('/(auth)/login?error=oauth_failed');
       }
-    }
-
+    };
 
     processCallback();
   }, [token]);
 
   return (
     <View className="flex-1 bg-background items-center justify-center p-6">
-      <ActivityIndicator size="large" className="text-accent mb-4" />
+      <View className="w-16 h-16 rounded-2xl items-center justify-center mb-4" style={{ backgroundColor: `${getThemeColor('accent', isDark)}15` }}>
+        <ActivityIndicator size="large" color={getThemeColor('accent', isDark)} />
+      </View>
       <Text className="text-foreground text-lg font-medium">
         Completing login...
+      </Text>
+      <Text className="text-muted text-sm mt-2">
+        Please wait a moment
       </Text>
     </View>
   );

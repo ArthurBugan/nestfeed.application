@@ -1,0 +1,120 @@
+appId: com.groupifyapp
+env:
+  TEST_EMAIL: "demo@demo.com"
+  TEST_PASSWORD: "teste1234"
+  TEST_NAME: "E2E Test User"
+
+---
+# E2E Test: Complete User Journey
+# Tests the complete user journey from registration to using the app
+- launchApp:
+    clearState: true
+
+# Step 1: Register a new account
+- assertVisible:
+    text: "Create Account"
+- tapOn:
+    text: "Name"
+- inputText: "${TEST_NAME}"
+- tapOn:
+    text: "Email"
+- inputText: "${TEST_EMAIL}"
+- tapOn:
+    text: "Password"
+- inputText: "${TEST_PASSWORD}"
+
+# Verify social login options on register
+- assertVisible:
+    text: "Sign up with Google"
+- assertVisible:
+    text: "Sign up with Discord"
+
+# Submit registration
+- tapOn: "Sign Up"
+- assertVisible:
+    text: "Creating account..."
+    optional: true
+- waitForAnimationToEnd
+
+# Step 2: Login with registered credentials
+- assertVisible:
+    text: "Welcome Back"
+- tapOn:
+    text: "Email"
+- inputText: "${TEST_EMAIL}"
+- tapOn:
+    text: "Password"
+- inputText: "${TEST_PASSWORD}"
+- tapOn: "Sign In"
+- assertVisible:
+    text: "Signing in..."
+    optional: true
+- waitForAnimationToEnd
+
+# Step 3: Verify Dashboard loads
+- assertVisible:
+    text: "Dashboard"
+- assertVisible:
+    text: "Your content at a glance"
+
+# Step 4: Verify dashboard shortcuts
+- assertVisible:
+    text: "Groups"
+- assertVisible:
+    text: "Channels"
+- assertVisible:
+    text: "Animes"
+- assertVisible:
+    text: "Websites"
+- assertVisible:
+    text: "Group Shelf"
+- assertVisible:
+    text: "Share Links"
+
+# Step 5: Verify quick actions
+- assertVisible:
+    text: "New Group"
+- assertVisible:
+    text: "Add Channel"
+- assertVisible:
+    text: "Settings"
+- assertVisible:
+    text: "Blog"
+
+# Step 6: Navigate to Groups
+- tapOn:
+    text: "Groups"
+- assertVisible:
+    text: "Groups"
+- assertVisible:
+    text: "Search groups..."
+- assertVisible:
+    text: "+ New"
+
+# Step 7: Navigate to Settings
+- swipe:
+    direction: "down"
+    speed: "fast"
+- assertVisible:
+    text: "Dashboard"
+- tapOn:
+    text: "Settings"
+- assertVisible:
+    text: "Settings"
+- assertVisible:
+    text: "Account"
+- assertVisible:
+    text: "Appearance"
+- assertVisible:
+    text: "Billing"
+- assertVisible:
+    text: "Groups"
+
+# Step 8: Navigate back to dashboard
+- swipe:
+    direction: "down"
+    speed: "fast"
+- assertVisible:
+    text: "Dashboard"
+- assertVisible:
+    text: "Dashboard"

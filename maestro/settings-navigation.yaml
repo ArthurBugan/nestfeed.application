@@ -1,0 +1,98 @@
+appId: com.groupifyapp
+env:
+  TEST_EMAIL: "demo@demo.com"
+  TEST_PASSWORD: "teste1234"
+
+---
+# E2E Test: Settings Navigation
+# Tests navigating through all settings sections
+- launchApp:
+    clearState: true
+
+# Login first
+- assertVisible:
+    text: "Welcome Back"
+- tapOn:
+    text: "Email"
+- inputText: "${TEST_EMAIL}"
+- tapOn:
+    text: "Password"
+- inputText: "${TEST_PASSWORD}"
+- tapOn: "Sign In"
+- waitForAnimationToEnd
+- assertVisible:
+    text: "Dashboard"
+
+# Navigate to Settings
+- tapOn:
+    text: "Settings"
+- assertVisible:
+    text: "Settings"
+
+# Verify settings menu items
+- assertVisible:
+    text: "Account"
+- assertVisible:
+    text: "Appearance"
+- assertVisible:
+    text: "Billing"
+- assertVisible:
+    text: "Groups"
+- assertVisible:
+    text: "Notifications"
+- assertVisible:
+    text: "Privacy"
+- assertVisible:
+    text: "Help & Support"
+- assertVisible:
+    text: "Terms & Privacy"
+- assertVisible:
+    text: "Delete Account"
+
+# Navigate to Account settings
+- tapOn:
+    text: "Account"
+- assertVisible:
+    text: "Account"
+- assertVisible:
+    text: "Personal Information"
+- assertVisible:
+    text: "Security"
+- assertVisible:
+    text: "Danger Zone"
+
+# Go back to settings
+- swipe:
+    direction: "down"
+    speed: "fast"
+- assertVisible:
+    text: "Settings"
+
+# Navigate to Appearance settings
+- tapOn:
+    text: "Appearance"
+- assertVisible:
+    text: "Appearance"
+- swipe:
+    direction: "down"
+    speed: "fast"
+- assertVisible:
+    text: "Settings"
+
+# Navigate to Billing
+- tapOn:
+    text: "Billing"
+- assertVisible:
+    text: "Billing"
+- swipe:
+    direction: "down"
+    speed: "fast"
+- assertVisible:
+    text: "Settings"
+
+# Navigate back to dashboard
+- swipe:
+    direction: "down"
+    speed: "fast"
+- assertVisible:
+    text: "Dashboard"

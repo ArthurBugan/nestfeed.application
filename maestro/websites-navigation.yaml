@@ -1,0 +1,47 @@
+appId: com.groupifyapp
+env:
+  TEST_EMAIL: "demo@demo.com"
+  TEST_PASSWORD: "teste1234"
+
+---
+# E2E Test: Websites Navigation
+# Tests navigating to the websites section
+- launchApp:
+    clearState: true
+
+# Login first
+- assertVisible:
+    text: "Welcome Back"
+- tapOn:
+    text: "Email"
+- inputText: "${TEST_EMAIL}"
+- tapOn:
+    text: "Password"
+- inputText: "${TEST_PASSWORD}"
+- tapOn: "Sign In"
+- waitForAnimationToEnd
+- assertVisible:
+    text: "Dashboard"
+
+# Navigate to Websites from dashboard
+- tapOn:
+    text: "Websites"
+- assertVisible:
+    text: "Websites"
+- assertVisible:
+    text: "Search websites..."
+
+# Test search in websites
+- tapOn:
+    text: "Search websites..."
+- inputText: "example.com"
+- assertVisible:
+    text: "example.com"
+    optional: true
+
+# Navigate back to dashboard
+- swipe:
+    direction: "down"
+    speed: "fast"
+- assertVisible:
+    text: "Dashboard"
