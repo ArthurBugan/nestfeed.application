@@ -29,6 +29,9 @@ function OptionItem({ item, isSelected, onSelect, isDark }: { item: SelectOption
       className="flex-row items-center gap-3 p-4 border-b"
       style={{ borderBottomColor: getThemeColor('border', isDark) }}
       activeOpacity={0.7}
+      accessible
+      accessibilityRole="option"
+      accessibilityState={{ selected: isSelected }}
     >
       <View
         className="w-8 h-8 rounded-lg flex items-center justify-center"
@@ -63,6 +66,7 @@ export function Select({
   const { isDark } = useTheme();
   const bottomSheetRef = useRef<BottomSheet>(null);
   const [isOpen, setIsOpen] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const selectedOption = options.find((opt) => opt.value === value);
 
@@ -80,6 +84,7 @@ export function Select({
     (itemValue: string) => {
       onChange(itemValue);
       setIsOpen(false);
+      setIsExpanded(false);
       setSearchTerm('');
     },
     [onChange]
@@ -87,17 +92,20 @@ export function Select({
 
   const open = useCallback(() => {
     setIsOpen(true);
+    setIsExpanded(true);
     setSearchTerm('');
   }, []);
 
   const close = useCallback(() => {
     setIsOpen(false);
+    setIsExpanded(false);
     setSearchTerm('');
   }, []);
 
   const handleSheetChange = useCallback((index: number) => {
     if (index === -1) {
       setIsOpen(false);
+      setIsExpanded(false);
       setSearchTerm('');
     }
   }, []);
@@ -107,6 +115,11 @@ export function Select({
   const mutedFg = getThemeColor('muted-foreground', isDark);
   const emptyColor = getThemeColor('muted', isDark);
 
+  // Accessible announced value: reads label + chosen option (or placeholder).
+  const triggerLabel = selectedOption
+    ? `${label || 'Selected option'}: ${selectedOption.label}`
+    : `${label || 'Select'}: ${placeholder}. Opens selection.`;
+
   return (
     <View className="mb-4">
       {label && (
@@ -115,10 +128,14 @@ export function Select({
       <TouchableOpacity
         onPress={open}
         className={`bg-field-background border rounded-xl px-4 py-3 flex-row items-center gap-3 ${
-          error ? 'border-danger' : 'border-border'
+          error ? 'border-danger' : isExpanded ? 'border-accent' : 'border-border'
         }`}
         style={{ borderWidth: 1.5 }}
         activeOpacity={0.7}
+        accessible
+        accessibilityRole="button"
+        accessibilityLabel={triggerLabel}
+        accessibilityState={{ expanded: isExpanded }}
       >
         {selectedOption?.icon && (
           <View className="w-6 h-6 items-center justify-center">
@@ -135,7 +152,15 @@ export function Select({
         />
       </TouchableOpacity>
 
-      {error && <Text className="text-xs text-danger mt-1.5 ml-1">{error}</Text>}
+      {error && (
+        <Text
+          className="text-xs text-danger mt-1.5 ml-1"
+          accessibilityLiveRegion="polite"
+          accessibilityLabel={error}
+        >
+          {error}
+        </Text>
+      )}
 
       <Portal>
         <BottomSheet

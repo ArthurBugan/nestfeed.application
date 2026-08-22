@@ -21,7 +21,9 @@ module.exports = {
     // Skip tests that require @testing-library/react-native (needs full RN env)
     '/src/__tests__/hooks/',
     '/src/__tests__/integration/',
-    '/src/__tests__/components/',
+    // Note: __tests__/components/ IS executed — its tests render HeroUI Native
+    // primitives against the shared mocks (see jest.setup.ts), so a full RN env
+    // is not required.
   ],
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
   moduleNameMapper: {

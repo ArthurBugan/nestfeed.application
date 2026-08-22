@@ -1,5 +1,5 @@
 import { colors, statusColors, categoryColors, shadows, borderRadius } from '../../theme/colors';
-import { themeColors } from '../../theme/themeColors';
+import { themeColors, getThemeColor, ThemeColorKey } from '../../theme/themeColors';
 
 describe('Theme', () => {
   describe('colors', () => {
@@ -82,6 +82,30 @@ describe('Theme', () => {
   describe('themeColors', () => {
     it('should export theme colors', () => {
       expect(themeColors).toBeDefined();
+    });
+
+    it('returns a defined string for every token in light and dark mode', () => {
+      Object.keys(themeColors.light).forEach((key) => {
+        const light = getThemeColor(key as ThemeColorKey, false);
+        const dark = getThemeColor(key as ThemeColorKey, true);
+        expect(typeof light).toBe('string');
+        expect(light).not.toBeNull();
+        expect(typeof dark).toBe('string');
+        expect(dark).not.toBeNull();
+      });
+    });
+
+    it('defines field background + placeholder tokens (regression for #001)', () => {
+      ['field-background', 'field-placeholder'].forEach((key) => {
+        expect(getThemeColor(key as ThemeColorKey, false)).toMatch(/^hsl\(/);
+        expect(getThemeColor(key as ThemeColorKey, true)).toMatch(/^hsl\(/);
+      });
+    });
+
+    it('light and dark token sets are identical', () => {
+      expect(Object.keys(themeColors.light).sort()).toEqual(
+        Object.keys(themeColors.dark).sort()
+      );
     });
   });
 });

@@ -46,15 +46,22 @@ export function Input({
   const [isFocused, setIsFocused] = useState(false);
   const inputRef = useRef<RNTextInput>(null);
 
-  const borderColor = error 
-    ? getThemeColor('danger', isDark) 
-    : isFocused 
-      ? getThemeColor('accent', isDark) 
+  const borderColor = error
+    ? getThemeColor('danger', isDark)
+    : isFocused
+      ? getThemeColor('accent', isDark)
       : getThemeColor('border', isDark);
 
-  const fieldBg = isFocused 
-    ? getThemeColor('field-background', isDark) 
-    : getThemeColor('field-background', isDark);
+  // Solid background every mode (field-* tokens resolve in both light + dark).
+  const fieldBg = getThemeColor('field-background', isDark);
+
+  // Accessible label: associate the field with its label + any error so screen
+  // readers announce a single meaningful value.
+  const inputLabel = label
+    ? error
+      ? `${label}. Error: ${error}`
+      : label
+    : placeholder;
 
   return (
     <View className="mb-4">
@@ -63,9 +70,10 @@ export function Input({
           {label}
         </Text>
       )}
-      <View 
+      <View
+        accessibilityLabel={inputLabel}
         className={`rounded-2xl ${error ? 'border-danger' : isFocused ? 'border-accent' : 'border-border'}`}
-        style={{ 
+        style={{
           backgroundColor: fieldBg,
         }}
       >
@@ -86,14 +94,19 @@ export function Input({
           autoFocus={autoFocus}
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
+          accessibilityLabel={inputLabel}
+          accessibilityHint={secureTextEntry ? 'Double tap to toggle password visibility' : undefined}
           className={`w-full px-4 py-3 text-foreground ${secureTextEntry ? 'pr-12' : ''} ${multiline ? 'min-h-[80px]' : 'min-h-[48px]'} ${!editable ? 'opacity-50' : ''} ${className}`}
           style={{ fontSize: multiline ? 15 : 16 }}
         />
         {secureTextEntry && (
           <TouchableOpacity
             onPress={() => setShowPassword(!showPassword)}
-            className="absolute right-4 top-1/2 -translate-y-1/2 p-1.5"
+            className="absolute right-4 top-1/2 -translate-y-1/2 p-2"
             hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+            accessible
+            accessibilityRole="button"
+            accessibilityLabel={showPassword ? 'Hide password' : 'Show password'}
           >
             <Text style={{ color: getThemeColor('muted', isDark) }}>
               {showPassword ? '👁️' : '👁️‍🗨️'}
@@ -106,7 +119,15 @@ export function Input({
           </View>
         )}
       </View>
-      {error && <Text className="text-xs text-danger mt-1.5 ml-1">{error}</Text>}
+      {error && (
+        <Text
+          className="text-xs text-danger mt-1.5 ml-1"
+          accessibilityLiveRegion="polite"
+          accessibilityLabel={error}
+        >
+          {error}
+        </Text>
+      )}
     </View>
   );
 }

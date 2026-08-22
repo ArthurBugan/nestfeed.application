@@ -151,7 +151,6 @@
           "imageWidth": 200
         }
       ],
-      "react-native-enriched-markdown",
       [
         "expo-iap",
         {

@@ -10,6 +10,16 @@ globalThis.ResizeObserver = jest.fn(() => ({
   disconnect: jest.fn(),
 }));
 
+// react-native/index.js reads this global during module load (it ships for the
+// production bundle, not jest). Provide a no-op shim so @testing-library/
+// react-native + react-native can be imported in unit tests.
+(globalThis as any).ReactNativePublicAPI = {
+  __DEV__: false,
+  warning: () => {},
+  error: () => {},
+  global: {},
+};
+
 // Mock console.warn and console.error during tests to reduce noise
 const originalWarn = console.warn;
 const originalError = console.error;

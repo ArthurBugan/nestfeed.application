@@ -5,6 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { IconifyIcon } from '@/components/IconifyIcon';
 import { useState, useCallback } from 'react';
 import { getThemeColor } from '@/theme/themeColors';
+import { useTheme } from '@/theme/ThemeProvider';
 import * as Haptics from 'expo-haptics';
 
 const shortcuts = [
@@ -28,6 +29,7 @@ export default function DashboardHomeScreen() {
   const router = useRouter();
   const { data: dashboard, isLoading } = useDashboard();
   const insets = useSafeAreaInsets();
+  const { isDark } = useTheme();
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   const handleRefresh = useCallback(async () => {
@@ -51,8 +53,8 @@ export default function DashboardHomeScreen() {
         <RefreshControl 
           refreshing={isRefreshing} 
           onRefresh={handleRefresh}
-          tintColor={getThemeColor('accent', false)}
-          colors={[getThemeColor('accent', false)]}
+          tintColor={getThemeColor('accent', isDark)}
+          colors={[getThemeColor('accent', isDark)]}
         />
       }
     >
@@ -100,7 +102,7 @@ export default function DashboardHomeScreen() {
                 onPress={() => { Haptics.selectionAsync(); router.push(a.route); }}
                 activeOpacity={0.7}
               >
-                <IconifyIcon name={a.icon} size={18} color={getThemeColor('accent', false)} />
+                <IconifyIcon name={a.icon} size={18} color={getThemeColor('accent', isDark)} />
                 <Text className="text-sm font-medium text-foreground">{a.label}</Text>
               </TouchableOpacity>
             ))}
