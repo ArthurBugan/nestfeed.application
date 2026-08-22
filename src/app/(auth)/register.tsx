@@ -171,7 +171,7 @@ export default function RegisterScreen() {
               ) : (
                 <IconifyIcon name="mdi:google" size={22} color="black" />
               )}
-              <Text className="text-foreground font-medium text-base flex-1 text-center">
+              <Text className="text-black font-medium text-base flex-1 text-center">
                 Sign up with Google
               </Text>
             </TouchableOpacity>

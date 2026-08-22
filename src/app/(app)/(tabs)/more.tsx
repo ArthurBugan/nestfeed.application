@@ -9,6 +9,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { IconifyIcon } from '@/components/IconifyIcon';
 import { getThemeColor } from '@/theme/themeColors';
+import { shadows } from '@/theme/colors';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useCurrentUser } from '@/hooks';
 import * as Haptics from 'expo-haptics';
@@ -48,12 +49,15 @@ export default function MoreScreen() {
         <SafeAreaView edges={['top', 'bottom']} style={{ flex: 1 }}>
           <View className="flex-1 px-5 pb-6">
           {/* Header */}
-          <View className="flex-row items-center justify-between py-5">
+          <View className="flex-row items-center justify-between pt-4 pb-6">
             <Text className="text-2xl font-bold text-foreground">More</Text>
           </View>
 
           {/* Profile Card */}
-          <View className="bg-surface rounded-2xl p-4 mb-5 border border-border/50">
+          <View
+            className="bg-surface rounded-2xl p-4 mb-6 border border-border/50"
+            style={shadows.sm}
+          >
             <View className="flex-row items-center gap-4">
               <Avatar name={user?.name} size="lg" />
               <View className="flex-1">
@@ -66,7 +70,10 @@ export default function MoreScreen() {
           </View>
 
           {/* Menu */}
-          <View className="bg-surface rounded-2xl overflow-hidden mb-5 border border-border/50">
+          <View
+            className="bg-surface rounded-2xl overflow-hidden mb-6 border border-border/50"
+            style={shadows.sm}
+          >
             <View>
               {menuItems.map((item, index) => (
                 <View key={item.path}>
@@ -74,6 +81,9 @@ export default function MoreScreen() {
                     className="flex-row items-center px-4 py-3.5"
                     onPress={() => { Haptics.selectionAsync(); router.push(item.path); }}
                     activeOpacity={0.7}
+                    accessible
+                    accessibilityRole="button"
+                    accessibilityLabel={item.label}
                   >
                     <View className="w-9 h-9 rounded-lg items-center justify-center mr-3" style={{ backgroundColor: getThemeColor('default', isDark) }}>
                       <IconifyIcon
@@ -96,11 +106,14 @@ export default function MoreScreen() {
           </View>
 
           {/* Sign Out */}
-          <View className="pb-6">
+          <View className="pb-8">
             <TouchableOpacity
               className="flex-row items-center justify-center gap-2 bg-danger/10 border border-danger/20 rounded-xl py-3.5"
               onPress={handleLogout}
               activeOpacity={0.7}
+              accessible
+              accessibilityRole="button"
+              accessibilityLabel="Sign Out"
             >
               <IconifyIcon
                 name="lucide:log-out"

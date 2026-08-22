@@ -22,6 +22,7 @@ export function useChannelsInfinite({ limit = 20, search }: { limit?: number; se
   return {
     channels: query.data?.pages.flatMap(page => page?.data ?? []) ?? [],
     isLoading: query.isLoading,
+    isError: query.isError,
     isFetchingNextPage: query.isFetchingNextPage,
     hasNextPage: query.hasNextPage,
     loadMore: query.fetchNextPage,

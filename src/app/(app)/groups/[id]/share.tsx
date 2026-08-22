@@ -60,7 +60,7 @@ export default function ShareGroupScreen() {
             activeOpacity={0.7}
           >
             <View className="flex-row items-center gap-2">
-              <IconifyIcon name="lucide:share-2" size={20} color="white" />
+              <IconifyIcon name="lucide:share-2" size={20} color={getThemeColor('accent-foreground', isDark)} />
               <Text className="text-accent-foreground font-semibold text-base">Share Group</Text>
             </View>
           </TouchableOpacity>

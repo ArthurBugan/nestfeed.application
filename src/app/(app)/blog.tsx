@@ -3,12 +3,13 @@ import { Input } from 'heroui-native';
 
 import { useRouter } from 'expo-router';
 import { useBlogInfinite } from '@/hooks';
-import { Card, Skeleton } from 'heroui-native';
+import { Card } from 'heroui-native';
 
 import DashboardHeader from '@/components/DashboardHeader';
 import type { BlogPost } from '@/types';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { IconifyIcon } from '@/components/IconifyIcon';
+import { EmptyState, ErrorState, LoadingState } from '@/components/states';
 import { getThemeColor } from '@/theme/themeColors';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useState, useCallback } from 'react';
@@ -21,9 +22,11 @@ export default function BlogListScreen() {
   const {
     posts,
     isLoading,
+    isError,
     isFetchingNextPage,
     hasNextPage,
     loadMore,
+    refetch,
     search,
     setSearch,
   } = useBlogInfinite({ limit: 10 });
@@ -78,24 +81,10 @@ export default function BlogListScreen() {
     return null;
   };
 
-  const renderSkeleton = () => (
-    <View className="gap-3 p-1">
-      {[1, 2, 3].map(i => (
-        <Card key={i}>
-          <View>
-            <Skeleton height={22} className="mb-2" />
-            <Skeleton height={16} className="mb-1" />
-            <Skeleton height={14} className="mt-2 w-1/3" />
-          </View>
-        </Card>
-      ))}
-    </View>
-  );
-
   return (
     <View className="flex-1 bg-background">
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }}
-        contentContainerStyle={{ paddingBottom: 100 }}
+      <ScrollView
+        contentContainerStyle={{ flexGrow: 1, paddingBottom: 100 }}
         showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl
@@ -109,7 +98,15 @@ export default function BlogListScreen() {
         <View style={{ paddingTop: insets.top, paddingHorizontal: 16 }}>
           <View className="pt-4 pb-3">
             <View className="flex-row items-center mb-1">
-              <TouchableOpacity onPress={() => { Haptics.selectionAsync(); router.back(); }} className="mr-3 p-1.5 -ml-1 rounded-full" style={{ backgroundColor: getThemeColor('surface', isDark) }}>
+              <TouchableOpacity
+                onPress={() => { Haptics.selectionAsync(); router.back(); }}
+                className="mr-3 w-10 h-10 rounded-full items-center justify-center"
+                style={{ backgroundColor: getThemeColor('surface', isDark) }}
+                hitSlop={{ top: 4, bottom: 4, left: 4, right: 4 }}
+                accessible
+                accessibilityRole="button"
+                accessibilityLabel="Go back"
+              >
                 <IconifyIcon name="lucide:arrow-left" size={20} color={getThemeColor('foreground', isDark)} />
               </TouchableOpacity>
               <Text className="text-lg font-semibold text-foreground">Blog</Text>
@@ -131,16 +128,20 @@ export default function BlogListScreen() {
             </View>
           </View>
 
-          {isLoading ? (
-            renderSkeleton()
+          {isError ? (
+            <ErrorState onRetry={() => refetch()} />
+          ) : isLoading ? (
+            <LoadingState variant="skeleton" rows={3} label="Loading posts" />
           ) : posts.length === 0 ? (
-            <View className="py-16 items-center">
-              <View className="w-16 h-16 rounded-2xl items-center justify-center mb-4" style={{ backgroundColor: getThemeColor('default', isDark) }}>
-                <IconifyIcon name="lucide:newspaper" size={32} color={getThemeColor('muted', isDark)} />
-              </View>
-              <Text className="text-muted text-center font-medium">No posts yet</Text>
-              <Text className="text-muted text-xs text-center mt-1">Check back later for updates</Text>
-            </View>
+            <EmptyState
+              icon="lucide:newspaper"
+              title={search ? 'No posts found' : 'No posts yet'}
+              description={
+                search
+                  ? `We couldn't find anything for "${search}".`
+                  : 'Check back later for updates'
+              }
+            />
           ) : (
             <View className="px-1">
               {posts.map(post => renderPost({ item: post }))}

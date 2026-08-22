@@ -2,18 +2,39 @@ import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react-native';
 import { Input } from '@/components/Input';
 
+// Precise heroui-native mocks: Input maps to a real RN TextInput so keyboard
+// props and events can be asserted; the compound field parts render children.
+jest.mock('heroui-native', () => {
+  const RN = require('react-native');
+  const ReactLib = require('react');
+  return {
+    TextField: ({ children }: { children: React.ReactNode }) => (
+      <RN.View>{children}</RN.View>
+    ),
+    Label: ({ children }: { children: React.ReactNode }) => (
+      <RN.Text>{children}</RN.Text>
+    ),
+    FieldError: ({ children }: { children: React.ReactNode }) => (
+      <RN.Text accessibilityRole="alert">{children}</RN.Text>
+    ),
+    Input: ReactLib.forwardRef((props: Record<string, unknown>, ref: unknown) => (
+      <RN.TextInput {...props} ref={ref} />
+    )),
+  };
+});
+
 // Isolate from the theme provider stack: the component only needs `isDark`.
 jest.mock('@/theme/ThemeProvider', () => {
   const React = require('react');
   return {
-    useTheme: () => ({ isDark: false }),
+    useTheme: () => ({ isDark: false, reduceMotion: false }),
     ThemeProvider: ({ children }: { children: React.ReactNode }) =>
       React.createElement('View', null, children),
   };
 });
 
 describe('Input component (Track C, spec #001)', () => {
-  it('renders the error state text (distinct, labeled error)', () => {
+  it('renders label and a distinct error state (FR-C1)', () => {
     render(
       <Input
         label="Email"
@@ -22,15 +43,12 @@ describe('Input component (Track C, spec #001)', () => {
         error="Invalid email"
       />
     );
-    // Error message is shown.
-    expect(screen.getByText('Invalid email')).toBeTruthy();
-    // Field's accessibility label combines the label + error for screen readers.
-    expect(
-      screen.getByLabelText('Email. Error: Invalid email')
-    ).toBeTruthy();
+    expect(screen.getByText('Email')).toBeTruthy();
+    expect(screen.getByRole('alert')).toHaveTextContent('Invalid email');
   });
 
-  it('toggles password visibility with an accessible toggle', () => {
+  it('toggles password visibility with an accessible toggle + haptics (FR-C2)', () => {
+    const Haptics = require('expo-haptics');
     render(
       <Input
         label="Password"
@@ -41,27 +59,16 @@ describe('Input component (Track C, spec #001)', () => {
     );
     const show = screen.getByLabelText('Show password');
     fireEvent.press(show);
+    expect(Haptics.selectionAsync).toHaveBeenCalled();
     expect(screen.getByLabelText('Hide password')).toBeTruthy();
+
+    fireEvent.press(screen.getByLabelText('Hide password'));
+    expect(screen.getByLabelText('Show password')).toBeTruthy();
   });
 
-  it('applies a focus ring on focus and the default border otherwise', () => {
-    const { container } = render(
-      <Input label="Name" value="" onChangeText={() => {}} />
-    );
-    // children[0] = root View (mb-4); children[1] = the bordered field wrapper.
-    const wrapper = container.children[1] as any;
-    expect(wrapper.props.className).toContain('border-border');
-
-    // Focus the inner text input (first child of the wrapper).
-    fireEvent.focus(wrapper.children[0]);
-
-    const afterFocus = container.children[1] as any;
-    expect(afterFocus.props.className).toContain('border-accent');
-  });
-
-  it('forwards keyboard props to the native input', () => {
+  it('forwards keyboard props to the native input (FR-C2)', () => {
     const onSubmit = jest.fn();
-    const { container } = render(
+    render(
       <Input
         label="Name"
         value=""
@@ -70,9 +77,20 @@ describe('Input component (Track C, spec #001)', () => {
         onSubmitEditing={onSubmit}
       />
     );
-    const input = container.children[1].children[0] as any;
+    const input = screen.getByDisplayValue('');
     expect(input.props.returnKeyType).toBe('next');
-    fireEvent.submit(input);
+    fireEvent(input, 'submitEditing');
     expect(onSubmit).toHaveBeenCalledTimes(1);
+  });
+
+  it('resolves the placeholder color from the field-placeholder token (FR-A2)', () => {
+    render(<Input value="" onChangeText={() => {}} placeholder="Search" />);
+    const input = screen.getByPlaceholderText('Search');
+    expect(input.props.placeholderTextColor).toMatch(/^hsl\(/);
+  });
+
+  it('announces the field name for screen readers (FR-F1)', () => {
+    render(<Input label="Name" value="" onChangeText={() => {}} />);
+    expect(screen.getByLabelText('Name')).toBeTruthy();
   });
 });

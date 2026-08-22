@@ -1,6 +1,6 @@
 import '../../global.css';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { Slot } from 'expo-router';
+import { Stack } from 'expo-router';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useEffect, useRef } from 'react';
 import { useFonts } from 'expo-font';
@@ -79,18 +79,39 @@ function AppContent() {
     handleUrlCallback();
   }, [url]);
 
-  return <Slot />;
+  // A real root Stack (instead of <Slot />) keeps navigation history across
+  // route groups: pushing /groups/[id] from the Groups tab now pops back to
+  // the exact tab you left, and hardware/swipe back works everywhere.
+  return (
+    <Stack screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="index" />
+    </Stack>
+  );
 }
 
 function AppContentWithTheme() {
-  const { isDark } = useTheme();
+  const { isDark, reduceMotion, fontSize } = useTheme();
 
   useEffect(() => {
-    console.log('[AppContentWithTheme] isDark:', isDark, '-> Uniwind.setTheme:', isDark ? 'dark' : 'light');
     Uniwind.setTheme(isDark ? 'dark' : 'light');
   }, [isDark]);
 
-  return <AppContent />;
+  // "Large" allows OS Dynamic Type to scale text further; "Small" caps it.
+  const maxFontSizeMultiplier = fontSize === 'small' ? 1 : fontSize === 'large' ? 2 : 1.35;
+
+  return (
+    <HeroUINativeProvider
+      config={{
+        animation: reduceMotion ? 'disable-all' : undefined,
+        textProps: { allowFontScaling: true, maxFontSizeMultiplier },
+      }}
+    >
+      <QueryClientProvider client={queryClient}>
+        <AppContent />
+        <AdMobManager style={{ marginTop: 10 }} />
+      </QueryClientProvider>
+    </HeroUINativeProvider>
+  );
 }
 
 function RootLayout() {
@@ -114,12 +135,7 @@ function RootLayout() {
       <ThemeProvider>
         <GestureHandlerRootView>
           <Host>
-            <HeroUINativeProvider>
-              <QueryClientProvider client={queryClient}>
-                <AppContentWithTheme />
-                <AdMobManager style={{ marginTop: 10 }} />
-              </QueryClientProvider>
-            </HeroUINativeProvider>
+            <AppContentWithTheme />
           </Host>
         </GestureHandlerRootView>
       </ThemeProvider>

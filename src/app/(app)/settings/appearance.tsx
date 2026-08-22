@@ -5,7 +5,6 @@ import { useTheme } from '@/theme/ThemeProvider';
 import { IconifyIcon } from '@/components/IconifyIcon';
 import { getThemeColor } from '@/theme/themeColors';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useState } from 'react';
 import { Switch } from 'heroui-native';
 import * as Haptics from 'expo-haptics';
 
@@ -15,13 +14,12 @@ const themes = [
   { value: 'dark', label: 'Dark', description: 'Always use dark mode', icon: 'lucide:moon' },
 ] as const;
 
+const fontSizes = ['small', 'medium', 'large'] as const;
+
 export default function AppearanceSettingsScreen() {
   const router = useRouter();
-  const { theme, setTheme, isDark } = useTheme();
+  const { theme, setTheme, isDark, fontSize, setFontSize, reduceMotion, setReduceMotion } = useTheme();
   const insets = useSafeAreaInsets();
-  const [fontSize, setFontSize] = useState('medium');
-  const [animations, setAnimations] = useState(true);
-  const [reduceMotion, setReduceMotion] = useState(false);
 
   return (
     <View className="flex-1 bg-background">
@@ -29,11 +27,14 @@ export default function AppearanceSettingsScreen() {
         <View style={{ paddingTop: insets.top }} className="px-5 pb-6">
           {/* Header */}
           <View className="flex-row items-center justify-between py-4">
-            <TouchableOpacity 
+            <TouchableOpacity
               onPress={() => { Haptics.selectionAsync(); router.back(); }}
               className="w-10 h-10 rounded-full items-center justify-center"
               style={{ backgroundColor: getThemeColor('surface', isDark) }}
               hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+              accessible
+              accessibilityRole="button"
+              accessibilityLabel="Go back"
             >
               <IconifyIcon name="lucide:arrow-left" size={20} color={getThemeColor('foreground', isDark)} />
             </TouchableOpacity>
@@ -76,13 +77,16 @@ export default function AppearanceSettingsScreen() {
             <View className="px-4 py-3">
               <Text className="text-base font-medium text-foreground mb-3">Font Size</Text>
               <View className="flex-row gap-2">
-                {['small', 'medium', 'large'].map((size) => (
+                {fontSizes.map((size) => (
                   <Button
                     key={size}
                     variant={fontSize === size ? 'primary' : 'flat'}
                     size="sm"
                     onPress={() => { Haptics.selectionAsync(); setFontSize(size); }}
                     className="flex-1"
+                    accessibilityRole="button"
+                    accessibilityLabel={`Font size ${size}`}
+                    accessibilityState={{ selected: fontSize === size }}
                   >
                     <Text className={fontSize === size ? 'font-semibold' : ''}>
                       {size.charAt(0).toUpperCase() + size.slice(1)}
@@ -94,7 +98,7 @@ export default function AppearanceSettingsScreen() {
             <Separator className="mx-4" />
             <View className="px-4 py-3">
               <Text className="text-base font-medium text-foreground mb-3">Language</Text>
-              <TouchableOpacity className="bg-default rounded-xl px-4 py-3 flex-row items-center justify-between" activeOpacity={0.7}>
+              <TouchableOpacity className="bg-default rounded-xl px-4 py-3 flex-row items-center justify-between" activeOpacity={0.7} accessible accessibilityLabel="Language: English (US)">
                 <Text className="text-foreground">English (US)</Text>
                 <IconifyIcon name="lucide:chevron-right" size={18} color={getThemeColor('muted', isDark)} />
               </TouchableOpacity>
@@ -107,26 +111,22 @@ export default function AppearanceSettingsScreen() {
               <Text className="text-xs font-semibold text-muted uppercase tracking-wider">Accessibility</Text>
             </View>
             <View className="px-4 py-3">
-              <View className="flex-row items-center justify-between mb-4">
-                <View className="flex-1 mr-4">
-                  <View className="flex-row items-center gap-2 mb-1">
-                    <IconifyIcon name="lucide:sparkles" size={18} color={getThemeColor('foreground', isDark)} />
-                    <Text className="text-base font-medium text-foreground">Animations</Text>
-                  </View>
-                  <Text className="text-xs text-muted">Enable motion and animations</Text>
-                </View>
-                <Switch isSelected={animations} onSelectedChange={setAnimations} />
-              </View>
-              <Separator className="mx-0" />
-              <View className="flex-row items-center justify-between mt-4">
+              <View className="flex-row items-center justify-between">
                 <View className="flex-1 mr-4">
                   <View className="flex-row items-center gap-2 mb-1">
                     <IconifyIcon name="lucide:move" size={18} color={getThemeColor('foreground', isDark)} />
                     <Text className="text-base font-medium text-foreground">Reduce Motion</Text>
                   </View>
-                  <Text className="text-xs text-muted">Minimize animations</Text>
+                  <Text className="text-xs text-muted">Minimize animations across the app</Text>
                 </View>
-                <Switch isSelected={reduceMotion} onSelectedChange={setReduceMotion} />
+                <Switch
+                  isSelected={reduceMotion}
+                  onSelectedChange={(value) => {
+                    Haptics.selectionAsync();
+                    setReduceMotion(value);
+                  }}
+                  accessibilityLabel="Reduce Motion"
+                />
               </View>
             </View>
           </View>

@@ -6,6 +6,7 @@ import { Select } from '@/components/Select';
 import { useChannel, useUpdateChannel, useGroups } from '@/hooks';
 import { useTheme } from '@/theme/ThemeProvider';
 import { getThemeColor } from '@/theme/themeColors';
+import { LoadingState } from '@/components/states';
 import { IconifyIcon } from '@/components/IconifyIcon';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
@@ -40,7 +41,7 @@ export default function EditChannelScreen() {
   };
 
   if (isLoading) {
-    return <View className="flex-1 bg-background items-center justify-center"><Text className="text-muted">Loading...</Text></View>;
+    return <View className="flex-1 bg-background items-center justify-center"><LoadingState label="Loading" /></View>;
   }
 
   return (

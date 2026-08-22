@@ -37,16 +37,25 @@ jest.mock('expo-linking', () => ({
 }));
 
 // Mock @react-native-async-storage/async-storage
+// Self-contained: requiring the actual module throws outside a RN runtime.
 jest.mock('@react-native-async-storage/async-storage', () => {
-  const AsyncStorage = require('@react-native-async-storage/async-storage').default;
+  const store = new Map<string, string>();
   return {
     __esModule: true,
     default: {
-      ...AsyncStorage,
-      getItem: jest.fn(() => Promise.resolve(null)),
-      setItem: jest.fn(() => Promise.resolve()),
-      removeItem: jest.fn(() => Promise.resolve()),
-      clear: jest.fn(() => Promise.resolve()),
+      getItem: jest.fn((key: string) => Promise.resolve(store.has(key) ? (store.get(key) as string) : null)),
+      setItem: jest.fn((key: string, value: string) => {
+        store.set(key, value);
+        return Promise.resolve();
+      }),
+      removeItem: jest.fn((key: string) => {
+        store.delete(key);
+        return Promise.resolve();
+      }),
+      clear: jest.fn(() => {
+        store.clear();
+        return Promise.resolve();
+      }),
     },
   };
 });
@@ -97,6 +106,15 @@ jest.mock('burnt', () => ({
   },
 }));
 
+// Mock expo-haptics
+jest.mock('expo-haptics', () => ({
+  selectionAsync: jest.fn(() => Promise.resolve()),
+  impactAsync: jest.fn(() => Promise.resolve()),
+  notificationAsync: jest.fn(() => Promise.resolve()),
+  ImpactFeedbackStyle: { Light: 'light', Medium: 'medium', Heavy: 'heavy' },
+  NotificationFeedbackType: { Success: 'success', Warning: 'warning', Error: 'error' },
+}));
+
 // Mock @sentry/react-native
 jest.mock('@sentry/react-native', () => ({
   setUser: jest.fn(),
@@ -133,6 +151,31 @@ jest.mock('heroui-native', () => ({
   TextField: 'TextField',
   TextArea: 'TextArea',
   SearchField: 'SearchField',
+  Label: 'Label',
+  Description: 'Description',
+  FieldError: 'FieldError',
+  // Function stubs (NOT Object.assign on a string — that boxes the primitive
+  // into a String object, which React rejects as an element type).
+  Alert: (() => {
+    const React = require('react');
+    // Wrap text-bearing parts in a Text host so RNTL's getByText matches.
+    const text = (props: { children?: unknown }) =>
+      React.createElement('Text', null, props?.children ?? null);
+    const view = (props: { children?: unknown }) =>
+      React.createElement('View', null, props?.children ?? null);
+    const Alert = (props: { children?: unknown }) =>
+      React.createElement('View', null, props?.children ?? null);
+    (Alert as unknown as Record<string, unknown>).Indicator = () => null;
+    (Alert as unknown as Record<string, unknown>).Content = view;
+    (Alert as unknown as Record<string, unknown>).Title = text;
+    (Alert as unknown as Record<string, unknown>).Description = text;
+    return Alert;
+  })(),
+}));
+
+// Mock heroui-native hooks (used by IconifyIcon)
+jest.mock('heroui-native/hooks', () => ({
+  useThemeColor: jest.fn(() => '#000000'),
 }));
 
 // Mock @gorhom/bottom-sheet

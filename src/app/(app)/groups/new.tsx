@@ -75,7 +75,7 @@ export default function CreateGroupScreen() {
       <SafeAreaView edges={['top', 'bottom']} style={{ flex: 1 }}>
         {/* Header */}
         <View className="flex-row items-center justify-between px-5 py-3 border-b" style={{ borderColor: getThemeColor('border', isDark) }}>
-          <TouchableOpacity onPress={() => { Haptics.selectionAsync(); router.back(); }} className="p-1.5 -ml-1 rounded-full" style={{ backgroundColor: getThemeColor('surface', isDark) }}>
+          <TouchableOpacity onPress={() => { Haptics.selectionAsync(); router.back(); }} className="p-1.5 -ml-1 rounded-full" style={{ backgroundColor: getThemeColor('surface', isDark) }} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }} accessible accessibilityRole="button" accessibilityLabel="Go back">
             <IconifyIcon name="lucide:x" size={20} color={getThemeColor('foreground', isDark)} />
           </TouchableOpacity>
           <Text className="text-lg font-semibold text-foreground">Create Group</Text>

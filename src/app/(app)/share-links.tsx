@@ -8,12 +8,18 @@ import type { ShareLink } from '@/types';
 import { useTheme } from '@/theme/ThemeProvider';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { IconifyIcon } from '@/components/IconifyIcon';
+import { EmptyState, ErrorState, LoadingState } from '@/components/states';
 import { getThemeColor } from '@/theme/themeColors';
 import * as Haptics from 'expo-haptics';
 
 export default function ShareLinksScreen() {
   const router = useRouter();
-  const { data: response } = useShareLinks();
+  const {
+    data: response,
+    isLoading,
+    isError,
+    refetch,
+  } = useShareLinks();
   const data = response?.data;
   const deleteShareLink = useDeleteShareLink();
   const { isDark } = useTheme();
@@ -50,11 +56,14 @@ export default function ShareLinksScreen() {
       <SafeAreaView edges={['top']}>
         {/* Header */}
         <View className="flex-row items-center px-5 pt-4 pb-3 border-b" style={{ borderColor: getThemeColor('border', isDark) }}>
-          <TouchableOpacity 
+          <TouchableOpacity
             onPress={() => { Haptics.selectionAsync(); router.back(); }}
             className="w-10 h-10 rounded-full items-center justify-center"
             style={{ backgroundColor: getThemeColor('surface', isDark) }}
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+            accessible
+            accessibilityRole="button"
+            accessibilityLabel="Go back"
           >
             <IconifyIcon name="lucide:arrow-left" size={20} color={getThemeColor('foreground', isDark)} />
           </TouchableOpacity>
@@ -62,14 +71,16 @@ export default function ShareLinksScreen() {
         </View>
 
         <View className="px-5 pt-6 pb-6">
-          {data?.length === 0 ? (
-            <View className="py-12 items-center">
-              <View className="w-16 h-16 rounded-2xl items-center justify-center mb-4" style={{ backgroundColor: getThemeColor('default', isDark) }}>
-                <IconifyIcon name="lucide:link-2-off" size={32} color={getThemeColor('muted', isDark)} />
-              </View>
-              <Text className="text-muted text-center font-medium">No share links yet</Text>
-              <Text className="text-muted text-xs text-center mt-1">Create a group or channel to generate a share link</Text>
-            </View>
+          {isError ? (
+            <ErrorState onRetry={() => refetch()} />
+          ) : isLoading ? (
+            <LoadingState variant="skeleton" rows={3} label="Loading share links" />
+          ) : data?.length === 0 ? (
+            <EmptyState
+              icon="lucide:link-2-off"
+              title="No share links yet"
+              description="Create a group or channel to generate a share link"
+            />
           ) : (
             <View className="gap-3">
               {data?.map((link: ShareLink) => (
@@ -88,6 +99,9 @@ export default function ShareLinksScreen() {
                       style={{ backgroundColor: `${getThemeColor('accent', isDark)}15` }}
                       hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
                       activeOpacity={0.7}
+                      accessible
+                      accessibilityRole="button"
+                      accessibilityLabel={`Share ${link.type} link`}
                     >
                       <IconifyIcon name="lucide:share-2" size={16} color={getThemeColor('accent', isDark)} />
                     </TouchableOpacity>
@@ -97,6 +111,9 @@ export default function ShareLinksScreen() {
                       style={{ backgroundColor: `${getThemeColor('danger', isDark)}15` }}
                       hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
                       activeOpacity={0.7}
+                      accessible
+                      accessibilityRole="button"
+                      accessibilityLabel={`Delete ${link.type} link`}
                     >
                       <IconifyIcon name="lucide:trash-2" size={16} color={getThemeColor('danger', isDark)} />
                     </TouchableOpacity>

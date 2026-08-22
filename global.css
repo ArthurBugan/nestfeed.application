@@ -85,6 +85,12 @@
       --separator: hsl(140 10% 90%);
       --color-separator: var(--separator);
 
+      /* Contrast-safe foregrounds for saturated gradient surfaces. */
+      --on-gradient: hsl(0 0% 100%);
+      --color-on-gradient: var(--on-gradient);
+      --on-gradient-muted: hsl(0 0% 88%);
+      --color-on-gradient-muted: var(--on-gradient-muted);
+
       --focus: hsl(158 72% 42%);
       --color-focus: var(--focus);
       --link: hsl(160 72% 36%);
@@ -181,6 +187,12 @@
       --color-border: var(--border);
       --separator: hsl(150 8% 16%);
       --color-separator: var(--separator);
+
+      /* Contrast-safe foregrounds for saturated gradient surfaces. */
+      --on-gradient: hsl(0 0% 100%);
+      --color-on-gradient: var(--on-gradient);
+      --on-gradient-muted: hsl(0 0% 88%);
+      --color-on-gradient-muted: var(--on-gradient-muted);
 
       --focus: hsl(158 78% 52%);
       --color-focus: var(--focus);
@@ -279,6 +291,12 @@
       --color-border: var(--border);
       --separator: hsl(158 10% 16%);
       --color-separator: var(--separator);
+
+      /* Contrast-safe foregrounds for saturated gradient surfaces. */
+      --on-gradient: hsl(0 0% 100%);
+      --color-on-gradient: var(--on-gradient);
+      --on-gradient-muted: hsl(0 0% 88%);
+      --color-on-gradient-muted: var(--on-gradient-muted);
 
       --focus: hsl(164 84% 52%);
       --color-focus: var(--focus);

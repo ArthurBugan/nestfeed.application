@@ -6,6 +6,7 @@ import { Select } from '@/components/Select';
 import { useAnime, useGroups } from '@/hooks';
 import { useTheme } from '@/theme/ThemeProvider';
 import { getThemeColor } from '@/theme/themeColors';
+import { LoadingState } from '@/components/states';
 import { IconifyIcon } from '@/components/IconifyIcon';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
@@ -38,7 +39,7 @@ export default function EditAnimeScreen() {
   };
 
   if (isLoading) {
-    return <View className="flex-1 bg-background items-center justify-center"><Text className="text-muted">Loading...</Text></View>;
+    return <View className="flex-1 bg-background items-center justify-center"><LoadingState label="Loading" /></View>;
   }
 
   return (
@@ -46,7 +47,7 @@ export default function EditAnimeScreen() {
       <SafeAreaView edges={['top', 'bottom']} style={{ flex: 1 }}>
         {/* Header */}
         <View className="flex-row items-center justify-between px-5 py-3 border-b" style={{ borderColor: getThemeColor('border', isDark) }}>
-          <TouchableOpacity onPress={() => { Haptics.selectionAsync(); router.back(); }} className="p-1.5 -ml-1 rounded-full" style={{ backgroundColor: getThemeColor('surface', isDark) }}>
+          <TouchableOpacity onPress={() => { Haptics.selectionAsync(); router.back(); }} className="p-1.5 -ml-1 rounded-full" style={{ backgroundColor: getThemeColor('surface', isDark) }} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }} accessible accessibilityRole="button" accessibilityLabel="Go back">
             <IconifyIcon name="lucide:arrow-left" size={20} color={getThemeColor('foreground', isDark)} />
           </TouchableOpacity>
           <Text className="text-lg font-semibold text-foreground">Edit Anime</Text>

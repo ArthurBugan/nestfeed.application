@@ -1,11 +1,12 @@
 import { TouchableOpacity, View, Text } from 'react-native';
-import { Input as TextInput } from 'heroui-native';
+import { Input as HeroInput, FieldError } from 'heroui-native';
 import { useState, useCallback, useRef, useMemo } from 'react';
 import BottomSheet, { BottomSheetFlatList } from '@expo/ui/community/bottom-sheet';
 import { IconifyIcon } from '@/components/IconifyIcon';
 import { useTheme } from '@/theme/ThemeProvider';
 import { getThemeColor } from '@/theme/themeColors';
 import { Portal } from 'react-native-portalize';
+import * as Haptics from 'expo-haptics';
 
 interface SelectOption {
   value: string;
@@ -22,21 +23,21 @@ interface SelectProps {
   error?: string;
 }
 
-function OptionItem({ item, isSelected, onSelect, isDark }: { item: SelectOption; isSelected: boolean; onSelect: (value: string) => void; isDark: boolean }) {
+function OptionItem({ item, isSelected, onSelect }: { item: SelectOption; isSelected: boolean; onSelect: (value: string) => void }) {
   return (
     <TouchableOpacity
-      onPress={() => onSelect(item.value)}
-      className="flex-row items-center gap-3 p-4 border-b"
-      style={{ borderBottomColor: getThemeColor('border', isDark) }}
+      onPress={() => {
+        Haptics.selectionAsync();
+        onSelect(item.value);
+      }}
+      className="flex-row items-center gap-3 p-4 border-b border-border"
       activeOpacity={0.7}
       accessible
       accessibilityRole="option"
+      accessibilityLabel={item.label}
       accessibilityState={{ selected: isSelected }}
     >
-      <View
-        className="w-8 h-8 rounded-lg flex items-center justify-center"
-        style={{ backgroundColor: getThemeColor('surface-secondary', isDark) }}
-      >
+      <View className="w-8 h-8 rounded-lg flex items-center justify-center bg-surface-secondary">
         <IconifyIcon
           name={item.icon ? item.icon : 'lucide:folder'}
           size={18}
@@ -49,7 +50,7 @@ function OptionItem({ item, isSelected, onSelect, isDark }: { item: SelectOption
         {item.label}
       </Text>
       {isSelected && (
-        <IconifyIcon name="lucide:check" size={18} color={getThemeColor('accent', isDark)} />
+        <IconifyIcon name="lucide:check" size={18} className="text-accent" />
       )}
     </TouchableOpacity>
   );
@@ -80,40 +81,43 @@ export function Select({
     [options, searchTerm]
   );
 
+  const resetSheetState = useCallback(() => {
+    setIsOpen(false);
+    setIsExpanded(false);
+    setSearchTerm('');
+  }, []);
+
   const handleSelect = useCallback(
     (itemValue: string) => {
       onChange(itemValue);
-      setIsOpen(false);
-      setIsExpanded(false);
-      setSearchTerm('');
+      resetSheetState();
     },
-    [onChange]
+    [onChange, resetSheetState]
   );
 
   const open = useCallback(() => {
+    Haptics.selectionAsync();
     setIsOpen(true);
     setIsExpanded(true);
     setSearchTerm('');
   }, []);
 
   const close = useCallback(() => {
-    setIsOpen(false);
-    setIsExpanded(false);
-    setSearchTerm('');
-  }, []);
+    resetSheetState();
+  }, [resetSheetState]);
 
-  const handleSheetChange = useCallback((index: number) => {
-    if (index === -1) {
-      setIsOpen(false);
-      setIsExpanded(false);
-      setSearchTerm('');
-    }
-  }, []);
+  const handleSheetChange = useCallback(
+    (index: number) => {
+      if (index === -1) {
+        resetSheetState();
+      }
+    },
+    [resetSheetState]
+  );
 
+  // Native sheet chrome still needs explicit colors (non-classname props).
   const bg = getThemeColor('background', isDark);
-  const border = getThemeColor('border', isDark);
-  const mutedFg = getThemeColor('muted-foreground', isDark);
-  const emptyColor = getThemeColor('muted', isDark);
+  const mutedFg = getThemeColor('muted', isDark);
 
   // Accessible announced value: reads label + chosen option (or placeholder).
   const triggerLabel = selectedOption
@@ -128,9 +132,8 @@ export function Select({
       <TouchableOpacity
         onPress={open}
         className={`bg-field-background border rounded-xl px-4 py-3 flex-row items-center gap-3 ${
-          error ? 'border-danger' : isExpanded ? 'border-accent' : 'border-border'
+          error ? 'border-danger' : 'border-field-border'
         }`}
-        style={{ borderWidth: 1.5 }}
         activeOpacity={0.7}
         accessible
         accessibilityRole="button"
@@ -142,24 +145,14 @@ export function Select({
             <IconifyIcon name={selectedOption.icon} size={18} />
           </View>
         )}
-        <Text className={`flex-1 ${selectedOption ? 'text-foreground' : 'text-muted'}`} numberOfLines={1}>
+        <Text className={`flex-1 ${selectedOption ? 'text-foreground' : 'text-field-placeholder'}`} numberOfLines={1}>
           {selectedOption?.label || placeholder}
         </Text>
-        <IconifyIcon
-          name="lucide:chevron-down"
-          size={18}
-          color={getThemeColor('muted', isDark)}
-        />
+        <IconifyIcon name="lucide:chevron-down" size={18} className="text-muted" />
       </TouchableOpacity>
 
-      {error && (
-        <Text
-          className="text-xs text-danger mt-1.5 ml-1"
-          accessibilityLiveRegion="polite"
-          accessibilityLabel={error}
-        >
-          {error}
-        </Text>
+      {!!error && (
+        <FieldError className="ml-1">{error}</FieldError>
       )}
 
       <Portal>
@@ -177,17 +170,23 @@ export function Select({
               <Text className="text-lg font-bold text-foreground">
                 {label || 'Select'}
               </Text>
-              <TouchableOpacity onPress={close} hitSlop={8}>
-                <IconifyIcon name="lucide:x" color={mutedFg} size={20} />
+              <TouchableOpacity
+                onPress={close}
+                hitSlop={12}
+                accessible
+                accessibilityRole="button"
+                accessibilityLabel="Close selection"
+              >
+                <IconifyIcon name="lucide:x" className="text-muted" size={20} />
               </TouchableOpacity>
             </View>
 
             <View className="mb-4">
-              <TextInput
+              <HeroInput
                 value={searchTerm}
                 onChangeText={setSearchTerm}
                 placeholder="Search..."
-                placeholderTextColor={emptyColor}
+                placeholderTextColor={mutedFg}
               />
             </View>
 
@@ -203,7 +202,6 @@ export function Select({
                   item={item}
                   isSelected={item.value === value}
                   onSelect={handleSelect}
-                  isDark={isDark}
                 />
               )}
               ListEmptyComponent={
