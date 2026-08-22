@@ -42,3 +42,7 @@ yarn-error.*
 *.tsbuildinfo
 
 app-example
+
+# Android/Kotlin local build artifacts
+android/.kotlin/
+/build-*.aab

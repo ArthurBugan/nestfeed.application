@@ -109,7 +109,7 @@ PODS:
   - ExpoWebBrowser (57.0.2):
     - ExpoModulesCore
   - FBLazyVector (0.86.2)
-  - Google-Mobile-Ads-SDK (13.5.0):
+  - Google-Mobile-Ads-SDK (13.1.0):
     - GoogleUserMessagingPlatform (>= 1.1)
   - GoogleUserMessagingPlatform (3.1.0)
   - hermes-engine (250829098.0.16):
@@ -2117,8 +2117,8 @@ PODS:
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
     - Yoga
-  - RNGoogleMobileAds (16.5.0):
-    - Google-Mobile-Ads-SDK (= 13.5.0)
+  - RNGoogleMobileAds (16.3.3):
+    - Google-Mobile-Ads-SDK (= 13.1.0)
     - GoogleUserMessagingPlatform (= 3.1.0)
     - hermes-engine
     - RCTRequired
@@ -2818,7 +2818,7 @@ SPEC CHECKSUMS:
   ExpoUI: 27fa8fbaf7b4a84d643b2bdd6e436ee061a100af
   ExpoWebBrowser: 9b98d939d5f1c5dd8f523f0a0683056fb1204434
   FBLazyVector: 3c3be9a019176b5699455f7f66c5444b78a411c6
-  Google-Mobile-Ads-SDK: 2171620c6497804b57dc88b95644cc82e7dfb5b0
+  Google-Mobile-Ads-SDK: 8429bef6ee1a4e322b0a5571b64217ed8317a3d5
   GoogleUserMessagingPlatform: befe603da6501006420c206222acd449bba45a9c
   hermes-engine: 275277dd82fd1c3288535edd7c0988d733aac31a
   Iconify: 7f2f2620317a0da41844365c6baead9ad03e8598
@@ -2900,7 +2900,7 @@ SPEC CHECKSUMS:
   RNCAsyncStorage: d90e523830fa7705f8c61632479abde871bc792f
   RNCMaskedView: 8069b4d4e23b3d28b4fcac70bf266be43ffc3d2e
   RNGestureHandler: 7b07d9192bc65c6883fb37fdecc05dc6b61c814f
-  RNGoogleMobileAds: bc162c787b68e2545b072b49295de46a97d29c97
+  RNGoogleMobileAds: ce8ab05b8ab16b3d1e94582529caa35769a21a39
   RNReanimated: 28766837a1b96215c55c2be65b27b8903e31ef5d
   RNScreens: 82c8a2b21dfd8b06a627ad48a543a54c2fb97abf
   RNSentry: 4f0cf7953e18b7ff30a6524107bfff730a1b0d8d
