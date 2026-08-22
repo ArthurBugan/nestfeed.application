@@ -70,6 +70,8 @@ export default function ForgotPasswordScreen() {
               value={email}
               onChangeText={setEmail}
               keyboardType="email-address"
+              autoComplete="email"
+              textContentType="emailAddress"
               autoCapitalize="none"
               autoCorrect={false}
               returnKeyType="done"

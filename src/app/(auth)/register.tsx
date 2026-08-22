@@ -123,6 +123,8 @@ export default function RegisterScreen() {
               keyboardType="email-address"
               autoCapitalize="none"
               autoCorrect={false}
+              autoComplete="email"
+              textContentType="emailAddress"
               returnKeyType="next"
               onSubmitEditing={() => passwordInputRef.current?.focus()}
               placeholderTextColor={getThemeColor('field-placeholder', isDark)}
@@ -133,9 +135,10 @@ export default function RegisterScreen() {
               value={password}
               onChangeText={setPassword}
               secureTextEntry={true}
+              autoComplete="new-password"
+              textContentType="newPassword"
               returnKeyType="done"
               onSubmitEditing={handleRegister}
-              placeholderTextColor={getThemeColor('field-placeholder', isDark)}
             />
 
             <TouchableOpacity

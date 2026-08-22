@@ -77,6 +77,8 @@ export default function ResetPasswordScreen() {
               value={password}
               onChangeText={setPassword}
               secureTextEntry={true}
+              autoComplete="new-password"
+              textContentType="newPassword"
               returnKeyType="next"
               placeholderTextColor={getThemeColor('field-placeholder', isDark)}
             />
@@ -87,6 +89,8 @@ export default function ResetPasswordScreen() {
               value={confirmPassword}
               onChangeText={setConfirmPassword}
               secureTextEntry={true}
+              autoComplete="new-password"
+              textContentType="newPassword"
               returnKeyType="done"
               onSubmitEditing={handleReset}
               placeholderTextColor={getThemeColor('field-placeholder', isDark)}
