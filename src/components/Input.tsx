@@ -16,6 +16,10 @@ interface InputProps {
   secureTextEntry?: boolean;
   keyboardType?: 'default' | 'email-address' | 'numeric' | 'phone-pad' | 'url';
   autoCapitalize?: 'none' | 'sentences' | 'words' | 'characters';
+  autoCorrect?: boolean;
+  /** Platform autofill hint, e.g. 'email' | 'password' | 'new-password' | 'one-time-code'. */
+  autoComplete?: string;
+  textContentType?: 'none' | 'emailAddress' | 'password' | 'newPassword' | 'username' | 'oneTimeCode';
   multiline?: boolean;
   numberOfLines?: number;
   editable?: boolean;
@@ -36,6 +40,9 @@ export function Input({
   secureTextEntry = false,
   keyboardType = 'default',
   autoCapitalize = 'none',
+  autoCorrect = false,
+  autoComplete = 'off',
+  textContentType,
   multiline = false,
   numberOfLines = 1,
   editable = true,
@@ -65,6 +72,9 @@ export function Input({
           secureTextEntry={secureTextEntry && !showPassword}
           keyboardType={keyboardType}
           autoCapitalize={autoCapitalize}
+          autoCorrect={autoCorrect}
+          autoComplete={autoComplete}
+          textContentType={textContentType}
           multiline={multiline}
           numberOfLines={multiline ? numberOfLines : undefined}
           editable={editable}
