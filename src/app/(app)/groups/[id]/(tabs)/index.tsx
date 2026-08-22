@@ -5,7 +5,9 @@ import { Card, Button } from 'heroui-native';
 
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { IconifyIcon } from '@/components/IconifyIcon';
+import { LoadingState } from '@/components/states';
 import { getThemeColor } from '@/theme/themeColors';
+import { shadows } from '@/theme/colors';
 import { useTheme } from '@/theme/ThemeProvider';
 import * as Haptics from 'expo-haptics';
 import { Share } from 'react-native';
@@ -63,7 +65,7 @@ export default function GroupOverviewScreen() {
   if (!group) {
     return (
       <View className="flex-1 bg-background items-center justify-center">
-        <Text className="text-muted">Loading...</Text>
+        <LoadingState label="Loading group" />
       </View>
     );
   }
@@ -78,6 +80,9 @@ export default function GroupOverviewScreen() {
             className="w-10 h-10 rounded-full items-center justify-center"
             style={{ backgroundColor: getThemeColor('surface', isDark) }}
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+            accessible
+            accessibilityRole="button"
+            accessibilityLabel="Go back"
           >
             <IconifyIcon name="lucide:arrow-left" size={20} color={getThemeColor('foreground', isDark)} />
           </TouchableOpacity>
@@ -87,6 +92,9 @@ export default function GroupOverviewScreen() {
             className="w-10 h-10 rounded-full items-center justify-center"
             style={{ backgroundColor: getThemeColor('surface', isDark) }}
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+            accessible
+            accessibilityRole="button"
+            accessibilityLabel={`Share ${group?.name || 'group'}`}
           >
             <IconifyIcon name="lucide:share-2" size={18} color={getThemeColor('foreground', isDark)} />
           </TouchableOpacity>
@@ -96,7 +104,7 @@ export default function GroupOverviewScreen() {
           {/* Group Header */}
           <View className="flex-row items-start gap-4 mb-5">
             <View className="w-16 h-16 rounded-2xl items-center justify-center" style={{ backgroundColor: getThemeColor('accent', isDark) }}>
-              <IconifyIcon name={getGroupIcon(group.icon)} size={32} color="white" />
+              <IconifyIcon name={getGroupIcon(group.icon)} size={32} color={getThemeColor('accent-foreground', isDark)} />
             </View>
             <View className="flex-1">
               <Text className="text-2xl font-bold text-foreground">{group.name}</Text>
@@ -154,8 +162,12 @@ export default function GroupOverviewScreen() {
                   <TouchableOpacity
                     key={channel.id}
                     className="flex-row items-center gap-3 bg-surface p-3 rounded-xl"
+                    style={shadows.sm}
                     onPress={() => handleItemPress(channel)}
                     activeOpacity={0.7}
+                    accessible
+                    accessibilityRole="button"
+                    accessibilityLabel={`Channel: ${channel.name}`}
                   >
                     {channel.thumbnail || channel.imageUrl ? (
                       <Image
@@ -186,6 +198,9 @@ export default function GroupOverviewScreen() {
               className="flex-row items-center justify-center gap-2 bg-surface border border-border rounded-xl py-3.5"
               onPress={() => { Haptics.selectionAsync(); router.push(`/groups/${id}/edit`); }}
               activeOpacity={0.7}
+              accessible
+              accessibilityRole="button"
+              accessibilityLabel="Edit Group"
             >
               <IconifyIcon name="lucide:pencil" size={18} color={getThemeColor('foreground', isDark)} />
               <Text className="text-foreground font-medium">Edit Group</Text>
@@ -194,6 +209,9 @@ export default function GroupOverviewScreen() {
               className="flex-row items-center justify-center gap-2 bg-surface border border-border rounded-xl py-3.5"
               onPress={() => { Haptics.selectionAsync(); router.push(`/groups/${id}/share`); }}
               activeOpacity={0.7}
+              accessible
+              accessibilityRole="button"
+              accessibilityLabel="Share Group"
             >
               <IconifyIcon name="lucide:share-2" size={18} color={getThemeColor('foreground', isDark)} />
               <Text className="text-foreground font-medium">Share Group</Text>
@@ -202,6 +220,9 @@ export default function GroupOverviewScreen() {
               className="flex-row items-center justify-center gap-2 bg-danger/10 border border-danger/20 rounded-xl py-3.5"
               onPress={handleDelete}
               activeOpacity={0.7}
+              accessible
+              accessibilityRole="button"
+              accessibilityLabel="Delete Group"
             >
               <IconifyIcon name="lucide:trash-2" size={18} color={getThemeColor('danger', isDark)} />
               <Text className="text-danger font-medium">Delete Group</Text>

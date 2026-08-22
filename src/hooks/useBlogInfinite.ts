@@ -49,6 +49,7 @@ export function useBlogInfinite(options: { limit?: number } = {}) {
     posts,
     total,
     isLoading: query.isLoading,
+    isError: query.isError,
     isFetchingNextPage: query.isFetchingNextPage,
     hasNextPage,
     loadMore: query.fetchNextPage,
@@ -58,6 +59,5 @@ export function useBlogInfinite(options: { limit?: number } = {}) {
     setFilters,
     refetch: query.refetch,
     error: query.error,
-    isError: query.isError,
   };
 }

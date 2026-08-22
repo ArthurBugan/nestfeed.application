@@ -69,7 +69,7 @@ export default function AccountSettingsScreen() {
             <View className="relative mb-4">
               <Avatar name={user?.name} size="xl" />
               <View className="absolute bottom-0 right-0 bg-accent rounded-full p-1.5 border-2 border-background">
-                <IconifyIcon name="lucide:camera" size={14} color="white" />
+                <IconifyIcon name="lucide:camera" size={14} color={getThemeColor('accent-foreground', isDark)} />
               </View>
             </View>
             <Text className="text-lg font-semibold text-foreground">{user?.name || 'User'}</Text>

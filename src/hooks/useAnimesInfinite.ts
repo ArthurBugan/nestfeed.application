@@ -22,6 +22,7 @@ export function useAnimesInfinite(options: { search?: string; limit?: number } =
   return {
     animes: query.data?.pages.flatMap(page => page?.data ?? []) ?? [],
     isLoading: query.isLoading,
+    isError: query.isError,
     isFetchingNextPage: query.isFetchingNextPage,
     hasNextPage: query.hasNextPage,
     loadMore: query.fetchNextPage,

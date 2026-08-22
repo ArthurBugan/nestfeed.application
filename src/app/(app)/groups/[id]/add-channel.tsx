@@ -301,7 +301,7 @@ export default function AddChannelToGroupScreen() {
       <View style={{ flex: 1, paddingTop: insets.top }}>
         <View className="px-5 pt-4 pb-3 border-b" style={{ borderColor }}>
           <View className="flex-row items-center mb-1">
-            <TouchableOpacity onPress={() => router.back()} className="mr-3 p-1.5 -ml-1 rounded-full" style={{ backgroundColor: surfaceColor }}>
+            <TouchableOpacity onPress={() => router.back()} className="mr-3 p-1.5 -ml-1 rounded-full" style={{ backgroundColor: surfaceColor }} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }} accessible accessibilityRole="button" accessibilityLabel="Go back">
               <IconifyIcon name="lucide:arrow-left" size={20} color={foregroundColor} />
             </TouchableOpacity>
             <Text className="text-lg font-semibold text-foreground">Add Channels</Text>

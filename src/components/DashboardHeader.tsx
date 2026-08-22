@@ -34,6 +34,9 @@ export function DashboardHeader({ title, description, action, subtitle }: Dashbo
           activeOpacity={0.7}
           className="bg-accent px-4 py-2 rounded-xl ml-3"
           hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          accessible
+          accessibilityRole="button"
+          accessibilityLabel={action.label}
         >
           <Text className="text-accent-foreground font-semibold text-sm">{action.label}</Text>
         </TouchableOpacity>

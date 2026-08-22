@@ -9,9 +9,10 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useState, useMemo, useCallback } from 'react';
 import { IconifyIcon } from '@/components/IconifyIcon';
 import { InlineAd } from '@/components/Admob';
-import { Skeleton } from 'heroui-native';
+import { EmptyState, ErrorState, LoadingState } from '@/components/states';
 import { FlashList } from '@shopify/flash-list';
 import { getThemeColor } from '@/theme/themeColors';
+import { shadows } from '@/theme/colors';
 import * as Haptics from 'expo-haptics';
 import DashboardHeader from '@/components/DashboardHeader';
 
@@ -29,9 +30,11 @@ export default function ChannelsListScreen() {
     loadMore,
     isFetchingNextPage,
     isLoading,
+    isError,
     refetch,
     setIsActive,
   } = useChannelsInfinite({ limit: 20, search });
+
 
   useFocusEffect(
     useCallback(() => {
@@ -62,8 +65,12 @@ export default function ChannelsListScreen() {
   const renderChannel = useCallback(({ item }: { item: Channel }) => (
     <TouchableOpacity
       className="mx-4 bg-surface rounded-xl p-3.5 mb-2 flex-row items-center gap-3"
+      style={shadows.sm}
       onPress={() => { Haptics.selectionAsync(); router.push(`/channels/change-group/${item.id}`); }}
       activeOpacity={0.7}
+      accessible
+      accessibilityRole="button"
+      accessibilityLabel={`Channel: ${item.name}`}
     >
       {(item.thumbnail || (item as any).imageUrl) ? (
         <Image source={{ uri: item.thumbnail || item.imageUrl }} style={{ width: 36, height: 36, borderRadius: 12 }} />
@@ -99,20 +106,6 @@ export default function ChannelsListScreen() {
     );
   }, [isFetchingNextPage, isDark]);
 
-  const renderSkeleton = () => (
-    <View className="px-4 gap-2">
-      {[1, 2, 3, 4, 5].map(i => (
-        <View key={i} className="bg-surface rounded-xl p-3.5 flex-row items-center gap-3">
-          <Skeleton width={44} height={44} className="rounded-xl" />
-          <View className="flex-1 gap-2">
-            <Skeleton height={16} className="w-3/4 rounded-lg" />
-            <Skeleton height={12} className="w-1/2 rounded-lg" />
-          </View>
-        </View>
-      ))}
-    </View>
-  );
-
   const headerComponent = (
     <View style={{ paddingHorizontal: 16 }}>
       <View className="pt-4 pb-2">
@@ -139,13 +132,24 @@ export default function ChannelsListScreen() {
     />
   );
 
+  if (isError && channels.length === 0) {
+    return (
+      <View className="flex-1 bg-background">
+        <View style={{ paddingTop: insets.top }}>
+          {headerComponent}
+        </View>
+        <ErrorState onRetry={() => refetch()} />
+      </View>
+    );
+  }
+
   if (isLoading && channels.length === 0) {
     return (
       <View className="flex-1 bg-background">
         <View style={{ paddingTop: insets.top }}>
           {headerComponent}
         </View>
-        {renderSkeleton()}
+        <LoadingState variant="skeleton" label="Loading channels" />
       </View>
     );
   }
@@ -168,12 +172,15 @@ export default function ChannelsListScreen() {
         ListFooterComponent={renderFooter}
         contentContainerStyle={{ paddingTop: insets.top, paddingBottom: 16 }}
         ListEmptyComponent={
-          <View className="py-16 items-center">
-            <View className="w-16 h-16 rounded-2xl items-center justify-center mb-4" style={{ backgroundColor: getThemeColor('default', isDark) }}>
-              <IconifyIcon name="lucide:tv" size={32} color={getThemeColor('muted', isDark)} />
-            </View>
-            <Text className="text-muted text-center font-medium">No channels found</Text>
-          </View>
+          <EmptyState
+            icon="lucide:tv"
+            title={search ? 'No channels found' : 'No channels yet'}
+            description={
+              search
+                ? `We couldn't find anything for "${search}".`
+                : 'Add a channel to start organizing your content.'
+            }
+          />
         }
       />
     </View>

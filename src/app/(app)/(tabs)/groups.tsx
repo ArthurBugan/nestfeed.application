@@ -8,8 +8,9 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { IconifyIcon } from '@/components/IconifyIcon';
 import { useState, useMemo, useCallback } from 'react';
 import { InlineAd } from '@/components/Admob';
-import { Skeleton } from 'heroui-native';
+import { EmptyState, ErrorState, LoadingState } from '@/components/states';
 import { getThemeColor } from '@/theme/themeColors';
+import { shadows } from '@/theme/colors';
 import * as Haptics from 'expo-haptics';
 import DashboardHeader from '@/components/DashboardHeader';
 import { FlashList } from '@shopify/flash-list';
@@ -28,6 +29,7 @@ export default function GroupsListScreen() {
   const {
     groups,
     isLoading,
+    isError,
     isFetchingNextPage,
     loadMore,
     search,
@@ -107,9 +109,12 @@ export default function GroupsListScreen() {
     return (
       <TouchableOpacity
         className="bg-surface rounded-xl p-3.5 mb-2 flex-row items-center gap-3"
-        style={{ marginLeft: group._depth * 16, marginHorizontal: 16 }}
+        style={{ marginLeft: group._depth * 16, marginHorizontal: 16, ...shadows.sm }}
         onPress={() => { Haptics.selectionAsync(); router.push(`/groups/${group.id}`); }}
         activeOpacity={0.7}
+        accessible
+        accessibilityRole="button"
+        accessibilityLabel={`Group: ${group.name}`}
       >
         <View className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ backgroundColor: getThemeColor('default', isDark) }}>
           <IconifyIcon name={group.icon || 'lucide:folder'} size={20} color={getThemeColor('foreground', isDark)} />
@@ -123,7 +128,7 @@ export default function GroupsListScreen() {
           )}
         </View>
         {hasChildren && (
-          <TouchableOpacity onPress={() => toggleExpand(group.id)} className="w-8 h-8 rounded-lg bg-default items-center justify-center">
+          <TouchableOpacity onPress={() => toggleExpand(group.id)} className="w-11 h-11 rounded-lg bg-default items-center justify-center" accessible accessibilityRole="button" accessibilityLabel={`${isExpanded ? 'Collapse' : 'Expand'} ${group.name}`} accessibilityState={{ expanded: isExpanded }}>
             <IconifyIcon name={isExpanded ? 'lucide:folder-open' : 'lucide:folder'} size={18} color={getThemeColor('muted', isDark)} />
           </TouchableOpacity>
         )}
@@ -140,19 +145,7 @@ export default function GroupsListScreen() {
     );
   }, [isFetchingNextPage, isDark]);
 
-  const renderSkeleton = () => (
-    <View className="px-4 gap-2">
-      {[1, 2, 3, 4, 5].map(i => (
-        <View key={i} className="bg-surface rounded-xl p-3.5 flex-row items-center gap-3">
-          <Skeleton width={40} height={40} className="rounded-xl" />
-          <View className="flex-1 gap-2">
-            <Skeleton height={16} className="w-3/4 rounded-lg" />
-            <Skeleton height={12} className="w-1/2 rounded-lg" />
-          </View>
-        </View>
-      ))}
-    </View>
-  );
+  const renderSkeleton = () => <LoadingState variant="skeleton" rows={5} label="Loading groups" />;
 
   const headerComponent = (
     <View style={{ paddingHorizontal: 16 }}>
@@ -186,6 +179,17 @@ export default function GroupsListScreen() {
     />
   );
 
+  if (isError && groups.length === 0) {
+    return (
+      <View className="flex-1 bg-background">
+        <View style={{ paddingTop: insets.top }}>
+          {headerComponent}
+        </View>
+        <ErrorState onRetry={() => refetch()} />
+      </View>
+    );
+  }
+
   if (isLoading && groups.length === 0) {
     return (
       <View className="flex-1 bg-background">
@@ -210,13 +214,13 @@ export default function GroupsListScreen() {
         ListFooterComponent={renderFooter}
         contentContainerStyle={{ paddingTop: insets.top, paddingBottom: 16 }}
         ListEmptyComponent={
-          <View className="py-16 items-center px-4">
-            <View className="w-16 h-16 rounded-2xl items-center justify-center mb-4" style={{ backgroundColor: getThemeColor('default', isDark) }}>
-              <IconifyIcon name="lucide:folder-open" size={32} color={getThemeColor('muted', isDark)} />
-            </View>
-            <Text className="text-muted text-center font-medium">No groups yet</Text>
-            <Text className="text-muted text-xs text-center mt-1">Create one to get started!</Text>
-          </View>
+          <EmptyState
+            icon="lucide:folder-open"
+            title="No groups yet"
+            description="Create one to get started!"
+            actionLabel="+ New Group"
+            onAction={() => router.push('/groups/new')}
+          />
         }
       />
     </View>

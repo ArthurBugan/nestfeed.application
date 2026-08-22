@@ -19,6 +19,7 @@ export function useWebsitesInfinite({ limit = 20, page, search, enabled = true }
   return {
     websites: query.data?.pages.flatMap(page => page?.data ?? []) ?? [],
     isLoading: query.isLoading,
+    isError: query.isError,
     isFetchingNextPage: query.isFetchingNextPage,
     hasNextPage: query.hasNextPage,
     loadMore: query.fetchNextPage,

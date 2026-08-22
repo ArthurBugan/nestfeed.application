@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { createContext, useContext, useEffect, useMemo, useState, ReactNode } from 'react';
 import { Appearance } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAppStore } from '../stores';
@@ -11,39 +11,47 @@ interface ThemeContextValue {
   theme: ThemeMode;
   isDark: boolean;
   setTheme: (theme: ThemeMode) => void;
+  /** Display preference: scales body text across the app. */
+  fontSize: 'small' | 'medium' | 'large';
+  setFontSize: (size: 'small' | 'medium' | 'large') => void;
+  /** Display preference: minimizes non-essential motion/animations. */
+  reduceMotion: boolean;
+  setReduceMotion: (value: boolean) => void;
 }
 
 const ThemeContext = createContext<ThemeContextValue | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const systemColorScheme = Appearance.getColorScheme();
-  const { isDarkMode, setDarkMode } = useAppStore();
+  const { isDarkMode, setDarkMode, fontSize, setFontSize, reduceMotion, setReduceMotion } =
+    useAppStore();
   const [theme, setThemeState] = useState<ThemeMode>('system');
+  // Track the system scheme in state so runtime changes re-render consumers.
+  const [systemScheme, setSystemScheme] = useState(Appearance.getColorScheme());
 
   // Load saved theme on mount (non-blocking)
   useEffect(() => {
-    AsyncStorage.getItem(THEME_KEY).then((saved) => {
-      if (saved === 'light' || saved === 'dark' || saved === 'system') {
-        setThemeState(saved);
-      }
-    }).catch((error) => {
-      console.error('Failed to load theme:', error);
-    });
+    AsyncStorage.getItem(THEME_KEY)
+      .then((saved) => {
+        if (saved === 'light' || saved === 'dark' || saved === 'system') {
+          setThemeState(saved);
+        }
+      })
+      .catch((error) => {
+        console.error('Failed to load theme:', error);
+      });
   }, []);
 
   // Subscribe to system theme changes
   useEffect(() => {
     const sub = Appearance.addChangeListener((pref) => {
+      setSystemScheme(pref.colorScheme);
     });
     return () => sub.remove();
   }, []);
 
   // Determine if dark mode is active
-  const resolvedSystemScheme = systemColorScheme ?? 'light';
-  const isDark = theme === 'system' 
-    ? resolvedSystemScheme === 'dark'
-    : theme === 'dark';
-
+  const resolvedSystemScheme = systemScheme ?? 'light';
+  const isDark = theme === 'system' ? resolvedSystemScheme === 'dark' : theme === 'dark';
 
   // Sync with app store
   useEffect(() => {
@@ -62,11 +70,12 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  return (
-    <ThemeContext.Provider value={{ theme, isDark, setTheme }}>
-      {children}
-    </ThemeContext.Provider>
+  const value = useMemo(
+    () => ({ theme, isDark, setTheme, fontSize, setFontSize, reduceMotion, setReduceMotion }),
+    [theme, isDark, fontSize, reduceMotion]
   );
+
+  return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 }
 
 export function useTheme() {

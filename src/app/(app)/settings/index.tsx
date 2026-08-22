@@ -46,7 +46,7 @@ export default function SettingsScreen() {
         <View style={{ paddingTop: insets.top }} className="px-5 pb-6">
         {/* Header */}
         <View className="flex-row items-center justify-between py-4">
-          <TouchableOpacity onPress={() => { Haptics.selectionAsync(); router.back(); }} className="w-10 h-10 rounded-full items-center justify-center" style={{ backgroundColor: getThemeColor('surface', isDark) }}>
+          <TouchableOpacity onPress={() => { Haptics.selectionAsync(); router.back(); }} className="w-10 h-10 rounded-full items-center justify-center" style={{ backgroundColor: getThemeColor('surface', isDark) }} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }} accessible accessibilityRole="button" accessibilityLabel="Go back">
             <IconifyIcon name="lucide:arrow-left" size={20} color={getThemeColor('foreground', isDark)} />
           </TouchableOpacity>
           <Text className="text-2xl font-bold text-foreground">Settings</Text>
@@ -193,6 +193,9 @@ export default function SettingsScreen() {
             className="flex-row items-center justify-center gap-2 bg-danger/10 border border-danger/20 rounded-xl py-3.5"
             onPress={handleLogout}
             activeOpacity={0.7}
+            accessible
+            accessibilityRole="button"
+            accessibilityLabel="Sign Out"
           >
             <IconifyIcon name="lucide:log-out" size={20} color={getThemeColor('danger', isDark)} />
             <Text className="text-danger font-semibold">Sign Out</Text>
@@ -259,7 +262,7 @@ export default function SettingsScreen() {
                 activeOpacity={0.7}
                 disabled={!canDelete || deleteAccountMutation.isPending}
               >
-                <Text className="text-white font-semibold">
+                <Text className="text-danger-foreground font-semibold">
                   {deleteAccountMutation.isPending ? 'Deleting...' : 'Delete Account'}
                 </Text>
               </TouchableOpacity>

@@ -1,3 +1,17 @@
+/**
+ * Design tokens — the single source of truth for app theming.
+ *
+ * Every key must exist in BOTH light and dark (enforced by tests). Mirrored
+ * as CSS variables in `global.css` so uniwind classes like
+ * `bg-field-background` / `text-field-placeholder` stay theme-reactive.
+ *
+ * Corner-radius scale (apply consistently; see specs/001-app-redesign):
+ *   - rounded-lg    (8px)  small chips, icon squares inside rows
+ *   - rounded-xl    (12px) inputs, selects, list rows, quick actions
+ *   - rounded-2xl   (16px) cards, shortcut tiles, settings groups, sheets
+ *   - rounded-full         avatars, pills
+ */
+
 export const themeColors = {
   light: {
     background: 'hsl(120 20% 98%)',
@@ -17,6 +31,11 @@ export const themeColors = {
     border: 'hsl(140 12% 88%)',
     success: 'hsl(155 68% 40%)',
     warning: 'hsl(38 92% 52%)',
+
+    /* Contrast-safe foregrounds for content placed on saturated gradient
+       surfaces (e.g. dashboard shortcut cards). Solid colors — never alpha. */
+    'on-gradient': 'hsl(0 0% 100%)',
+    'on-gradient-muted': 'hsl(0 0% 88%)',
 
     card: 'hsl(0 0% 100%)',
     popover: 'hsl(0 0% 100%)',
@@ -46,6 +65,11 @@ export const themeColors = {
     border: 'hsl(150 8% 18%)',
     success: 'hsl(158 78% 48%)',
     warning: 'hsl(40 92% 56%)',
+
+    /* Contrast-safe foregrounds for content placed on saturated gradient
+       surfaces (e.g. dashboard shortcut cards). Solid colors — never alpha. */
+    'on-gradient': 'hsl(0 0% 100%)',
+    'on-gradient-muted': 'hsl(0 0% 88%)',
 
     card: 'hsl(150 10% 8%)',
     popover: 'hsl(150 10% 10%)',

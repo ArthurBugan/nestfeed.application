@@ -1,6 +1,8 @@
-import { View, Text, TouchableOpacity, TextInput as RNTextInput } from 'react-native';
-import { Input as NativeInput } from 'heroui-native';
-import { useState, useRef } from 'react';
+import { Pressable, View } from 'react-native';
+import { TextField, Input as HeroInput, Label, FieldError } from 'heroui-native';
+import { useState } from 'react';
+import * as Haptics from 'expo-haptics';
+import { IconifyIcon } from '@/components/IconifyIcon';
 import { useTheme } from '@/theme/ThemeProvider';
 import { getThemeColor } from '@/theme/themeColors';
 
@@ -8,6 +10,7 @@ interface InputProps {
   value: string;
   onChangeText: (text: string) => void;
   placeholder?: string;
+  placeholderTextColor?: string;
   label?: string;
   error?: string;
   secureTextEntry?: boolean;
@@ -27,6 +30,7 @@ export function Input({
   value,
   onChangeText,
   placeholder,
+  placeholderTextColor,
   label,
   error,
   secureTextEntry = false,
@@ -43,46 +47,21 @@ export function Input({
 }: InputProps) {
   const { isDark } = useTheme();
   const [showPassword, setShowPassword] = useState(false);
-  const [isFocused, setIsFocused] = useState(false);
-  const inputRef = useRef<RNTextInput>(null);
 
-  const borderColor = error
-    ? getThemeColor('danger', isDark)
-    : isFocused
-      ? getThemeColor('accent', isDark)
-      : getThemeColor('border', isDark);
-
-  // Solid background every mode (field-* tokens resolve in both light + dark).
-  const fieldBg = getThemeColor('field-background', isDark);
-
-  // Accessible label: associate the field with its label + any error so screen
-  // readers announce a single meaningful value.
-  const inputLabel = label
-    ? error
-      ? `${label}. Error: ${error}`
-      : label
-    : placeholder;
+  const togglePassword = () => {
+    Haptics.selectionAsync();
+    setShowPassword((visible) => !visible);
+  };
 
   return (
-    <View className="mb-4">
-      {label && (
-        <Text className="text-sm font-medium text-foreground mb-1.5">
-          {label}
-        </Text>
-      )}
-      <View
-        accessibilityLabel={inputLabel}
-        className={`rounded-2xl ${error ? 'border-danger' : isFocused ? 'border-accent' : 'border-border'}`}
-        style={{
-          backgroundColor: fieldBg,
-        }}
-      >
-        <NativeInput
-          ref={inputRef}
+    <TextField isInvalid={!!error} isDisabled={!editable} className="mb-4">
+      {label && <Label>{label}</Label>}
+      <View className="w-full">
+        <HeroInput
           value={value}
           onChangeText={onChangeText}
           placeholder={placeholder}
-          placeholderTextColor={getThemeColor('field-placeholder', isDark)}
+          placeholderTextColor={placeholderTextColor ?? getThemeColor('field-placeholder', isDark)}
           secureTextEntry={secureTextEntry && !showPassword}
           keyboardType={keyboardType}
           autoCapitalize={autoCapitalize}
@@ -92,43 +71,37 @@ export function Input({
           onSubmitEditing={onSubmitEditing}
           returnKeyType={returnKeyType}
           autoFocus={autoFocus}
-          onFocus={() => setIsFocused(true)}
-          onBlur={() => setIsFocused(false)}
-          accessibilityLabel={inputLabel}
-          accessibilityHint={secureTextEntry ? 'Double tap to toggle password visibility' : undefined}
-          className={`w-full px-4 py-3 text-foreground ${secureTextEntry ? 'pr-12' : ''} ${multiline ? 'min-h-[80px]' : 'min-h-[48px]'} ${!editable ? 'opacity-50' : ''} ${className}`}
+          accessibilityLabel={label ?? placeholder}
+          className={`w-full rounded-xl text-foreground ${
+            secureTextEntry ? 'pr-12' : ''
+          } ${multiline ? 'min-h-[80px]' : ''} ${className}`}
           style={{ fontSize: multiline ? 15 : 16 }}
         />
         {secureTextEntry && (
-          <TouchableOpacity
-            onPress={() => setShowPassword(!showPassword)}
-            className="absolute right-4 top-1/2 -translate-y-1/2 p-2"
+          <Pressable
+            onPress={togglePassword}
+            className="absolute right-1 top-1/2 -translate-y-1/2 p-3"
             hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
             accessible
             accessibilityRole="button"
             accessibilityLabel={showPassword ? 'Hide password' : 'Show password'}
+            accessibilityState={{ expanded: showPassword }}
           >
-            <Text style={{ color: getThemeColor('muted', isDark) }}>
-              {showPassword ? '👁️' : '👁️‍🗨️'}
-            </Text>
-          </TouchableOpacity>
+            <IconifyIcon
+              name={showPassword ? 'lucide:eye-off' : 'lucide:eye'}
+              size={20}
+              color={getThemeColor('muted', isDark)}
+            />
+          </Pressable>
         )}
-        {rightElement && (
-          <View className="absolute right-4 top-1/2 -translate-y-1/2">
-            {rightElement}
-          </View>
+        {!secureTextEntry && rightElement && (
+          <View className="absolute right-4 top-1/2 -translate-y-1/2">{rightElement}</View>
         )}
       </View>
-      {error && (
-        <Text
-          className="text-xs text-danger mt-1.5 ml-1"
-          accessibilityLiveRegion="polite"
-          accessibilityLabel={error}
-        >
-          {error}
-        </Text>
+      {!!error && (
+        <FieldError className="ml-1">{error}</FieldError>
       )}
-    </View>
+    </TextField>
   );
 }
 

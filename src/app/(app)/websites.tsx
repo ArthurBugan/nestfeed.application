@@ -8,10 +8,11 @@ import type { Website } from '@/types';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useState, useCallback, useEffect } from 'react';
 import { IconifyIcon } from '@/components/IconifyIcon';
-import { Skeleton } from 'heroui-native';
+import { EmptyState, ErrorState, LoadingState } from '@/components/states';
 import { FlashList } from '@shopify/flash-list';
 import { Image } from 'react-native';
 import { getThemeColor } from '@/theme/themeColors';
+import { shadows } from '@/theme/colors';
 import * as Haptics from 'expo-haptics';
 import DashboardHeader from '@/components/DashboardHeader';
 
@@ -32,6 +33,7 @@ export default function WebsitesScreen() {
     loadMore,
     isFetchingNextPage,
     isLoading,
+    isError,
     refetch,
   } = useWebsitesInfinite({ limit: 20, search, enabled: loaded });
 
@@ -63,8 +65,12 @@ export default function WebsitesScreen() {
   const renderWebsite = useCallback(({ item }: { item: Website }) => (
     <TouchableOpacity
       className="bg-surface rounded-xl p-3.5 mb-2 flex-row items-center gap-3"
+      style={shadows.sm}
       onPress={() => { Haptics.selectionAsync(); router.push(`/websites/edit/${item.id}`); }}
       activeOpacity={0.7}
+      accessible
+      accessibilityRole="button"
+      accessibilityLabel={`Website: ${item.name}`}
     >
       {item.thumbnail ? (
         <Image source={{ uri: item.thumbnail }} style={{ width: 44, height: 44, borderRadius: 12 }} />
@@ -83,6 +89,9 @@ export default function WebsitesScreen() {
         style={{ backgroundColor: `${getThemeColor('danger', isDark)}15` }}
         hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
         activeOpacity={0.7}
+        accessible
+        accessibilityRole="button"
+        accessibilityLabel={`Delete ${item.name}`}
       >
         <IconifyIcon name="lucide:trash-2" size={16} color={getThemeColor('danger', isDark)} />
       </TouchableOpacity>
@@ -98,24 +107,10 @@ export default function WebsitesScreen() {
     );
   }, [isFetchingNextPage, isDark]);
 
-  const renderSkeleton = () => (
-    <View className="px-4 gap-2">
-      {[1, 2, 3, 4, 5].map(i => (
-        <View key={i} className="bg-surface rounded-xl p-3.5 flex-row items-center gap-3">
-          <Skeleton width={44} height={44} className="rounded-xl" />
-          <View className="flex-1 gap-2">
-            <Skeleton height={16} className="w-3/4 rounded-lg" />
-            <Skeleton height={12} className="w-1/2 rounded-lg" />
-          </View>
-        </View>
-      ))}
-    </View>
-  );
-
   const headerComponent = (
     <View style={{ paddingHorizontal: 16 }}>
       <View className="pt-4 pb-2 flex-row items-center">
-        <TouchableOpacity onPress={() => navigation.goBack()} className="mr-3 p-1.5 -ml-1 rounded-full" style={{ backgroundColor: getThemeColor('surface', isDark) }}>
+        <TouchableOpacity onPress={() => navigation.goBack()} className="mr-3 p-1.5 -ml-1 rounded-full" style={{ backgroundColor: getThemeColor('surface', isDark) }} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }} accessible accessibilityRole="button" accessibilityLabel="Go back">
           <IconifyIcon name="lucide:arrow-left" size={20} color={getThemeColor('foreground', isDark)} />
         </TouchableOpacity>
         <DashboardHeader title="Websites" />
@@ -141,13 +136,24 @@ export default function WebsitesScreen() {
     />
   );
 
+  if (isError && (!websites || websites.length === 0)) {
+    return (
+      <View className="flex-1 bg-background">
+        <View style={{ paddingTop: insets.top }}>
+          {headerComponent}
+        </View>
+        <ErrorState onRetry={() => refetch()} />
+      </View>
+    );
+  }
+
   if (isLoading && (!websites || websites.length === 0)) {
     return (
       <View className="flex-1 bg-background">
         <View style={{ paddingTop: insets.top }}>
           {headerComponent}
         </View>
-        {renderSkeleton()}
+        <LoadingState variant="skeleton" label="Loading websites" />
       </View>
     );
   }
@@ -165,12 +171,15 @@ export default function WebsitesScreen() {
         ListFooterComponent={renderFooter}
         contentContainerStyle={{ paddingTop: insets.top, paddingBottom: 16 }}
         ListEmptyComponent={
-          <View className="py-16 items-center px-4">
-            <View className="w-16 h-16 rounded-2xl items-center justify-center mb-4" style={{ backgroundColor: getThemeColor('default', isDark) }}>
-              <IconifyIcon name="lucide:globe" size={32} color={getThemeColor('muted', isDark)} />
-            </View>
-            <Text className="text-muted text-center font-medium">No websites found</Text>
-          </View>
+          <EmptyState
+            icon="lucide:globe"
+            title={search ? 'No websites found' : 'No websites yet'}
+            description={
+              search
+                ? `We couldn't find anything for "${search}".`
+                : 'Add a website to keep your links organized.'
+            }
+          />
         }
       />
     </View>

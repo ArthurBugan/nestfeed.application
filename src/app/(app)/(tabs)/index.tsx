@@ -3,8 +3,10 @@ import { useRouter } from 'expo-router';
 import { useDashboard } from '@/hooks';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { IconifyIcon } from '@/components/IconifyIcon';
+import { ErrorState } from '@/components/states';
 import { useState, useCallback } from 'react';
 import { getThemeColor } from '@/theme/themeColors';
+import { shadows } from '@/theme/colors';
 import { useTheme } from '@/theme/ThemeProvider';
 import * as Haptics from 'expo-haptics';
 
@@ -27,7 +29,7 @@ const actions = [
 
 export default function DashboardHomeScreen() {
   const router = useRouter();
-  const { data: dashboard, isLoading } = useDashboard();
+  const { data: dashboard, isLoading, isError, refetch } = useDashboard();
   const insets = useSafeAreaInsets();
   const { isDark } = useTheme();
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -35,8 +37,9 @@ export default function DashboardHomeScreen() {
   const handleRefresh = useCallback(async () => {
     Haptics.selectionAsync();
     setIsRefreshing(true);
-    setTimeout(() => setIsRefreshing(false), 1000);
-  }, []);
+    await refetch();
+    setIsRefreshing(false);
+  }, [refetch]);
 
   const getCount = (key: string | null) => {
     if (!key) return '';
@@ -66,28 +69,45 @@ export default function DashboardHomeScreen() {
         </View>
 
         {/* Shortcut cards */}
-        <View className="px-5 pb-8">
-          <View className="flex-row flex-wrap justify-between">
+        {isError && !dashboard ? (
+          <View className="px-5 pb-8">
+            <ErrorState
+              title="Couldn't load your dashboard"
+              onRetry={() => refetch()}
+            />
+          </View>
+        ) : (
+          <View className="px-5 pb-8">
+            <View className="flex-row flex-wrap justify-between">
             {shortcuts.map((s) => (
               <TouchableOpacity
                 key={s.label}
                 className={`w-[48%] rounded-2xl p-4 bg-gradient-to-br ${s.gradient} mb-3`}
+                style={shadows.md}
                 onPress={() => { Haptics.selectionAsync(); router.push(s.route); }}
                 activeOpacity={0.7}
+                accessible
+                accessibilityRole="button"
+                accessibilityLabel={
+                  s.count
+                    ? `${s.label}, ${getCount(s.count)} items. Opens ${s.label}.`
+                    : `Opens ${s.label}.`
+                }
               >
-                <IconifyIcon name={s.icon} size={22} color="rgba(255,255,255,0.85)" />
+                <IconifyIcon name={s.icon} size={22} color={getThemeColor('on-gradient', isDark)} />
                 {s.count ? (
                   <>
-                    <Text className="text-2xl font-bold text-white mt-3">{getCount(s.count)}</Text>
-                    <Text className="text-sm text-white/70 mt-0.5">{s.label}</Text>
+                    <Text className="text-2xl font-bold text-on-gradient mt-3">{getCount(s.count)}</Text>
+                    <Text className="text-sm text-on-gradient-muted mt-0.5">{s.label}</Text>
                   </>
                 ) : (
-                  <Text className="text-base font-semibold text-white mt-3">{s.label}</Text>
+                  <Text className="text-base font-semibold text-on-gradient mt-3">{s.label}</Text>
                 )}
               </TouchableOpacity>
             ))}
+            </View>
           </View>
-        </View>
+        )}
 
         {/* Quick actions */}
         <View className="px-5">
@@ -99,8 +119,12 @@ export default function DashboardHomeScreen() {
               <TouchableOpacity
                 key={a.label}
                 className="flex-row items-center gap-2 bg-surface border border-border rounded-xl px-4 py-3"
+                style={shadows.sm}
                 onPress={() => { Haptics.selectionAsync(); router.push(a.route); }}
                 activeOpacity={0.7}
+                accessible
+                accessibilityRole="button"
+                accessibilityLabel={a.label}
               >
                 <IconifyIcon name={a.icon} size={18} color={getThemeColor('accent', isDark)} />
                 <Text className="text-sm font-medium text-foreground">{a.label}</Text>

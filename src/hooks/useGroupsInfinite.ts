@@ -34,6 +34,7 @@ export function useGroupsInfinite(options: { page?: number; search?: string; lim
   return {
     groups,
     isLoading: query.isLoading,
+    isError: query.isError,
     isFetchingNextPage: query.isFetchingNextPage,
     hasNextPage,
     loadMore: query.fetchNextPage,
