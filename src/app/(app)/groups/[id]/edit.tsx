@@ -89,7 +89,7 @@ export default function EditGroupScreen() {
             <IconifyIcon name="lucide:arrow-left" size={20} color={getThemeColor('foreground', isDark)} />
           </TouchableOpacity>
           <Text className="text-lg font-semibold text-foreground">Edit Group</Text>
-          <TouchableOpacity onPress={handleSubmit(onSubmit)} disabled={updateGroup.isPending} className="px-4 py-1.5 rounded-lg bg-accent">
+          <TouchableOpacity onPress={() => { void handleSubmit(onSubmit)(); }} disabled={updateGroup.isPending} className="px-4 py-1.5 rounded-lg bg-accent">
             <Text className="text-accent-foreground font-semibold text-sm">Save</Text>
           </TouchableOpacity>
         </View>

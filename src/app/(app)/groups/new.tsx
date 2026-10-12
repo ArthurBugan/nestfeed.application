@@ -79,7 +79,7 @@ export default function CreateGroupScreen() {
             <IconifyIcon name="lucide:x" size={20} color={getThemeColor('foreground', isDark)} />
           </TouchableOpacity>
           <Text className="text-lg font-semibold text-foreground">Create Group</Text>
-          <TouchableOpacity onPress={handleSubmit(onSubmit)} disabled={createGroup.isPending} className="px-4 py-1.5 rounded-lg bg-accent">
+          <TouchableOpacity onPress={() => { void handleSubmit(onSubmit)(); }} disabled={createGroup.isPending} className="px-4 py-1.5 rounded-lg bg-accent">
             <Text className="text-accent-foreground font-semibold text-sm">Create</Text>
           </TouchableOpacity>
         </View>

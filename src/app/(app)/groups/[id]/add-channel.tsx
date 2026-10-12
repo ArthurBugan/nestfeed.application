@@ -399,7 +399,7 @@ export default function AddChannelToGroupScreen() {
                 <View className="py-4 items-center">
                   <ActivityIndicator size="small" color={accentColor} />
                 </View>
-              ) : null
+              ) : undefined
             }
             ListEmptyComponent={
               listData.loading ? (
