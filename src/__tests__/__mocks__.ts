@@ -1,6 +1,8 @@
 // Shared mocks for all test files
 // Import this in your test files: import '@/__tests__/__mocks__';
 
+import type { ReactNode } from 'react';
+
 // Mock expo-secure-store
 jest.mock('expo-secure-store', () => ({
   getItemAsync: jest.fn(() => Promise.resolve(null)),
@@ -15,6 +17,11 @@ jest.mock('expo-router', () => ({
     push: jest.fn(),
     back: jest.fn(),
   },
+  useRouter: jest.fn(() => ({
+    replace: jest.fn(),
+    push: jest.fn(),
+    back: jest.fn(),
+  })),
   useFocusEffect: jest.fn(),
   usePathname: jest.fn(() => '/'),
   useSearchParams: jest.fn(() => ({})),
@@ -234,6 +241,7 @@ jest.mock('react-native-gesture-handler', () => ({
 // Mock react-native-reanimated
 jest.mock('react-native-reanimated', () => {
   const Reanimated = {
+    createAnimatedComponent: jest.fn((c) => c),
     useSharedValue: jest.fn((val) => ({ value: val })),
     useAnimatedStyle: jest.fn((fn) => fn()),
     useAnimatedScrollHandler: jest.fn((fn) => fn),
@@ -260,8 +268,8 @@ jest.mock('react-native-safe-area-context', () => {
     ...original,
     useSafeAreaInsets: jest.fn(() => ({ top: 0, right: 0, bottom: 0, left: 0 })),
     useSafeAreaFrame: jest.fn(() => ({ x: 0, y: 0, width: 390, height: 844 })),
-    SafeAreaProvider: ({ children }) => children,
-    SafeAreaView: ({ children }) => children,
+    SafeAreaProvider: ({ children }: { children: ReactNode }) => children,
+    SafeAreaView: ({ children }: { children: ReactNode }) => children,
   };
 });
 
@@ -339,7 +347,7 @@ jest.mock('react-native-google-mobile-ads', () => ({
 
 // Mock react-native-portalize
 jest.mock('react-native-portalize', () => ({
-  PortalProvider: ({ children }) => children,
+  PortalProvider: ({ children }: { children: ReactNode }) => children,
 }));
 
 // Mock react-native-enriched-markdown

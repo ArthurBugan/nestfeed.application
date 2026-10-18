@@ -1,13 +1,39 @@
 @import 'tailwindcss';
 @import 'uniwind';
 
-@import 'heroui-native/styles';
+/* NOTE: `@import 'heroui-native/styles'` resolves through the package
+   `exports` map, which uniwind's CSS processor silently skips — dropping every
+   heroui component class (input__input min-height/border, buttons, etc.).
+   Import the file by relative path instead. */
+@import './node_modules/heroui-native/lib/module/styles/index.css';
 
 @source './node_modules/heroui-native/lib';
 
 @layer theme {
   :root {
     --radius: 0.75rem;
+
+    /* Typography — Inter (registered in _layout.tsx). Weight utilities
+       (font-medium / font-semibold / font-bold) map to the real Inter
+       weights instead of RN's synthesized bold. */
+    --font-sans: 'Inter-Regular', system-ui, sans-serif;
+    --font-medium: 'Inter-Medium', system-ui, sans-serif;
+    --font-semibold: 'Inter-SemiBold', system-ui, sans-serif;
+    --font-bold: 'Inter-Bold', system-ui, sans-serif;
+
+    /* Radius scale (specs/001 + 005): control 12 / card 16 / tile 26 / sheet 28 */
+    --radius-control: 12px;
+    --radius-card: 16px;
+    --radius-tile: 26px;
+    --radius-sheet: 28px;
+
+    /* Form fields (heroui Input/TextField). heroui's base defaults ship
+       `--field-border-width: 0px` and a 21px field radius (--radius * 1.75),
+       which leaves fields borderless and near-invisible on our near-white
+       backgrounds — spec 005 P1 reserves borders for fields and focus rings.
+       The border colors themselves are themed per variant below. */
+    --field-border-width: 1px;
+    --field-radius: var(--radius-control);
 
     /* =========================
        LIGHT
@@ -43,12 +69,12 @@
       --color-backdrop: var(--backdrop);
 
       /* MAIN BRAND */
-      --accent: hsl(158 72% 38%);
+      --accent: hsl(158 72% 30%);
       --color-accent: var(--accent);
       --accent-foreground: hsl(0 0% 100%);
       --color-accent-foreground: var(--accent-foreground);
 
-      --muted: hsl(145 8% 44%);
+      --muted: hsl(145 9% 42%);
       --color-muted: var(--muted);
 
       --default: hsl(140 18% 94%);
@@ -60,22 +86,44 @@
       --color-field-background: var(--field-background);
       --field-foreground: var(--foreground);
       --color-field-foreground: var(--field-foreground);
-      --field-placeholder: hsl(145 8% 58%);
+      --field-placeholder: hsl(145 10% 43%);
       --color-field-placeholder: var(--field-placeholder);
       --field-border: hsl(140 10% 86%);
       --color-field-border: var(--field-border);
 
-      --success: hsl(155 68% 40%);
+      --success: hsl(155 68% 30%);
       --color-success: var(--success);
       --success-foreground: hsl(0 0% 100%);
       --color-success-foreground: var(--success-foreground);
 
-      --warning: hsl(38 92% 52%);
+      --warning: hsl(38 92% 38%);
       --color-warning: var(--warning);
-      --warning-foreground: hsl(0 0% 100%);
+      --warning-foreground: hsl(30 35% 10%);
       --color-warning-foreground: var(--warning-foreground);
 
-      --danger: hsl(0 78% 56%);
+      /* SOFT (pastel) tints — bento tiles / tinted cards (spec 005 P8 tokens-only) */
+      --accent-soft: hsl(160 48% 91%);
+      --color-accent-soft: var(--accent-soft);
+      --success-soft: hsl(150 48% 87%);
+      --color-success-soft: var(--success-soft);
+      --warning-soft: hsl(44 88% 89%);
+      --color-warning-soft: var(--warning-soft);
+      --teal: hsl(176 58% 30%);
+      --color-teal: var(--teal);
+      --teal-foreground: hsl(0 0% 100%);
+      --color-teal-foreground: var(--teal-foreground);
+      --teal-soft: hsl(180 46% 89%);
+      --color-teal-soft: var(--teal-soft);
+      --lime: hsl(96 52% 33%);
+      --color-lime: var(--lime);
+      --lime-foreground: hsl(0 0% 100%);
+      --color-lime-foreground: var(--lime-foreground);
+      --lime-soft: hsl(100 46% 89%);
+      --color-lime-soft: var(--lime-soft);
+      --rose-soft: hsl(6 65% 91%);
+      --color-rose-soft: var(--rose-soft);
+
+      --danger: hsl(0 75% 48%);
       --color-danger: var(--danger);
       --danger-foreground: hsl(0 0% 100%);
       --color-danger-foreground: var(--danger-foreground);
@@ -88,12 +136,12 @@
       /* Contrast-safe foregrounds for saturated gradient surfaces. */
       --on-gradient: hsl(0 0% 100%);
       --color-on-gradient: var(--on-gradient);
-      --on-gradient-muted: hsl(0 0% 88%);
+      --on-gradient-muted: hsl(145 9% 42%);
       --color-on-gradient-muted: var(--on-gradient-muted);
 
-      --focus: hsl(158 72% 42%);
+      --focus: hsl(158 72% 34%);
       --color-focus: var(--focus);
-      --link: hsl(160 72% 36%);
+      --link: hsl(160 74% 28%);
       --color-link: var(--link);
 
       --segment: hsl(140 16% 96%);
@@ -175,10 +223,32 @@
 
       --warning: hsl(40 92% 56%);
       --color-warning: var(--warning);
-      --warning-foreground: hsl(0 0% 100%);
+      --warning-foreground: hsl(30 35% 10%);
       --color-warning-foreground: var(--warning-foreground);
 
-      --danger: hsl(0 78% 60%);
+      /* SOFT (pastel) tints — deep hue-tinted surfaces for dark */
+      --accent-soft: hsl(158 24% 13%);
+      --color-accent-soft: var(--accent-soft);
+      --success-soft: hsl(155 26% 12%);
+      --color-success-soft: var(--success-soft);
+      --warning-soft: hsl(40 26% 14%);
+      --color-warning-soft: var(--warning-soft);
+      --teal: hsl(176 62% 46%);
+      --color-teal: var(--teal);
+      --teal-foreground: hsl(155 24% 8%);
+      --color-teal-foreground: var(--teal-foreground);
+      --teal-soft: hsl(185 24% 12%);
+      --color-teal-soft: var(--teal-soft);
+      --lime: hsl(98 55% 47%);
+      --color-lime: var(--lime);
+      --lime-foreground: hsl(155 24% 8%);
+      --color-lime-foreground: var(--lime-foreground);
+      --lime-soft: hsl(100 24% 12%);
+      --color-lime-soft: var(--lime-soft);
+      --rose-soft: hsl(6 28% 15%);
+      --color-rose-soft: var(--rose-soft);
+
+      --danger: hsl(0 78% 52%);
       --color-danger: var(--danger);
       --danger-foreground: hsl(0 0% 100%);
       --color-danger-foreground: var(--danger-foreground);
@@ -279,10 +349,32 @@
 
       --warning: hsl(40 92% 56%);
       --color-warning: var(--warning);
-      --warning-foreground: hsl(0 0% 100%);
+      --warning-foreground: hsl(30 35% 10%);
       --color-warning-foreground: var(--warning-foreground);
 
-      --danger: hsl(0 82% 60%);
+      /* SOFT (pastel) tints — deep emerald-tinted surfaces for groupify */
+      --accent-soft: hsl(158 30% 11%);
+      --color-accent-soft: var(--accent-soft);
+      --success-soft: hsl(160 34% 10%);
+      --color-success-soft: var(--success-soft);
+      --warning-soft: hsl(40 26% 13%);
+      --color-warning-soft: var(--warning-soft);
+      --teal: hsl(178 66% 44%);
+      --color-teal: var(--teal);
+      --teal-foreground: hsl(160 32% 8%);
+      --color-teal-foreground: var(--teal-foreground);
+      --teal-soft: hsl(185 28% 11%);
+      --color-teal-soft: var(--teal-soft);
+      --lime: hsl(100 58% 45%);
+      --color-lime: var(--lime);
+      --lime-foreground: hsl(160 32% 8%);
+      --color-lime-foreground: var(--lime-foreground);
+      --lime-soft: hsl(100 26% 11%);
+      --color-lime-soft: var(--lime-soft);
+      --rose-soft: hsl(6 28% 14%);
+      --color-rose-soft: var(--rose-soft);
+
+      --danger: hsl(0 82% 51%);
       --color-danger: var(--danger);
       --danger-foreground: hsl(0 0% 100%);
       --color-danger-foreground: var(--danger-foreground);

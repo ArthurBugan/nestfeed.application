@@ -1,28 +1,45 @@
-import { View, Text, TouchableOpacity, ScrollView, RefreshControl } from 'react-native';
+import { View, Text } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useDashboard } from '@/hooks';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { IconifyIcon } from '@/components/IconifyIcon';
 import { ErrorState } from '@/components/states';
 import { useState, useCallback } from 'react';
+import { useWindowDimensions } from 'react-native';
 import { getThemeColor } from '@/theme/themeColors';
 import { shadows } from '@/theme/colors';
 import { useTheme } from '@/theme/ThemeProvider';
-import * as Haptics from 'expo-haptics';
+import { tap } from '@/theme/haptics';
+import { Screen } from '@/components/ui/Screen';
+import { ScreenHeader } from '@/components/ui/ScreenHeader';
+import { Chip } from '@/components/ui/Button';
+import { PressableScale } from '@/components/ui/PressableScale';
 
-const shortcuts = [
-  { label: 'Groups', count: 'groups', route: '/groups', icon: 'lucide:folder', gradient: 'from-rose-400/80 to-pink-500/80' },
-  { label: 'Channels', count: 'channels', route: '/channels', icon: 'lucide:tv', gradient: 'from-violet-400/80 to-purple-500/80' },
-  { label: 'Animes', count: 'animeChannels', route: '/animes', icon: 'lucide:film', gradient: 'from-amber-400/80 to-orange-500/80' },
-  { label: 'Websites', count: 'websites', route: '/websites', icon: 'lucide:globe', gradient: 'from-emerald-400/80 to-teal-500/80' },
-  { label: 'Group Shelf', count: null, route: '/groupshelf', icon: 'lucide:library', gradient: 'from-sky-400/80 to-cyan-500/80' },
-  { label: 'Share Links', count: null, route: '/share-links', icon: 'lucide:link-2', gradient: 'from-indigo-400/80 to-blue-500/80' },
+/** Brand-true tile tints (spec 005, P8) — tokens only, no off-palette gradients. */
+type ShortcutTint = 'accent' | 'teal' | 'success' | 'lime' | 'warning' | 'rose';
+
+interface Shortcut {
+  label: string;
+  count: string | null;
+  route: string;
+  icon: string;
+  tint: ShortcutTint;
+}
+
+const shortcuts: Shortcut[] = [
+  { label: 'Groups', count: 'groups', route: '/groups', icon: 'lucide:folder', tint: 'accent' },
+  { label: 'Channels', count: 'channels', route: '/channels', icon: 'lucide:tv', tint: 'teal' },
+  { label: 'Animes', count: 'animeChannels', route: '/animes', icon: 'lucide:film', tint: 'warning' },
+  { label: 'Websites', count: 'websites', route: '/websites', icon: 'lucide:globe', tint: 'lime' },
+  { label: 'Group Shelf', count: null, route: '/groupshelf', icon: 'lucide:library', tint: 'success' },
+  { label: 'Share Links', count: null, route: '/share-links', icon: 'lucide:link-2', tint: 'rose' },
 ];
 
 const actions = [
   { label: 'New Group', route: '/groups/new', icon: 'lucide:plus-circle' },
   { label: 'Add Channel', route: '/channels', icon: 'lucide:tv-minimal-play' },
   { label: 'Add Anime', route: '/animes', icon: 'lucide:clapperboard' },
+  { label: 'Import', route: '/import-youtube', icon: 'lucide:youtube' },
   { label: 'Settings', route: '/settings', icon: 'lucide:settings' },
   { label: 'Blog', route: '/blog', icon: 'lucide:newspaper' },
 ];
@@ -33,9 +50,12 @@ export default function DashboardHomeScreen() {
   const insets = useSafeAreaInsets();
   const { isDark } = useTheme();
   const [isRefreshing, setIsRefreshing] = useState(false);
+  /** Spec 008 FR-A1: accessibility content sizes stack the bento in one
+   *  column — two-up cards would force mid-word breaks at 200%+. */
+  const stacked = useWindowDimensions().fontScale >= 1.35;
 
   const handleRefresh = useCallback(async () => {
-    Haptics.selectionAsync();
+    tap();
     setIsRefreshing(true);
     await refetch();
     setIsRefreshing(false);
@@ -47,28 +67,29 @@ export default function DashboardHomeScreen() {
     return dashboard?.[key as keyof typeof dashboard] ?? 0;
   };
 
+  /** Saturated icon color for each tint chip (native prop → token color). */
+  const tintForeground: Record<ShortcutTint, string> = {
+    accent: getThemeColor('accent', isDark),
+    teal: getThemeColor('teal', isDark),
+    success: getThemeColor('success', isDark),
+    lime: getThemeColor('lime', isDark),
+    warning: getThemeColor('warning', isDark),
+    rose: getThemeColor('danger', isDark),
+  };
+
   return (
-    <ScrollView
-      contentContainerStyle={{ flexGrow: 1 }}
-      className="bg-background"
-      showsVerticalScrollIndicator={false}
-      refreshControl={
-        <RefreshControl 
-          refreshing={isRefreshing} 
-          onRefresh={handleRefresh}
-          tintColor={getThemeColor('accent', isDark)}
-          colors={[getThemeColor('accent', isDark)]}
-        />
-      }
-    >
+    <Screen scroll refreshing={isRefreshing} onRefresh={handleRefresh} padded={false} edges={['top']}>
       <View style={{ paddingLeft: insets.left, paddingRight: insets.right, paddingBottom: 32 }}>
         {/* Header */}
         <View className="px-5 pt-4 pb-6">
-          <Text className="text-3xl font-bold text-foreground">Dashboard</Text>
-          <Text className="text-base text-muted mt-1">Your content at a glance</Text>
+          <ScreenHeader
+            title="Dashboard"
+            subtitle="Your content at a glance"
+            leading="none"
+          />
         </View>
 
-        {/* Shortcut cards */}
+        {/* Shortcut bento grid (P7) */}
         {isError && !dashboard ? (
           <View className="px-5 pb-8">
             <ErrorState
@@ -78,14 +99,15 @@ export default function DashboardHomeScreen() {
           </View>
         ) : (
           <View className="px-5 pb-8">
-            <View className="flex-row flex-wrap justify-between">
+            <View className={stacked ? 'gap-3' : 'flex-row flex-wrap justify-between'}>
             {shortcuts.map((s) => (
-              <TouchableOpacity
+              <PressableScale
                 key={s.label}
-                className={`w-[48%] rounded-2xl p-4 bg-gradient-to-br ${s.gradient} mb-3`}
+                className={`rounded-3xl p-4 mb-3 bg-surface border border-border ${
+                  stacked ? '' : 'w-[48%]'
+                }`}
                 style={shadows.md}
-                onPress={() => { Haptics.selectionAsync(); router.push(s.route); }}
-                activeOpacity={0.7}
+                onPress={() => router.push(s.route)}
                 accessible
                 accessibilityRole="button"
                 accessibilityLabel={
@@ -94,16 +116,21 @@ export default function DashboardHomeScreen() {
                     : `Opens ${s.label}.`
                 }
               >
-                <IconifyIcon name={s.icon} size={22} color={getThemeColor('on-gradient', isDark)} />
+                <View
+                  className="w-12 h-12 rounded-2xl items-center justify-center"
+                  style={{ backgroundColor: getThemeColor(`${s.tint === 'rose' ? 'danger' : s.tint}-soft`, isDark) }}
+                >
+                  <IconifyIcon name={s.icon} size={20} color={tintForeground[s.tint]} />
+                </View>
                 {s.count ? (
                   <>
-                    <Text className="text-2xl font-bold text-on-gradient mt-3">{getCount(s.count)}</Text>
-                    <Text className="text-sm text-on-gradient-muted mt-0.5">{s.label}</Text>
+                    <Text className="text-2xl font-bold text-foreground mt-3">{getCount(s.count)}</Text>
+                    <Text className="text-sm text-muted mt-0.5">{s.label}</Text>
                   </>
                 ) : (
-                  <Text className="text-base font-semibold text-on-gradient mt-3">{s.label}</Text>
+                  <Text className="text-base font-semibold text-foreground mt-3">{s.label}</Text>
                 )}
-              </TouchableOpacity>
+              </PressableScale>
             ))}
             </View>
           </View>
@@ -116,23 +143,16 @@ export default function DashboardHomeScreen() {
           </Text>
           <View className="flex-row flex-wrap gap-2">
             {actions.map((a) => (
-              <TouchableOpacity
+              <Chip
                 key={a.label}
-                className="flex-row items-center gap-2 bg-surface border border-border rounded-xl px-4 py-3"
-                style={shadows.sm}
-                onPress={() => { Haptics.selectionAsync(); router.push(a.route); }}
-                activeOpacity={0.7}
-                accessible
-                accessibilityRole="button"
-                accessibilityLabel={a.label}
-              >
-                <IconifyIcon name={a.icon} size={18} color={getThemeColor('accent', isDark)} />
-                <Text className="text-sm font-medium text-foreground">{a.label}</Text>
-              </TouchableOpacity>
+                label={a.label}
+                icon={a.icon}
+                onPress={() => router.push(a.route)}
+              />
             ))}
           </View>
         </View>
       </View>
-    </ScrollView>
+    </Screen>
   );
 }

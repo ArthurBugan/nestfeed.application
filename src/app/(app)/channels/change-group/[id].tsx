@@ -1,12 +1,15 @@
-import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text } from 'react-native';
 import { Image } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { useChannel, useGroups, useUpdateChannel } from '@/hooks';
-import { Button } from 'heroui-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { IconifyIcon } from '@/components/IconifyIcon';
 import AdMobManager from '@/components/Admob';
+import { Screen } from '@/components/ui/Screen';
+import { ScreenHeader } from '@/components/ui/ScreenHeader';
+import { Card } from '@/components/ui/Card';
+import { Button } from '@/components/ui/Button';
+import { PressableScale } from '@/components/ui/PressableScale';
 
 export default function ChangeChannelGroupScreen() {
   const router = useRouter();
@@ -15,7 +18,6 @@ export default function ChangeChannelGroupScreen() {
   const { data: groupsData } = useGroups({ limit: 100 });
   const [selectedGroupId, setSelectedGroupId] = useState(channel?.data?.groupId || '');
   const updateChannel = useUpdateChannel();
-
 
   const handleSave = async () => {
     await updateChannel.mutateAsync({
@@ -32,27 +34,21 @@ export default function ChangeChannelGroupScreen() {
   };
 
   return (
-    <ScrollView contentContainerStyle={{ flexGrow: 1 }} className="bg-background p-4">
-      <SafeAreaView edges={['top']}>
-        <View className="flex-row items-center mb-4">
-          <TouchableOpacity onPress={() => router.back()} className="mr-2">
-            <Text className="text-accent">← Back</Text>
-          </TouchableOpacity>
-        </View>
+    <Screen edges={['top']} scroll contentContainerStyle={{ paddingBottom: 32 }}>
+      <ScreenHeader title="Change Group" className="pt-2" />
 
-        <Text className="text-2xl font-bold text-foreground mb-4">Change Group</Text>
-
-        {channel?.data?.groupName && (
-          <View className="flex-row items-center gap-2 mb-4">
-            <Text className="text-muted">Current group:</Text>
-            <View className="flex-row items-center gap-2 bg-default px-3 py-1 rounded-lg">
-              <IconifyIcon name={getGroupIcon(channel?.data?.groupIcon)} size={14} />
-              <Text className="text-foreground text-sm">{channel.data.groupName}</Text>
-            </View>
+      {channel?.data?.groupName && (
+        <View className="flex-row items-center gap-2 mt-3 mb-4">
+          <Text className="text-muted">Current group:</Text>
+          <View className="flex-row items-center gap-2 bg-default px-3 py-1 rounded-lg">
+            <IconifyIcon name={getGroupIcon(channel?.data?.groupIcon)} size={14} />
+            <Text className="text-foreground text-sm">{channel.data.groupName}</Text>
           </View>
-        )}
+        </View>
+      )}
 
-        <View className="flex-row items-center gap-3 bg-surface rounded-xl p-4 mb-6">
+      <Card className="mb-6">
+        <View className="flex-row items-center gap-3">
           {channel?.data?.thumbnail || channel?.data?.imageUrl ? (
             <Image source={{ uri: channel?.data?.thumbnail || channel?.data?.imageUrl }} style={{ width: 64, height: 64, borderRadius: 12 }} />
           ) : (
@@ -69,36 +65,40 @@ export default function ChangeChannelGroupScreen() {
             )}
           </View>
         </View>
+      </Card>
 
-        <Text className="text-muted mb-3">Select a group</Text>
+      <Text className="text-muted mb-3">Select a group</Text>
 
-        {groupsData?.data.map((group) => (
-          <TouchableOpacity
-            key={group.id}
-            className={`flex-row items-center gap-3 bg-surface rounded-xl p-4 mb-2 ${selectedGroupId === group.id ? 'border-2 border-primary' : ''}`}
-            onPress={() => setSelectedGroupId(group.id)}
-          >
-            <View className="w-10 h-10 rounded-lg bg-default items-center justify-center">
-              <IconifyIcon name={getGroupIcon(group.icon)} size={20} />
-            </View>
-            <View className="flex-1">
-              <Text className="font-medium text-foreground">{group.name}</Text>
-              {group.description && (
-                <Text className="text-sm text-muted" numberOfLines={1}>
-                  {group.description}
-                </Text>
-              )}
-            </View>
-            {selectedGroupId === group.id && (
-              <IconifyIcon name="mdi:check-circle" size={24} color="color-primary" />
+      {groupsData?.data.map((group) => (
+        <PressableScale
+          key={group.id}
+          className={`flex-row items-center gap-3 bg-surface rounded-card p-4 mb-2 ${
+            selectedGroupId === group.id ? 'border-2 border-accent' : ''
+          }`}
+          onPress={() => setSelectedGroupId(group.id)}
+          accessible
+          accessibilityRole="button"
+          accessibilityState={{ selected: selectedGroupId === group.id }}
+          accessibilityLabel={`Group: ${group.name}`}
+        >
+          <View className="w-10 h-10 rounded-lg bg-default items-center justify-center">
+            <IconifyIcon name={getGroupIcon(group.icon)} size={20} />
+          </View>
+          <View className="flex-1">
+            <Text className="font-medium text-foreground">{group.name}</Text>
+            {group.description && (
+              <Text className="text-sm text-muted" numberOfLines={1}>
+                {group.description}
+              </Text>
             )}
-          </TouchableOpacity>
-        ))}
+          </View>
+          {selectedGroupId === group.id && (
+            <IconifyIcon name="mdi:check-circle" size={24} className="text-accent" />
+          )}
+        </PressableScale>
+      ))}
 
-        <Button onPress={handleSave} fullWidth className="mt-4">
-          Save
-        </Button>
-      </SafeAreaView>
-    </ScrollView>
+      <Button label="Save" fullWidth className="mt-4" onPress={handleSave} />
+    </Screen>
   );
 }

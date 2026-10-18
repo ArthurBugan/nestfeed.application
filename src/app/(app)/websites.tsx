@@ -1,5 +1,4 @@
-import { View, Text, TouchableOpacity, ActivityIndicator, Alert, RefreshControl } from 'react-native';
-import { Input } from 'heroui-native';
+import { View, ActivityIndicator, Alert, RefreshControl, Image } from 'react-native';
 import { useRouter, useNavigation } from 'expo-router';
 import { useWebsitesInfinite } from '@/hooks/useWebsitesInfinite';
 import { useDeleteWebsite } from '@/hooks';
@@ -10,11 +9,13 @@ import { useState, useCallback, useEffect } from 'react';
 import { IconifyIcon } from '@/components/IconifyIcon';
 import { EmptyState, ErrorState, LoadingState } from '@/components/states';
 import { FlashList } from '@shopify/flash-list';
-import { Image } from 'react-native';
 import { getThemeColor } from '@/theme/themeColors';
-import { shadows } from '@/theme/colors';
-import * as Haptics from 'expo-haptics';
-import DashboardHeader from '@/components/DashboardHeader';
+import { alpha } from '@/theme/alpha';
+import { tap } from '@/theme/haptics';
+import { ScreenHeader } from '@/components/ui/ScreenHeader';
+import { SearchField } from '@/components/ui/SearchField';
+import { ListRow } from '@/components/ui/ListRow';
+import { PressableScale } from '@/components/ui/PressableScale';
 
 export default function WebsitesScreen() {
   const router = useRouter();
@@ -38,14 +39,13 @@ export default function WebsitesScreen() {
   } = useWebsitesInfinite({ limit: 20, search, enabled: loaded });
 
   const handleRefresh = useCallback(async () => {
-    Haptics.selectionAsync();
+    tap();
     setIsRefreshing(true);
     await refetch();
     setIsRefreshing(false);
   }, [refetch]);
 
   const handleDelete = useCallback((id: string, name: string) => {
-    Haptics.selectionAsync();
     Alert.alert('Delete Website', `Delete "${name}"?`, [
       { text: 'Cancel', style: 'cancel' },
       {
@@ -63,39 +63,36 @@ export default function WebsitesScreen() {
   }, [deleteWebsite]);
 
   const renderWebsite = useCallback(({ item }: { item: Website }) => (
-    <TouchableOpacity
-      className="bg-surface rounded-xl p-3.5 mb-2 flex-row items-center gap-3"
-      style={shadows.sm}
-      onPress={() => { Haptics.selectionAsync(); router.push(`/websites/edit/${item.id}`); }}
-      activeOpacity={0.7}
-      accessible
-      accessibilityRole="button"
+    <ListRow
+      className="mx-4 mb-2"
+      leading={
+        item.thumbnail ? (
+          <Image
+            source={{ uri: item.thumbnail }}
+            style={{ width: 44, height: 44, borderRadius: 12 }}
+          />
+        ) : undefined
+      }
+      icon={item.thumbnail ? undefined : 'lucide:globe'}
+      title={item.name}
+      subtitle={item.url}
+      chevron={false}
+      onPress={() => router.push(`/websites/edit/${item.id}`)}
       accessibilityLabel={`Website: ${item.name}`}
-    >
-      {item.thumbnail ? (
-        <Image source={{ uri: item.thumbnail }} style={{ width: 44, height: 44, borderRadius: 12 }} />
-      ) : (
-        <View className="w-11 h-11 rounded-xl items-center justify-center" style={{ backgroundColor: getThemeColor('default', isDark) }}>
-          <IconifyIcon name="lucide:globe" size={20} color={getThemeColor('foreground', isDark)} />
-        </View>
-      )}
-      <View className="flex-1 min-w-0">
-        <Text className="text-base font-semibold text-foreground" numberOfLines={1}>{item.name}</Text>
-        <Text className="text-xs text-muted" numberOfLines={1}>{item.url}</Text>
-      </View>
-      <TouchableOpacity
-        onPress={(e) => { e.stopPropagation(); handleDelete(item.id, item.name); }}
-        className="w-9 h-9 rounded-lg items-center justify-center"
-        style={{ backgroundColor: `${getThemeColor('danger', isDark)}15` }}
-        hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-        activeOpacity={0.7}
-        accessible
-        accessibilityRole="button"
-        accessibilityLabel={`Delete ${item.name}`}
-      >
-        <IconifyIcon name="lucide:trash-2" size={16} color={getThemeColor('danger', isDark)} />
-      </TouchableOpacity>
-    </TouchableOpacity>
+      trailing={
+        <PressableScale
+          onPress={(e) => { e.stopPropagation(); handleDelete(item.id, item.name); }}
+          className="w-9 h-9 rounded-lg items-center justify-center"
+          style={{ backgroundColor: alpha(getThemeColor('danger', isDark), 0.08) }}
+          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          accessible
+          accessibilityRole="button"
+          accessibilityLabel={`Delete ${item.name}`}
+        >
+          <IconifyIcon name="lucide:trash-2" size={16} color={getThemeColor('danger', isDark)} />
+        </PressableScale>
+      }
+    />
   ), [isDark, router, handleDelete]);
 
   const renderFooter = useCallback(() => {
@@ -109,19 +106,14 @@ export default function WebsitesScreen() {
 
   const headerComponent = (
     <View style={{ paddingHorizontal: 16 }}>
-      <View className="pt-4 pb-2 flex-row items-center">
-        <TouchableOpacity onPress={() => navigation.goBack()} className="mr-3 p-1.5 -ml-1 rounded-full" style={{ backgroundColor: getThemeColor('surface', isDark) }} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }} accessible accessibilityRole="button" accessibilityLabel="Go back">
-          <IconifyIcon name="lucide:arrow-left" size={20} color={getThemeColor('foreground', isDark)} />
-        </TouchableOpacity>
-        <DashboardHeader title="Websites" />
+      <View className="pt-4 pb-2">
+        <ScreenHeader title="Websites" onBack={() => navigation.goBack()} />
       </View>
       <View className="mb-4">
-        <Input
+        <SearchField
           placeholder="Search websites..."
-          placeholderTextColor={getThemeColor('field-placeholder', isDark)}
           value={search}
           onChangeText={setSearch}
-          className="rounded-xl"
         />
       </View>
     </View>

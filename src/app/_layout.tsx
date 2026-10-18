@@ -5,6 +5,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useEffect, useRef } from 'react';
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
+import { StatusBar } from 'expo-status-bar';
 import { Inter_400Regular, Inter_500Medium, Inter_600SemiBold, Inter_700Bold } from '@expo-google-fonts/inter';
 import * as Linking from 'expo-linking';
 import { router } from 'expo-router';
@@ -90,14 +91,15 @@ function AppContent() {
 }
 
 function AppContentWithTheme() {
-  const { isDark, reduceMotion, fontSize } = useTheme();
+  const { isDark, variant, reduceMotion, fontSize } = useTheme();
 
   useEffect(() => {
-    Uniwind.setTheme(isDark ? 'dark' : 'light');
-  }, [isDark]);
+    Uniwind.setTheme(variant);
+  }, [variant]);
 
-  // "Large" allows OS Dynamic Type to scale text further; "Small" caps it.
-  const maxFontSizeMultiplier = fontSize === 'small' ? 1 : fontSize === 'large' ? 2 : 1.35;
+  // Dynamic Type: the OS setting is always respected; the in-app preference
+  // scales the *base* size, never caps OS scaling below 1.
+  const maxFontSizeMultiplier = fontSize === 'large' ? 2 : 1.5;
 
   return (
     <HeroUINativeProvider
@@ -106,6 +108,7 @@ function AppContentWithTheme() {
         textProps: { allowFontScaling: true, maxFontSizeMultiplier },
       }}
     >
+      <StatusBar style={isDark ? 'light' : 'dark'} />
       <QueryClientProvider client={queryClient}>
         <AppContent />
         <AdMobManager style={{ marginTop: 10 }} />
@@ -115,12 +118,20 @@ function AppContentWithTheme() {
 }
 
 function RootLayout() {
-  const [fontsLoaded] = useFonts({
+  const [fontsLoaded, fontError] = useFonts({
     'Inter-Regular': Inter_400Regular,
     'Inter-Medium': Inter_500Medium,
     'Inter-SemiBold': Inter_600SemiBold,
     'Inter-Bold': Inter_700Bold,
   });
+
+  useEffect(() => {
+    if (fontError) {
+      // Silent font failures render as a blank screen (return null below);
+      // surface the cause in the console so future boot breakage is diagnosable.
+      console.warn('[fonts] failed to load:', fontError);
+    }
+  }, [fontError]);
 
   useEffect(() => {
     if (fontsLoaded) {
@@ -133,7 +144,7 @@ function RootLayout() {
   return (
     <SafeAreaProvider>
       <ThemeProvider>
-        <GestureHandlerRootView>
+        <GestureHandlerRootView style={{ flex: 1 }}>
           <Host>
             <AppContentWithTheme />
           </Host>

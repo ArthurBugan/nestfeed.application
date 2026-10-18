@@ -1,5 +1,4 @@
-import { View, Text, TouchableOpacity, ActivityIndicator, RefreshControl, Linking } from 'react-native';
-import { Input } from 'heroui-native';
+import { View, ActivityIndicator, RefreshControl, Linking, Image } from 'react-native';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { useAnimesInfinite } from '@/hooks/useAnimesInfinite';
 import { useTheme } from '@/theme/ThemeProvider';
@@ -10,11 +9,12 @@ import { useMemo, useCallback, useState } from 'react';
 import { InlineAd } from '@/components/Admob';
 import { EmptyState, ErrorState, LoadingState } from '@/components/states';
 import { FlashList } from '@shopify/flash-list';
-import { Image } from 'react-native';
 import { getThemeColor } from '@/theme/themeColors';
-import { shadows } from '@/theme/colors';
-import * as Haptics from 'expo-haptics';
-import DashboardHeader from '@/components/DashboardHeader';
+import { tap } from '@/theme/haptics';
+import { ScreenHeader } from '@/components/ui/ScreenHeader';
+import { SearchField } from '@/components/ui/SearchField';
+import { ListRow } from '@/components/ui/ListRow';
+import { PressableScale } from '@/components/ui/PressableScale';
 
 type ListItem = Anime | { isAd: true; id: string };
 
@@ -61,7 +61,7 @@ export default function AnimesListScreen() {
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   const handleRefresh = useCallback(async () => {
-    Haptics.selectionAsync();
+    tap();
     setIsRefreshing(true);
     await refetch();
     setIsRefreshing(false);
@@ -79,50 +79,48 @@ export default function AnimesListScreen() {
     return result;
   }, [animes]);
 
-  const renderAnime = useCallback(({ item }: { item: Anime }) => (
-    <TouchableOpacity
-      className="mx-4 bg-surface rounded-xl p-3.5 mb-2 flex-row items-center gap-3"
-      style={shadows.sm}
-      onPress={() => { Haptics.selectionAsync(); router.push(`/animes/change-group/${item.id}`); }}
-      activeOpacity={0.7}
-      accessible
-      accessibilityRole="button"
-      accessibilityLabel={`Anime: ${item.name}`}
-    >
-      {item.thumbnail || item.imageUrl ? (
-        <Image source={{ uri: item.thumbnail || item.imageUrl }} style={{ width: 36, height: 36, borderRadius: 12 }} />
-      ) : (
-        <View className="w-11 h-11 rounded-xl items-center justify-center" style={{ backgroundColor: getThemeColor('default', isDark) }}>
-          <IconifyIcon name="lucide:film" size={20} color={getThemeColor('foreground', isDark)} />
-        </View>
-      )}
-      <View className="flex-1 min-w-0">
-        <Text className="text-base font-semibold text-foreground" numberOfLines={1}>{item.name}</Text>
-        {item.description && (
-          <Text className="text-xs text-muted mt-0.5" numberOfLines={2}>
-            {item.description}
-          </Text>
-        )}
-        {item.groupIcon && (
-          <View className="flex-row items-center gap-1 mt-1">
-            <IconifyIcon name="lucide:folder" size={11} color={getThemeColor('muted', isDark)} />
-            <Text className="text-xs text-muted">{item.groupName}</Text>
-          </View>
-        )}
-      </View>
-      {item.url && (
-        <TouchableOpacity
-          onPress={() => openCrunchyroll(item.url!)}
-          className="p-2"
-          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-          activeOpacity={0.7}
-        >
-          <IconifyIcon name="lucide:external-link" size={16} color={getThemeColor('muted', isDark)} />
-        </TouchableOpacity>
-      )}
-      <IconifyIcon name="lucide:chevron-right" size={16} color={getThemeColor('muted', isDark)} />
-    </TouchableOpacity>
-  ), [isDark, router]);
+  const renderAnime = useCallback(({ item }: { item: Anime }) => {
+    const hasThumbnail = !!(item.thumbnail || item.imageUrl);
+
+    return (
+      <ListRow
+        className="mx-4 mb-2"
+        leading={
+          hasThumbnail ? (
+            <Image
+              source={{ uri: item.thumbnail || item.imageUrl }}
+              style={{ width: 44, height: 44, borderRadius: 12 }}
+            />
+          ) : undefined
+        }
+        icon={hasThumbnail ? undefined : 'lucide:film'}
+        title={item.name}
+        subtitle={item.description || undefined}
+        value={item.groupIcon ? item.groupName || undefined : undefined}
+        chevron
+        onPress={() => router.push(`/animes/change-group/${item.id}`)}
+        accessibilityLabel={`Anime: ${item.name}`}
+        trailing={
+          item.url ? (
+            <PressableScale
+              onPress={() => openCrunchyroll(item.url!)}
+              className="p-2"
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+              accessible
+              accessibilityRole="button"
+              accessibilityLabel={`Open ${item.name}`}
+            >
+              <IconifyIcon
+                name="lucide:external-link"
+                size={16}
+                color={getThemeColor('muted', isDark)}
+              />
+            </PressableScale>
+          ) : undefined
+        }
+      />
+    );
+  }, [isDark, router]);
 
   const renderFooter = useCallback(() => {
     if (!isFetchingNextPage) return null;
@@ -138,15 +136,13 @@ export default function AnimesListScreen() {
   const headerComponent = (
     <View style={{ paddingHorizontal: 16 }}>
       <View className="pt-4 pb-2">
-        <DashboardHeader title="Animes" />
+        <ScreenHeader title="Animes" leading="none" />
       </View>
       <View className="mb-4">
-        <Input
+        <SearchField
           placeholder="Search animes..."
-          placeholderTextColor={getThemeColor('field-placeholder', isDark)}
           value={search}
           onChangeText={setSearch}
-          className="rounded-xl"
         />
       </View>
     </View>

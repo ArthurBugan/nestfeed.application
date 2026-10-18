@@ -6,7 +6,7 @@ import { IconifyIcon } from '@/components/IconifyIcon';
 import { useTheme } from '@/theme/ThemeProvider';
 import { getThemeColor } from '@/theme/themeColors';
 import { Portal } from 'react-native-portalize';
-import * as Haptics from 'expo-haptics';
+import { tap } from '@/theme/haptics';
 
 interface SelectOption {
   value: string;
@@ -27,7 +27,7 @@ function OptionItem({ item, isSelected, onSelect }: { item: SelectOption; isSele
   return (
     <TouchableOpacity
       onPress={() => {
-        Haptics.selectionAsync();
+        tap();
         onSelect(item.value);
       }}
       className="flex-row items-center gap-3 p-4 border-b border-border"
@@ -96,7 +96,7 @@ export function Select({
   );
 
   const open = useCallback(() => {
-    Haptics.selectionAsync();
+    tap();
     setIsOpen(true);
     setIsExpanded(true);
     setSearchTerm('');

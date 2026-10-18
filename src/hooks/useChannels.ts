@@ -28,7 +28,7 @@ export const useCreateChannel = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: CreateChannelRequest) => channelsApi.create(data),
+    mutationFn: (data: CreateChannelRequest) => channelsApi.createInGroup(data.groupId, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['channels'] });
       queryClient.invalidateQueries({ queryKey: ['dashboard'] });

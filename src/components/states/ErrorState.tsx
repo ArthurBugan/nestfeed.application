@@ -1,5 +1,6 @@
 import { View } from 'react-native';
-import { Alert, Button } from 'heroui-native';
+import { Alert } from 'heroui-native';
+import { Button } from '@/components/ui/Button';
 
 interface ErrorStateProps {
   title?: string;
@@ -28,11 +29,11 @@ export function ErrorState({
           <Button
             size="sm"
             variant="danger"
+            label={retryLabel}
             onPress={onRetry}
             accessibilityLabel={retryLabel}
-          >
-            {retryLabel}
-          </Button>
+            className="mt-3 self-start"
+          />
         )}
       </Alert>
     </View>

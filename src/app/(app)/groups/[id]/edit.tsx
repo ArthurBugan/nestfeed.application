@@ -1,21 +1,21 @@
-import { View, Text, ScrollView, TouchableOpacity, Alert, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, Alert, KeyboardAvoidingView, Platform } from 'react-native';
 import { useRouter, useGlobalSearchParams } from 'expo-router';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Button, Switch as SwitchNative } from 'heroui-native';
 import { Input } from '@/components/Input';
 import { Select } from '@/components/Select';
 import { IconPicker } from '@/components/IconPicker';
 import { useGroup, useUpdateGroup, useGroups } from '@/hooks';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { UpdateGroupRequest } from '@/api/endpoints/groups';
-import { useTheme } from '@/theme/ThemeProvider';
-import { getThemeColor } from '@/theme/themeColors';
+import { Screen } from '@/components/ui/Screen';
+import { ScreenHeader } from '@/components/ui/ScreenHeader';
+import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
+import { ListRow } from '@/components/ui/ListRow';
 import { LoadingState } from '@/components/states';
-import { IconifyIcon } from '@/components/IconifyIcon';
-
-import * as Haptics from 'expo-haptics';
+import { tap } from '@/theme/haptics';
 
 const DEFAULT_CATEGORIES = [
   'Apps & Software', 'Arts', 'Business', 'Education', 'Entertainment',
@@ -42,7 +42,7 @@ export default function EditGroupScreen() {
   const { data: group, isLoading } = useGroup(id);
   const updateGroup = useUpdateGroup();
   const { data: groupsData } = useGroups({ limit: 100 });
-  const { isDark } = useTheme();
+  const insets = useSafeAreaInsets();
 
   const {
     control,
@@ -63,7 +63,7 @@ export default function EditGroupScreen() {
   ];
 
   const onSubmit = async (data: EditGroupForm) => {
-    Haptics.selectionAsync();
+    tap();
     try {
       const payload: UpdateGroupRequest = {
         name: data.name, description: data.description, category: data.category,
@@ -77,68 +77,79 @@ export default function EditGroupScreen() {
   };
 
   if (isLoading) {
-    return <View className="flex-1 bg-background items-center justify-center"><LoadingState label="Loading" /></View>;
+    return (
+      <View className="flex-1 bg-background items-center justify-center">
+        <LoadingState label="Loading" />
+      </View>
+    );
   }
 
   return (
-    <KeyboardAvoidingView style={{ flex: 1 }} className="bg-background" behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-      <SafeAreaView edges={['top', 'bottom']} style={{ flex: 1 }}>
-        {/* Header */}
-        <View className="flex-row items-center justify-between px-5 py-3 border-b" style={{ borderColor: getThemeColor('border', isDark) }}>
-          <TouchableOpacity onPress={() => { Haptics.selectionAsync(); router.back(); }} className="p-1.5 -ml-1 rounded-full" style={{ backgroundColor: getThemeColor('surface', isDark) }} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }} accessible accessibilityRole="button" accessibilityLabel="Go back">
-            <IconifyIcon name="lucide:arrow-left" size={20} color={getThemeColor('foreground', isDark)} />
-          </TouchableOpacity>
-          <Text className="text-lg font-semibold text-foreground">Edit Group</Text>
-          <TouchableOpacity onPress={handleSubmit(onSubmit)} disabled={updateGroup.isPending} className="px-4 py-1.5 rounded-lg bg-accent">
-            <Text className="text-accent-foreground font-semibold text-sm">Save</Text>
-          </TouchableOpacity>
-        </View>
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      className="bg-background"
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    >
+      <View className="flex-1">
+        <Screen edges={['top']} scroll contentContainerStyle={{ paddingBottom: 120 }}>
+          <ScreenHeader title="Edit Group" className="pt-2" />
 
-        <ScrollView className="px-5 pt-6 pb-6" contentContainerStyle={{ flexGrow: 1 }}>
           {/* Group Shelf Toggle */}
-          <View className="mb-6">
-            <Controller control={control} name="enableGroupshelf" render={({ field }) => (
-              <View className="bg-surface rounded-xl p-4 border border-border/50">
-                <View className="flex-row items-center justify-between">
-                  <View className="flex-1">
-                    <Text className="text-base font-semibold text-foreground">Enable Group Shelf</Text>
-                    <Text className="text-xs text-muted mt-1">Allow this group to be added to groupshelf, so other users can copy it</Text>
-                  </View>
-                  <SwitchNative isSelected={field.value} onSelectedChange={field.onChange} />
-                </View>
-              </View>
-            )} />
-          </View>
+          <Controller control={control} name="enableGroupshelf" render={({ field }) => (
+            <ListRow
+              icon="lucide:copy"
+              title="Enable Group Shelf"
+              subtitle="Allow this group to be added to groupshelf, so other users can copy it"
+              chevron={false}
+              switchValue={field.value}
+              onSwitchChange={field.onChange}
+              accessibilityLabel="Enable Group Shelf"
+              className="mt-4"
+            />
+          )} />
 
           {/* Info */}
-          <View className="bg-surface rounded-xl p-4 border border-border/50 mb-6">
+          <Card className="mt-4 mb-6">
             <Controller control={control} name="name" render={({ field }) => (
               <Input label="Name" value={field.value} onChangeText={field.onChange} placeholder="My Group" error={errors.name?.message} />
             )} />
             <Controller control={control} name="description" render={({ field }) => (
               <Input label="Description" value={field.value ?? ''} onChangeText={field.onChange} placeholder="What's this group about?" multiline numberOfLines={4} error={errors.description?.message} />
             )} />
-          </View>
+          </Card>
 
           {/* Classification */}
-          <View className="bg-surface rounded-xl p-4 border border-border/50 mb-6">
+          <Card className="mb-6">
             <Controller control={control} name="category" render={({ field }) => (
               <Select label="Category" value={field.value} onChange={field.onChange} options={categoryOptions} placeholder="Select category" error={errors.category?.message} />
             )} />
             <Controller control={control} name="icon" render={({ field }) => (
               <IconPicker label="Icon" value={field.value} onChange={field.onChange} error={errors.icon?.message} />
             )} />
-          </View>
+          </Card>
 
           {/* Organization */}
-          <View className="bg-surface rounded-xl p-4 border border-border/50 mb-6">
+          <Card className="mb-6">
             <Controller control={control} name="parentId" render={({ field }) => (
               <Select label="Parent Group (Optional)" value={field.value ?? ''} onChange={field.onChange} options={parentOptions} placeholder="None (Top-level)" />
             )} />
             <Text className="text-xs text-muted mt-2">Create subgroups to organize hierarchically</Text>
-          </View>
-        </ScrollView>
-      </SafeAreaView>
+          </Card>
+        </Screen>
+
+        {/* Sticky submit bar */}
+        <View
+          className="absolute bottom-0 left-0 right-0 bg-surface border-t border-border px-5 pt-3"
+          style={{ paddingBottom: insets.bottom + 12 }}
+        >
+          <Button
+            label="Save"
+            fullWidth
+            loading={updateGroup.isPending}
+            onPress={() => { void handleSubmit(onSubmit)(); }}
+          />
+        </View>
+      </View>
     </KeyboardAvoidingView>
   );
 }

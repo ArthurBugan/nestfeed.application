@@ -45,6 +45,14 @@ export const channelsApi = {
     return apiClient.post<Channel>('/api/v2/channels', data);
   },
 
+  /** v3 in-group channel create — the only non-destructive create path. */
+  createInGroup: async (
+    groupId: string,
+    data: { channelId?: string; name: string; thumbnail?: string; url?: string; contentType?: string }
+  ) => {
+    return apiClient.post<Channel>(`/api/v3/groups/${groupId}/channels`, data);
+  },
+
   update: async (id: string, data: UpdateChannelRequest) => {
     return apiClient.patch<Channel>(`/api/v2/channels/${id}`, data);
   },

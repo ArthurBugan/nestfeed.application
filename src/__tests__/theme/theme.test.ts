@@ -102,10 +102,25 @@ describe('Theme', () => {
       });
     });
 
-    it('light and dark token sets are identical', () => {
+    it('light, dark and groupify token sets are identical', () => {
       expect(Object.keys(themeColors.light).sort()).toEqual(
         Object.keys(themeColors.dark).sort()
       );
+      expect(Object.keys(themeColors.light).sort()).toEqual(
+        Object.keys(themeColors.groupify).sort()
+      );
+    });
+
+    it('defines the separator token in every theme (regression for #005)', () => {
+      (['light', 'dark', 'groupify'] as const).forEach((variant) => {
+        expect(getThemeColor('separator', variant !== 'light', variant)).toMatch(/^hsl\(/);
+      });
+    });
+
+    it('resolves the groupify brand variant explicitly', () => {
+      expect(getThemeColor('accent', true, 'groupify')).toBe(themeColors.groupify.accent);
+      expect(getThemeColor('accent', false)).toBe(themeColors.light.accent);
+      expect(getThemeColor('accent', true)).toBe(themeColors.dark.accent);
     });
   });
 });

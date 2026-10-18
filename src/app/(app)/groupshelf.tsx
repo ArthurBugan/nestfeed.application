@@ -1,27 +1,27 @@
 import { useMemo, useState, useRef, useCallback } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Alert, RefreshControl } from 'react-native';
-import { Image } from 'react-native';
-import { Input } from 'heroui-native';
-import { useRouter } from 'expo-router';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { IconifyIcon } from '@/components/IconifyIcon';
+import { Image, Text, View } from 'react-native';
 import { useGroupShelves, useCopyShelf } from '@/hooks/useGroupShelf';
-import { useTheme } from '@/theme/ThemeProvider';
+import { Screen } from '@/components/ui/Screen';
+import { ScreenHeader } from '@/components/ui/ScreenHeader';
+import { SearchField } from '@/components/ui/SearchField';
+import { Card } from '@/components/ui/Card';
+import { Button } from '@/components/ui/Button';
+import { PressableScale } from '@/components/ui/PressableScale';
+import { Toast } from '@/components/ui/Toast';
 import { EmptyState, ErrorState, LoadingState } from '@/components/states';
 import BottomSheet, { BottomSheetScrollView } from '@expo/ui/community/bottom-sheet';
+import { IconifyIcon } from '@/components/IconifyIcon';
+import { useTheme } from '@/theme/ThemeProvider';
 import { getThemeColor } from '@/theme/themeColors';
-import { shadows } from '@/theme/colors';
+import { tap } from '@/theme/haptics';
 import type { Channel, Group } from '@/types';
-import * as Haptics from 'expo-haptics';
 
 export default function GroupShelfScreen() {
-  const router = useRouter();
   const { isDark } = useTheme();
-  const insets = useSafeAreaInsets();
   const [search, setSearch] = useState('');
   const [selectedShelf, setSelectedShelf] = useState<Group | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  
+
   const bottomSheetRef = useRef<BottomSheet>(null);
   const snapPoints = useMemo(() => ['75%'], []);
 
@@ -29,26 +29,26 @@ export default function GroupShelfScreen() {
   const copyShelf = useCopyShelf();
 
   const handleRefresh = useCallback(async () => {
-    Haptics.selectionAsync();
+    tap();
     setIsRefreshing(true);
     await refetch();
     setIsRefreshing(false);
   }, [refetch]);
 
   const handleCopy = (shelfId: string, shelfName: string) => {
-    Haptics.selectionAsync();
+    tap();
     copyShelf.mutate(shelfId, {
       onSuccess: () => {
-        Alert.alert('Success', `Copied "${shelfName}" to your groups`);
+        Toast.success(`Copied "${shelfName}" to your groups`);
       },
       onError: () => {
-        Alert.alert('Error', 'Failed to copy group');
+        Toast.error('Failed to copy group');
       }
     });
   };
 
   const openShelfDetails = (shelf: Group) => {
-    Haptics.selectionAsync();
+    tap();
     setSelectedShelf(shelf);
     bottomSheetRef.current?.expand();
   };
@@ -59,106 +59,76 @@ export default function GroupShelfScreen() {
   };
 
   const renderChannel = (item: Channel) => (
-    <TouchableOpacity
-      key={item.id}
-      className="bg-surface rounded-xl p-3 mb-2 flex-row items-center gap-3"
-      style={shadows.sm}
-      activeOpacity={0.7}
-      accessible
-      accessibilityRole="button"
-      accessibilityLabel={`Channel: ${item.name}`}
-    >
-      {item.thumbnail || item.imageUrl ? (
-        <Image source={{ uri: item.thumbnail || item.imageUrl }} style={{ width: 44, height: 44, borderRadius: 12 }} />
-      ) : (
-        <View className="w-11 h-11 rounded-xl items-center justify-center" style={{ backgroundColor: getThemeColor('default', isDark) }}>
-          <IconifyIcon name="lucide:tv" size={20} color={getThemeColor('foreground', isDark)} />
-        </View>
-      )}
-      <View className="flex-1 min-w-0">
-        <Text className="text-base font-semibold text-foreground" numberOfLines={1}>{item.name}</Text>
-        {item.description && (
-          <Text className="text-xs text-muted" numberOfLines={2}>
-            {item.description}
-          </Text>
+    <Card key={item.id} variant="filled" className="p-3 mb-2">
+      <View className="flex-row items-center gap-3">
+        {item.thumbnail || item.imageUrl ? (
+          <Image source={{ uri: item.thumbnail || item.imageUrl }} style={{ width: 44, height: 44, borderRadius: 12 }} />
+        ) : (
+          <View className="w-11 h-11 rounded-xl items-center justify-center bg-default">
+            <IconifyIcon name="lucide:tv" size={20} color={getThemeColor('foreground', isDark)} />
+          </View>
         )}
+        <View className="flex-1 min-w-0">
+          <Text className="text-base font-semibold text-foreground" numberOfLines={1}>{item.name}</Text>
+          {item.description && (
+            <Text className="text-xs text-muted" numberOfLines={2}>
+              {item.description}
+            </Text>
+          )}
+        </View>
       </View>
-    </TouchableOpacity>
+    </Card>
   );
 
   return (
     <View className="flex-1 bg-background">
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }}
+      <Screen
+        scroll
+        edges={['top', 'bottom']}
         contentContainerStyle={{ paddingBottom: 100 }}
-        showsVerticalScrollIndicator={false}
-        refreshControl={
-          <RefreshControl 
-            refreshing={isRefreshing} 
-            onRefresh={handleRefresh}
-            tintColor={getThemeColor('accent', isDark)}
-            colors={[getThemeColor('accent', isDark)]}
-          />
-        }
+        refreshing={isRefreshing}
+        onRefresh={handleRefresh}
       >
-        <View style={{ paddingTop: insets.top, paddingHorizontal: 16 }}>
-          {/* Header */}
-          <View className="pt-4 pb-2 flex-row items-center">
-            <TouchableOpacity
-              onPress={() => { Haptics.selectionAsync(); router.back(); }}
-              className="mr-3 w-10 h-10 rounded-full items-center justify-center"
-              style={{ backgroundColor: getThemeColor('surface', isDark) }}
-              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-              accessible
-              accessibilityRole="button"
-              accessibilityLabel="Go back"
-            >
-              <IconifyIcon name="lucide:arrow-left" size={20} color={getThemeColor('foreground', isDark)} />
-            </TouchableOpacity>
-            <View className="flex-1">
-              <Text className="text-2xl font-bold text-foreground">Groupshelf</Text>
-              <Text className="text-muted text-sm mt-1">Discover and copy groups from other users</Text>
-            </View>
-          </View>
+        <ScreenHeader
+          title="Groupshelf"
+          subtitle="Discover and copy groups from other users"
+          className="pt-4 mb-4"
+        />
 
-          <View className="mb-4">
-            <Input
-              placeholder="Search groupshelf..."
-              placeholderTextColor={getThemeColor('field-placeholder', isDark)}
-              value={search}
-              onChangeText={setSearch}
-              className="rounded-xl"
-            />
-          </View>
+        <SearchField
+          value={search}
+          onChangeText={setSearch}
+          placeholder="Search groupshelf..."
+          label="Search groupshelf"
+        />
 
-          {isLoading ? (
-            <LoadingState variant="skeleton" rows={5} label="Loading groupshelf" />
-          ) : error ? (
-            <ErrorState
-              title="Error loading groupshelf"
-              message={error.message || 'Failed to load groupshelf. Please try again.'}
-              onRetry={handleRefresh}
-            />
-          ) : data?.data.length === 0 ? (
-            <EmptyState
-              icon="lucide:search-x"
-              title={search ? `No results for "${search}"` : 'No groupshelf found'}
-              description="Try a different search term"
-            />
-          ) : (
-            <View className="gap-3">
-              {data?.data.map(shelf => (
-                <TouchableOpacity
-                  key={shelf.id}
-                  className="bg-surface rounded-xl p-4 border border-border/50"
-                  style={shadows.sm}
-                  onPress={() => openShelfDetails(shelf)}
-                  activeOpacity={0.7}
-                  accessible
-                  accessibilityRole="button"
-                  accessibilityLabel={`Group shelf: ${shelf.name}, ${shelf.channelCount || shelf.channels?.length || 0} channels`}
-                >
+        {isLoading ? (
+          <LoadingState variant="skeleton" rows={5} label="Loading groupshelf" />
+        ) : error ? (
+          <ErrorState
+            title="Error loading groupshelf"
+            message={error.message || 'Failed to load groupshelf. Please try again.'}
+            onRetry={handleRefresh}
+          />
+        ) : data?.data.length === 0 ? (
+          <EmptyState
+            icon="lucide:search-x"
+            title={search ? `No results for "${search}"` : 'No groupshelf found'}
+            description="Try a different search term"
+          />
+        ) : (
+          <View className="gap-3">
+            {data?.data.map(shelf => (
+              <PressableScale
+                key={shelf.id}
+                onPress={() => openShelfDetails(shelf)}
+                accessible
+                accessibilityRole="button"
+                accessibilityLabel={`Group shelf: ${shelf.name}, ${shelf.channelCount || shelf.channels?.length || 0} channels`}
+              >
+                <Card className="p-4">
                   <View className="flex-row items-center gap-3">
-                    <View className="w-11 h-11 rounded-xl items-center justify-center" style={{ backgroundColor: getThemeColor('default', isDark) }}>
+                    <View className="w-11 h-11 rounded-xl items-center justify-center bg-default">
                       <IconifyIcon name={shelf.icon || 'lucide:folder'} size={20} color={getThemeColor('foreground', isDark)} />
                     </View>
                     <View className="flex-1 min-w-0">
@@ -170,7 +140,7 @@ export default function GroupShelfScreen() {
                       )}
                       <View className="flex-row items-center gap-2 mt-1.5">
                         {shelf.category && (
-                          <View className="bg-accent/10 px-2 py-0.5 rounded-md">
+                          <View className="bg-accent/10 px-2 py-0.5 rounded-full">
                             <Text className="text-xs text-accent font-medium">{shelf.category}</Text>
                           </View>
                         )}
@@ -179,47 +149,42 @@ export default function GroupShelfScreen() {
                         </Text>
                       </View>
                     </View>
-                    <TouchableOpacity
-                      onPress={(e) => { e.stopPropagation(); handleCopy(shelf.id, shelf.name || 'Group'); }}
-                      disabled={copyShelf.isPending}
-                      className="bg-accent px-3.5 py-2 rounded-lg"
-                      activeOpacity={0.7}
-                      accessible
-                      accessibilityRole="button"
+                    <Button
+                      label="Copy"
+                      size="sm"
+                      loading={copyShelf.isPending}
+                      onPress={() => handleCopy(shelf.id, shelf.name || 'Group')}
                       accessibilityLabel={`Copy ${shelf.name || 'group'} to your groups`}
-                    >
-                      {copyShelf.isPending ? (
-                        <ActivityIndicator size="small" color="#fff" />
-                      ) : (
-                        <Text className="text-accent-foreground font-semibold text-sm">Copy</Text>
-                      )}
-                    </TouchableOpacity>
+                    />
                   </View>
-                </TouchableOpacity>
-              ))}
-            </View>
-          )}
-        </View>
-      </ScrollView>
+                </Card>
+              </PressableScale>
+            ))}
+          </View>
+        )}
+      </Screen>
 
       <BottomSheet
         ref={bottomSheetRef}
         index={-1}
         snapPoints={snapPoints}
         enablePanDownToClose
+        onChange={(index) => {
+          if (index < 0) setSelectedShelf(null);
+        }}
         backgroundStyle={{ backgroundColor: getThemeColor('background', isDark) }}
         handleIndicatorStyle={{ backgroundColor: getThemeColor('muted-foreground', isDark) }}
       >
-        <BottomSheetScrollView 
+        <BottomSheetScrollView
           className="flex-1 px-5"
-          contentContainerStyle={{ paddingBottom: insets.bottom + 20 }}
+          contentContainerStyle={{ paddingBottom: 20 }}
           scrollEventThrottle={16}
         >
           {selectedShelf && (
             <View className="pb-4">
               <View className="flex-row items-center justify-between mb-4">
                 <View className="flex-row items-center gap-3">
-                  <View className="w-11 h-11 rounded-xl items-center justify-center" style={{ backgroundColor: getThemeColor('default', isDark) }}>
+                  <View className="w-11 h-11 rounded-xl items-center justify-center bg-default">
                     <IconifyIcon name={selectedShelf.icon || 'lucide:folder'} size={20} color={getThemeColor('foreground', isDark)} />
                   </View>
                   <View>
@@ -229,9 +194,16 @@ export default function GroupShelfScreen() {
                     </Text>
                   </View>
                 </View>
-                <TouchableOpacity onPress={closeBottomSheet} className="w-11 h-11 rounded-full items-center justify-center" style={{ backgroundColor: getThemeColor('surface', isDark) }} accessible accessibilityRole="button" accessibilityLabel="Close">
+                <PressableScale
+                  onPress={closeBottomSheet}
+                  className="w-11 h-11 rounded-full items-center justify-center bg-surface"
+                  hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                  accessible
+                  accessibilityRole="button"
+                  accessibilityLabel="Close"
+                >
                   <IconifyIcon name="lucide:x" size={20} color={getThemeColor('muted', isDark)} />
-                </TouchableOpacity>
+                </PressableScale>
               </View>
 
               {selectedShelf.description && (

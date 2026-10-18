@@ -1,12 +1,13 @@
 import { useState } from 'react';
-import { View, Text, TouchableOpacity, Alert, KeyboardAvoidingView, Platform, ScrollView, ActivityIndicator } from 'react-native';
+import { View, Text, Alert, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useTheme } from '@/theme/ThemeProvider';
 import { IconifyIcon } from '@/components/IconifyIcon';
-import { Input } from 'heroui-native';
+import { Input } from '@/components/Input';
+import { Button } from '@/components/ui/Button';
+import { PressableScale } from '@/components/ui/PressableScale';
 import { getThemeColor } from '@/theme/themeColors';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import * as Haptics from 'expo-haptics';
 
 export default function ResetPasswordScreen() {
   const router = useRouter();
@@ -19,7 +20,6 @@ export default function ResetPasswordScreen() {
   const [isLoading, setIsLoading] = useState(false);
 
   const handleReset = async () => {
-    Haptics.selectionAsync();
     if (!password || !confirmPassword) {
       Alert.alert('Error', 'Please fill in all fields');
       return;
@@ -53,26 +53,37 @@ export default function ResetPasswordScreen() {
         showsVerticalScrollIndicator={false}
       >
         <View style={{ paddingTop: Math.max(insets.top, 24), paddingHorizontal: 24 }}>
+          {/* Brand Hero */}
+          <View className="flex-row items-center gap-2.5 mb-8">
+            <View className="w-11 h-11 rounded-2xl bg-accent items-center justify-center">
+              <IconifyIcon name="lucide:layers" size={22} color={getThemeColor('accent-foreground', isDark)} />
+            </View>
+            <Text className="text-3xl font-bold text-foreground">Nestfeed</Text>
+          </View>
+
           {/* Back button */}
-          <TouchableOpacity 
-            onPress={() => { Haptics.selectionAsync(); router.back(); }}
-            className="w-10 h-10 rounded-full items-center justify-center mb-8"
-            style={{ backgroundColor: getThemeColor('surface', isDark) }}
-            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          <PressableScale
+            onPress={() => router.back()}
+            className="w-10 h-10 rounded-full items-center justify-center mb-8 bg-surface"
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+            accessible
+            accessibilityRole="button"
+            accessibilityLabel="Go back"
           >
             <IconifyIcon name="lucide:arrow-left" size={20} color={getThemeColor('foreground', isDark)} />
-          </TouchableOpacity>
+          </PressableScale>
 
           {/* Header */}
-          <View className="mb-10">
-            <Text className="text-3xl font-bold text-foreground mb-2">Reset Password</Text>
+          <View className="mb-8">
+            <Text className="text-xl font-bold text-foreground mb-1">Reset Password</Text>
             <Text className="text-base text-muted">Enter your new password</Text>
           </View>
 
           {/* Form */}
-          <View className="gap-4 mb-8">
+          <View className="mb-8">
             {/* Password */}
             <Input
+              label="New Password"
               placeholder="New Password"
               value={password}
               onChangeText={setPassword}
@@ -80,11 +91,11 @@ export default function ResetPasswordScreen() {
               autoComplete="new-password"
               textContentType="newPassword"
               returnKeyType="next"
-              placeholderTextColor={getThemeColor('field-placeholder', isDark)}
             />
 
             {/* Confirm Password */}
             <Input
+              label="Confirm Password"
               placeholder="Confirm Password"
               value={confirmPassword}
               onChangeText={setConfirmPassword}
@@ -93,7 +104,6 @@ export default function ResetPasswordScreen() {
               textContentType="newPassword"
               returnKeyType="done"
               onSubmitEditing={handleReset}
-              placeholderTextColor={getThemeColor('field-placeholder', isDark)}
             />
 
             {/* Password match indicator */}
@@ -110,16 +120,15 @@ export default function ResetPasswordScreen() {
               </View>
             )}
 
-            <TouchableOpacity
-              className="bg-accent rounded-xl p-4 items-center"
-              onPress={handleReset}
+            <Button
+              label="Reset Password"
+              fullWidth
+              loading={isLoading}
               disabled={isLoading}
-              activeOpacity={0.7}
-            >
-              <Text className="text-accent-foreground text-base font-semibold">
-                {isLoading ? 'Resetting...' : 'Reset Password'}
-              </Text>
-            </TouchableOpacity>
+              onPress={handleReset}
+              accessibilityLabel="Reset Password"
+              className="mt-4"
+            />
           </View>
         </View>
       </ScrollView>

@@ -44,20 +44,19 @@ export function LoadingState({
       {Array.from({ length: rows }, (_, i) => (
         <View key={i} className="bg-surface rounded-xl p-3.5 flex-row items-center gap-3">
           <Skeleton
-            width={44}
-            height={44}
             className="rounded-xl"
+            style={{ width: 44, height: 44 }}
             variant={reduceMotion ? 'none' : 'shimmer'}
           />
           <View className="flex-1 gap-2">
             <Skeleton
-              height={16}
               className="w-3/4 rounded-lg"
+              style={{ height: 16 }}
               variant={reduceMotion ? 'none' : 'shimmer'}
             />
             <Skeleton
-              height={12}
               className="w-1/2 rounded-lg"
+              style={{ height: 12 }}
               variant={reduceMotion ? 'none' : 'shimmer'}
             />
           </View>

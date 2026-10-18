@@ -5,7 +5,6 @@ import { useTheme } from '@/theme/ThemeProvider';
 
 export default function GroupDetailTabs() {
   const { isDark } = useTheme();
-  console.log('[GroupDetailTabs] useTheme isDark:', isDark);
   const activeColor = getThemeColor('accent', isDark);
   const inactiveColor = getThemeColor('muted', isDark);
 
@@ -15,7 +14,7 @@ export default function GroupDetailTabs() {
         tabBarActiveTintColor: activeColor,
         tabBarInactiveTintColor: inactiveColor,
         tabBarStyle: {
-          backgroundColor: isDark ? 'hsl(150 12% 5%)' : 'hsl(120 20% 98%)',
+          backgroundColor: getThemeColor('background', isDark),
           borderTopWidth: 0,
           borderTopColor: 'transparent',
           paddingTop: 8,

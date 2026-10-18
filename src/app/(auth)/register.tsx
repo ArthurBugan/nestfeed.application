@@ -1,14 +1,15 @@
 import { useState, useRef } from 'react';
-import { View, Text, TouchableOpacity, Alert, KeyboardAvoidingView, Platform, ScrollView, ActivityIndicator } from 'react-native';
+import { View, Text, Alert, KeyboardAvoidingView, Platform, ScrollView, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useRegister, useGoogleLogin, useDiscordLogin, useAppleLogin } from '@/hooks';
 import { useTheme } from '@/theme/ThemeProvider';
 import { IconifyIcon } from '@/components/IconifyIcon';
 import * as AppleAuthentication from 'expo-apple-authentication';
-import { Input } from 'heroui-native';
+import { Input, type InputHandle } from '@/components/Input';
+import { Button } from '@/components/ui/Button';
+import { PressableScale } from '@/components/ui/PressableScale';
 import { getThemeColor } from '@/theme/themeColors';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import * as Haptics from 'expo-haptics';
 
 export default function RegisterScreen() {
   const router = useRouter();
@@ -22,12 +23,11 @@ export default function RegisterScreen() {
   const googleLogin = useGoogleLogin();
   const discordLogin = useDiscordLogin();
   const appleLogin = useAppleLogin();
-  const nameInputRef = useRef<any>(null);
-  const emailInputRef = useRef<any>(null);
-  const passwordInputRef = useRef<any>(null);
+  const nameInputRef = useRef<InputHandle>(null);
+  const emailInputRef = useRef<InputHandle>(null);
+  const passwordInputRef = useRef<InputHandle>(null);
 
   const handleRegister = async () => {
-    Haptics.selectionAsync();
     if (!name || !email || !password) {
       Alert.alert('Error', 'Please fill in all fields');
       return;
@@ -51,7 +51,6 @@ export default function RegisterScreen() {
   };
 
   const handleGoogleLogin = async () => {
-    Haptics.selectionAsync();
     try {
       await googleLogin.signIn();
     } catch (error) {
@@ -60,7 +59,6 @@ export default function RegisterScreen() {
   };
 
   const handleDiscordLogin = async () => {
-    Haptics.selectionAsync();
     try {
       await discordLogin.signIn();
     } catch (error) {
@@ -69,7 +67,6 @@ export default function RegisterScreen() {
   };
 
   const handleAppleLogin = async () => {
-    Haptics.selectionAsync();
     try {
       await appleLogin.signIn();
     } catch (error) {
@@ -88,35 +85,46 @@ export default function RegisterScreen() {
         showsVerticalScrollIndicator={false}
       >
         <View style={{ paddingTop: Math.max(insets.top, 24), paddingHorizontal: 24 }}>
+          {/* Brand Hero */}
+          <View className="flex-row items-center gap-2.5 mb-8">
+            <View className="w-11 h-11 rounded-2xl bg-accent items-center justify-center">
+              <IconifyIcon name="lucide:layers" size={22} color={getThemeColor('accent-foreground', isDark)} />
+            </View>
+            <Text className="text-3xl font-bold text-foreground">Nestfeed</Text>
+          </View>
+
           {/* Back button */}
-          <TouchableOpacity 
-            onPress={() => { Haptics.selectionAsync(); router.back(); }}
-            className="w-10 h-10 rounded-full items-center justify-center mb-8"
-            style={{ backgroundColor: getThemeColor('surface', isDark) }}
-            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          <PressableScale
+            onPress={() => router.back()}
+            className="w-10 h-10 rounded-full items-center justify-center mb-8 bg-surface"
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+            accessible
+            accessibilityRole="button"
+            accessibilityLabel="Go back"
           >
             <IconifyIcon name="lucide:arrow-left" size={20} color={getThemeColor('foreground', isDark)} />
-          </TouchableOpacity>
+          </PressableScale>
 
           {/* Header */}
-          <View className="mb-10">
-            <Text className="text-3xl font-bold text-foreground mb-2">Create Account</Text>
+          <View className="mb-8">
+            <Text className="text-xl font-bold text-foreground mb-1">Create Account</Text>
             <Text className="text-base text-muted">Join us today and start organizing</Text>
           </View>
 
           {/* Form */}
-          <View className="gap-4 mb-8">
+          <View className="mb-8">
             <Input
-              ref={(ref) => { nameInputRef.current = ref as any; }}
+              ref={nameInputRef}
+              label="Name"
               placeholder="Name"
               value={name}
               onChangeText={setName}
               returnKeyType="next"
               onSubmitEditing={() => emailInputRef.current?.focus()}
-              placeholderTextColor={getThemeColor('field-placeholder', isDark)}
             />
             <Input
-              ref={(ref) => { emailInputRef.current = ref as any; }}
+              ref={emailInputRef}
+              label="Email"
               placeholder="Email"
               value={email}
               onChangeText={setEmail}
@@ -127,10 +135,10 @@ export default function RegisterScreen() {
               textContentType="emailAddress"
               returnKeyType="next"
               onSubmitEditing={() => passwordInputRef.current?.focus()}
-              placeholderTextColor={getThemeColor('field-placeholder', isDark)}
             />
             <Input
-              ref={(ref) => { passwordInputRef.current = ref as any; }}
+              ref={passwordInputRef}
+              label="Password"
               placeholder="Password"
               value={password}
               onChangeText={setPassword}
@@ -141,49 +149,50 @@ export default function RegisterScreen() {
               onSubmitEditing={handleRegister}
             />
 
-            <TouchableOpacity
-              className="bg-accent rounded-xl p-4 items-center"
-              onPress={handleRegister}
+            <Button
+              label="Sign Up"
+              fullWidth
+              loading={register.isPending}
               disabled={register.isPending}
-              activeOpacity={0.7}
-            >
-              <Text className="text-accent-foreground text-base font-semibold">
-                {register.isPending ? 'Creating account...' : 'Sign Up'}
-              </Text>
-            </TouchableOpacity>
+              onPress={handleRegister}
+              accessibilityLabel="Sign Up"
+            />
           </View>
 
           {/* Divider */}
           <View className="flex-row items-center my-6">
-            <View className="flex-1 h-px" style={{ backgroundColor: getThemeColor('border', isDark) }} />
+            <View className="flex-1 h-px bg-border" />
             <Text className="text-muted text-sm mx-4">or continue with</Text>
-            <View className="flex-1 h-px" style={{ backgroundColor: getThemeColor('border', isDark) }} />
+            <View className="flex-1 h-px bg-border" />
           </View>
 
           {/* Social Login */}
           <View className="gap-3 mb-6">
-            <TouchableOpacity
-              className="bg-white flex-row items-center rounded-xl p-3.5 border"
-              style={{ borderColor: getThemeColor('border', isDark) }}
+            <PressableScale
+              className="bg-white flex-row items-center rounded-xl p-3.5 border border-black/10"
               onPress={handleGoogleLogin}
               disabled={googleLogin.isLoading}
-              activeOpacity={0.7}
+              accessible
+              accessibilityRole="button"
+              accessibilityLabel="Sign up with Google"
             >
               {googleLogin.isLoading ? (
                 <ActivityIndicator size="small" color="#4285F4" />
               ) : (
-                <IconifyIcon name="mdi:google" size={22} color="black" />
+                <IconifyIcon name="mdi:google" size={22} color="#1F1F1F" />
               )}
-              <Text className="text-black font-medium text-base flex-1 text-center">
+              <Text className="text-[#1F1F1F] font-medium text-base flex-1 text-center">
                 Sign up with Google
               </Text>
-            </TouchableOpacity>
+            </PressableScale>
 
-            <TouchableOpacity
+            <PressableScale
               className="bg-[#5865F2] flex-row items-center rounded-xl p-3.5"
               onPress={handleDiscordLogin}
               disabled={discordLogin.isLoading}
-              activeOpacity={0.7}
+              accessible
+              accessibilityRole="button"
+              accessibilityLabel="Sign up with Discord"
             >
               {discordLogin.isLoading ? (
                 <ActivityIndicator size="small" color="#fff" />
@@ -193,7 +202,7 @@ export default function RegisterScreen() {
               <Text className="text-white font-medium text-base flex-1 text-center">
                 Sign up with Discord
               </Text>
-            </TouchableOpacity>
+            </PressableScale>
 
             <AppleAuthentication.AppleAuthenticationButton
               buttonType={AppleAuthentication.AppleAuthenticationButtonType.SIGN_UP}
@@ -205,11 +214,18 @@ export default function RegisterScreen() {
           </View>
 
           {/* Sign In Link */}
-          <View className="flex-row justify-center pb-8">
+          <View className="flex-row justify-center pb-8 items-center">
             <Text className="text-muted text-sm">Already have an account? </Text>
-            <TouchableOpacity onPress={() => { Haptics.selectionAsync(); router.push('/(auth)/login'); }}>
+            <PressableScale
+              onPress={() => router.push('/(auth)/login')}
+              className="py-2 px-2"
+              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+              accessible
+              accessibilityRole="button"
+              accessibilityLabel="Sign In"
+            >
               <Text className="text-accent text-sm font-medium">Sign In</Text>
-            </TouchableOpacity>
+            </PressableScale>
           </View>
         </View>
       </ScrollView>

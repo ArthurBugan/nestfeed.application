@@ -38,7 +38,7 @@ function IconButton({ iconName, selectedValue, onSelect }: { iconName: string; s
   return (
     <TouchableOpacity
       onPress={() => onSelect(displayName)}
-      className={`w-11 m-1 h-11 items-center justify-center rounded-lg ${isSelected ? 'bg-accent/20 border-2 border-primary' : 'bg-default'}`}
+      className={`w-11 m-1 h-11 items-center justify-center rounded-lg ${isSelected ? 'bg-accent/20 border-2 border-accent' : 'bg-default'}`}
     >
       <IconifyIcon name={displayName} size={24} />
       {isSelected && (
@@ -53,7 +53,7 @@ function IconButton({ iconName, selectedValue, onSelect }: { iconName: string; s
 export function IconPicker({ value, onChange, label, error }: IconPickerProps) {
   const { isDark } = useTheme();
   const bottomSheetRef = useRef<BottomSheet>(null);
-  const searchTimerRef = useRef<ReturnType<typeof setTimeout>>();
+  const searchTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [activeCategory, setActiveCategory] = useState('');

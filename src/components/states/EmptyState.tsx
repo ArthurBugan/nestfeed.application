@@ -1,6 +1,8 @@
 import { View, Text } from 'react-native';
-import { Button } from 'heroui-native';
+import Animated from 'react-native-reanimated';
+import { Button } from '@/components/ui/Button';
 import { IconifyIcon } from '@/components/IconifyIcon';
+import { useEntranceAnimation } from '@/components/ui/usePressAnimation';
 
 interface EmptyStateProps {
   icon?: string;
@@ -19,8 +21,15 @@ export function EmptyState({
   onAction,
   className = '',
 }: EmptyStateProps) {
+  const { animatedStyle } = useEntranceAnimation();
   return (
-    <View className={`py-16 px-6 items-center ${className}`} accessible accessibilityRole="text" accessibilityLabel={`${title}${description ? `. ${description}` : ''}`}>
+    <Animated.View
+      className={`py-16 px-6 items-center ${className}`}
+      style={animatedStyle}
+      accessible
+      accessibilityRole="text"
+      accessibilityLabel={`${title}${description ? `. ${description}` : ''}`}
+    >
       <View className="w-16 h-16 rounded-2xl items-center justify-center mb-4 bg-default">
         <IconifyIcon name={icon} size={32} className="text-muted" />
       </View>
@@ -32,14 +41,13 @@ export function EmptyState({
         <Button
           size="sm"
           variant="primary"
+          label={actionLabel}
           onPress={onAction}
           className="mt-4"
           accessibilityLabel={actionLabel}
-        >
-          <Text>{actionLabel}</Text>
-        </Button>
+        />
       )}
-    </View>
+    </Animated.View>
   );
 }
 
