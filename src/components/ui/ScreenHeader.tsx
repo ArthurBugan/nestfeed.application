@@ -61,8 +61,11 @@ export function ScreenHeader({
       ) : null}
 
       <View className="flex-1 min-w-0">
+        {/* Spec 008 FR-A1: display titles cap Dynamic Type at 1.4× so large
+            headers still fit on one line; body/subtitle text scales fully. */}
         <Text
-          numberOfLines={1}
+          numberOfLines={size === 'large' ? 2 : 1}
+          maxFontSizeMultiplier={1.4}
           accessibilityRole="header"
           className={`font-bold text-foreground ${
             size === 'large' ? 'text-2xl' : 'text-lg'
@@ -71,7 +74,7 @@ export function ScreenHeader({
           {title}
         </Text>
         {subtitle ? (
-          <Text numberOfLines={1} className="text-sm text-muted mt-0.5">
+          <Text numberOfLines={2} className="text-sm text-muted mt-0.5">
             {subtitle}
           </Text>
         ) : null}

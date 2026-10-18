@@ -46,7 +46,7 @@ export function SegmentedControl<T extends string>({
             accessibilityRole="tab"
             accessibilityState={{ selected }}
             accessibilityLabel={option.label}
-            className={`flex-1 flex-row items-center justify-center gap-1.5 h-9 rounded-lg ${
+            className={`flex-1 flex-row items-center justify-center gap-1.5 min-h-9 py-1 rounded-lg ${
               selected ? 'bg-surface' : ''
             }`}
             style={

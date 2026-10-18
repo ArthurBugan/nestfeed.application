@@ -19,9 +19,11 @@ export interface ButtonProps {
 }
 
 const CONTAINER = {
-  sm: 'h-10 px-4 rounded-xl',
-  md: 'h-12 px-5 rounded-xl',
-  lg: 'h-14 px-6 rounded-2xl',
+  // min-height + vertical padding so labels can grow with Dynamic Type at
+  // accessibility content sizes instead of clipping (spec 008 FR-A1).
+  sm: 'min-h-10 px-4 py-2 rounded-xl',
+  md: 'min-h-12 px-5 py-2.5 rounded-xl',
+  lg: 'min-h-14 px-6 py-3 rounded-2xl',
 } as const;
 
 const LABEL = {
@@ -155,7 +157,7 @@ export function Chip({
       accessibilityRole="button"
       accessibilityState={{ selected }}
       accessibilityLabel={label}
-      className={`flex-row items-center gap-1.5 px-3.5 h-11 rounded-full border ${
+      className={`flex-row items-center justify-center gap-1.5 px-3.5 min-h-11 py-2 rounded-full border ${
         selected ? 'bg-accent border-accent' : 'bg-surface border-field-border'
       } ${className}`}
     >

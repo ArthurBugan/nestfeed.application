@@ -1,4 +1,4 @@
-import { View, ActivityIndicator, RefreshControl } from 'react-native';
+import { View, Text, ActivityIndicator, RefreshControl } from 'react-native';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { useGroupsInfinite } from '@/hooks/useGroupsInfinite';
 import { useTheme } from '@/theme/ThemeProvider';
@@ -15,6 +15,8 @@ import { SearchField } from '@/components/ui/SearchField';
 import { ListRow } from '@/components/ui/ListRow';
 import { Button } from '@/components/ui/Button';
 import { PressableScale } from '@/components/ui/PressableScale';
+import { DetailPane } from '@/components/ui/DetailPane';
+import { useTwoPane } from '@/hooks/useTwoPane';
 import { FlashList } from '@shopify/flash-list';
 
 interface GroupWithChildren extends Group {
@@ -27,6 +29,9 @@ export default function GroupsListScreen() {
   const router = useRouter();
   const { isDark } = useTheme();
   const insets = useSafeAreaInsets();
+  /** Spec 008 FR-A2: wide windows (iPad) show the tapped group inline. */
+  const isWide = useTwoPane();
+  const [selectedGroup, setSelectedGroup] = useState<GroupWithChildren | null>(null);
 
   const {
     groups,
@@ -114,7 +119,11 @@ export default function GroupsListScreen() {
           title={group.name}
           subtitle={group.description || undefined}
           chevron={false}
-          onPress={() => router.push(`/groups/${group.id}`)}
+          onPress={() =>
+            isWide
+              ? setSelectedGroup(group)
+              : router.push(`/groups/${group.id}`)
+          }
           accessibilityLabel={`Group: ${group.name}`}
           trailing={
             hasChildren ? (
@@ -137,7 +146,7 @@ export default function GroupsListScreen() {
         />
       </View>
     );
-  }, [isDark, router, expandedGroups, toggleExpand]);
+  }, [isDark, router, expandedGroups, toggleExpand, isWide]);
 
   const renderFooter = useCallback(() => {
     if (!isFetchingNextPage) return null;
@@ -207,28 +216,82 @@ export default function GroupsListScreen() {
     );
   }
 
+  const list = (
+    <FlashList
+      refreshControl={refreshControl}
+      ListHeaderComponent={headerComponent}
+      data={groupedGroups}
+      renderItem={renderGroup}
+      keyExtractor={(item, index) => item.id + index}
+      onEndReached={loadMore}
+      onEndReachedThreshold={0.1}
+      ListFooterComponent={renderFooter}
+      contentContainerStyle={{ paddingTop: insets.top, paddingBottom: 16 }}
+      ListEmptyComponent={
+        <EmptyState
+          icon="lucide:folder-open"
+          title="No groups yet"
+          description="Create one to get started!"
+          actionLabel="+ New Group"
+          onAction={() => router.push('/groups/new')}
+        />
+      }
+    />
+  );
+
+  if (isWide) {
+    return (
+      <View className="flex-1 bg-background flex-row">
+        <View className="w-[42%] border-r border-border">
+          {list}
+        </View>
+        <View className="flex-1 p-4" style={{ paddingTop: insets.top + 16 }}>
+          <DetailPane
+            selected={!!selectedGroup}
+            placeholder="Select a group to see its overview here"
+          >
+            {selectedGroup ? <GroupOverview group={selectedGroup} onOpen={() => router.push(`/groups/${selectedGroup.id}`)} /> : null}
+          </DetailPane>
+        </View>
+      </View>
+    );
+  }
+
   return (
     <View className="flex-1 bg-background">
-      <FlashList
-        refreshControl={refreshControl}
-        ListHeaderComponent={headerComponent}
-        data={groupedGroups}
-        renderItem={renderGroup}
-        keyExtractor={(item, index) => item.id + index}
-        onEndReached={loadMore}
-        onEndReachedThreshold={0.1}
-        ListFooterComponent={renderFooter}
-        contentContainerStyle={{ paddingTop: insets.top, paddingBottom: 16 }}
-        ListEmptyComponent={
-          <EmptyState
-            icon="lucide:folder-open"
-            title="No groups yet"
-            description="Create one to get started!"
-            actionLabel="+ New Group"
-            onAction={() => router.push('/groups/new')}
-          />
-        }
-      />
+      {list}
+    </View>
+  );
+}
+
+/** Inline right-pane overview for the selected group (spec 008 FR-A2). */
+function GroupOverview({ group, onOpen }: { group: GroupWithChildren; onOpen: () => void }) {
+  const { isDark } = useTheme();
+
+  return (
+    <View className="p-6 items-start gap-4">
+      <View
+        className="w-20 h-20 rounded-3xl items-center justify-center"
+        style={{ backgroundColor: getThemeColor('accent-soft', isDark) }}
+      >
+        <IconifyIcon
+          name={group.icon || 'lucide:folder'}
+          size={40}
+          color={getThemeColor('accent', isDark)}
+        />
+      </View>
+      <Text className="text-xl font-bold text-foreground" maxFontSizeMultiplier={1.4}>
+        {group.name}
+      </Text>
+      {group.description ? (
+        <Text className="text-base text-muted">{group.description}</Text>
+      ) : null}
+      {group.children && group.children.length > 0 ? (
+        <Text className="text-sm text-muted">
+          {group.children.length} subgroup{group.children.length === 1 ? '' : 's'}
+        </Text>
+      ) : null}
+      <Button label="Open group" size="lg" onPress={onOpen} />
     </View>
   );
 }

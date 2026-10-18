@@ -48,7 +48,7 @@ export const SearchField = forwardRef<React.ElementRef<typeof TextInput>, Search
     <View className={className}>
       {label ? <Text className="text-sm text-muted mb-1.5">{label}</Text> : null}
       <View
-        className="flex-row items-center gap-2.5 bg-surface rounded-xl px-3.5 h-12 border border-border/60"
+        className="flex-row items-center gap-2.5 bg-surface rounded-xl px-3.5 min-h-12 py-2.5 border border-border/60"
         style={style}
       >
         <IconifyIcon name={icon} size={18} color={getThemeColor('muted', isDark)} />

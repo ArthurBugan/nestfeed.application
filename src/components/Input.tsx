@@ -34,6 +34,8 @@ interface InputProps {
   onSubmitEditing?: () => void;
   returnKeyType?: 'done' | 'next' | 'go' | 'search' | 'send';
   autoFocus?: boolean;
+  /** E2E hooks (Maestro `tapOn: id`). */
+  testID?: string;
   rightElement?: React.ReactNode;
   /** Leading icon inside the field (iconify name). */
   leftElement?: React.ReactNode;
@@ -64,6 +66,7 @@ export const Input = forwardRef<InputHandle, InputProps>(function Input(
     onSubmitEditing,
     returnKeyType = 'done',
     autoFocus = false,
+    testID,
     rightElement,
     leftElement,
   },
@@ -109,6 +112,7 @@ export const Input = forwardRef<InputHandle, InputProps>(function Input(
           returnKeyType={returnKeyType}
           autoFocus={autoFocus}
           accessibilityLabel={label ?? placeholder}
+          testID={testID}
           className={`w-full rounded-xl text-foreground ${
             secureTextEntry ? 'pr-12' : ''
           } ${leftElement ? 'pl-12' : ''} ${multiline ? 'min-h-[80px]' : ''} ${className}`}

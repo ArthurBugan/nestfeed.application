@@ -5,6 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { IconifyIcon } from '@/components/IconifyIcon';
 import { ErrorState } from '@/components/states';
 import { useState, useCallback } from 'react';
+import { useWindowDimensions } from 'react-native';
 import { getThemeColor } from '@/theme/themeColors';
 import { shadows } from '@/theme/colors';
 import { useTheme } from '@/theme/ThemeProvider';
@@ -38,6 +39,7 @@ const actions = [
   { label: 'New Group', route: '/groups/new', icon: 'lucide:plus-circle' },
   { label: 'Add Channel', route: '/channels', icon: 'lucide:tv-minimal-play' },
   { label: 'Add Anime', route: '/animes', icon: 'lucide:clapperboard' },
+  { label: 'Import', route: '/import-youtube', icon: 'lucide:youtube' },
   { label: 'Settings', route: '/settings', icon: 'lucide:settings' },
   { label: 'Blog', route: '/blog', icon: 'lucide:newspaper' },
 ];
@@ -48,6 +50,9 @@ export default function DashboardHomeScreen() {
   const insets = useSafeAreaInsets();
   const { isDark } = useTheme();
   const [isRefreshing, setIsRefreshing] = useState(false);
+  /** Spec 008 FR-A1: accessibility content sizes stack the bento in one
+   *  column — two-up cards would force mid-word breaks at 200%+. */
+  const stacked = useWindowDimensions().fontScale >= 1.35;
 
   const handleRefresh = useCallback(async () => {
     tap();
@@ -94,11 +99,13 @@ export default function DashboardHomeScreen() {
           </View>
         ) : (
           <View className="px-5 pb-8">
-            <View className="flex-row flex-wrap justify-between">
+            <View className={stacked ? 'gap-3' : 'flex-row flex-wrap justify-between'}>
             {shortcuts.map((s) => (
               <PressableScale
                 key={s.label}
-                className="w-[48%] rounded-3xl p-4 mb-3 bg-surface border border-border"
+                className={`rounded-3xl p-4 mb-3 bg-surface border border-border ${
+                  stacked ? '' : 'w-[48%]'
+                }`}
                 style={shadows.md}
                 onPress={() => router.push(s.route)}
                 accessible
