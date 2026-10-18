@@ -17,6 +17,8 @@ export interface User {
   channelCount?: number;
   canAddChannel?: boolean;
   canAddGroup?: boolean;
+  /** Google/YouTube session present (playlists import with the user's own auth). */
+  youtubeSynced?: boolean;
 }
 
 export interface Group {
