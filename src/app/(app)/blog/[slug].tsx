@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, TouchableOpacity, Share, Alert } from 'react-native';
+import { View, Text, ScrollView, Share, Alert, Linking } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useBlogPost } from '@/hooks';
 import { Skeleton } from 'heroui-native';
@@ -6,10 +6,11 @@ import { useTheme } from '@/theme/ThemeProvider';
 import { getThemeColor } from '@/theme/themeColors';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { EnrichedMarkdownText } from 'react-native-enriched-markdown';
-import { Linking } from 'react-native';
+import { ScreenHeader } from '@/components/ui/ScreenHeader';
+import { IconButton } from '@/components/ui/Button';
 import { InlineAd } from '@/components/Admob';
 import { IconifyIcon } from '@/components/IconifyIcon';
-import * as Haptics from 'expo-haptics';
+import { tap } from '@/theme/haptics';
 
 const AD_RE = /<ins\s+class=["']adsbygoogle["']\s*>\s*<\/ins>\s*/gi;
 
@@ -21,7 +22,7 @@ export default function BlogPostScreen() {
   const post = blogData;
 
   const handleShare = async () => {
-    Haptics.selectionAsync();
+    tap();
     try {
       await Share.share({
         message: post?.title || 'Check out this blog post',
@@ -44,44 +45,39 @@ export default function BlogPostScreen() {
   if (!post) {
     return (
       <View className="flex-1 bg-background p-5 items-center justify-center">
-        <View className="w-16 h-16 rounded-2xl items-center justify-center mb-4" style={{ backgroundColor: getThemeColor('default', isDark) }}>
-          <IconifyIcon name="lucide:file-x" size={32} color={getThemeColor('muted', isDark)} />
+        <View className="w-16 h-16 rounded-2xl items-center justify-center mb-4 bg-default">
+          <IconifyIcon name="lucide:file-x" size={32} className="text-muted" />
         </View>
         <Text className="text-muted text-center font-medium">Post not found</Text>
       </View>
     );
   }
 
-  const segments = post.content.split(AD_RE);
+  const segments: string[] = post.content.split(AD_RE);
 
   return (
     <ScrollView contentContainerStyle={{ flexGrow: 1 }} className="bg-background" showsVerticalScrollIndicator={false}>
       <SafeAreaView edges={['top']}>
         {/* Header */}
-        <View className="flex-row items-center justify-between px-5 pt-4 pb-3 border-b" style={{ borderColor: getThemeColor('border', isDark) }}>
-          <TouchableOpacity 
-            onPress={() => { Haptics.selectionAsync(); router.back(); }}
-            className="w-10 h-10 rounded-full items-center justify-center"
-            style={{ backgroundColor: getThemeColor('surface', isDark) }}
-            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-          >
-            <IconifyIcon name="lucide:arrow-left" size={20} color={getThemeColor('foreground', isDark)} />
-          </TouchableOpacity>
-          <Text className="text-base font-semibold text-foreground">Blog Post</Text>
-          <TouchableOpacity 
-            onPress={handleShare}
-            className="w-10 h-10 rounded-full items-center justify-center"
-            style={{ backgroundColor: getThemeColor('surface', isDark) }}
-            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-          >
-            <IconifyIcon name="lucide:share-2" size={18} color={getThemeColor('foreground', isDark)} />
-          </TouchableOpacity>
+        <View className="px-5 pt-4 pb-3 border-b border-border">
+          <ScreenHeader
+            title="Blog Post"
+            size="compact"
+            right={
+              <IconButton
+                name="lucide:share-2"
+                label="Share post"
+                onPress={handleShare}
+                variant="surface"
+              />
+            }
+          />
         </View>
 
         <View className="px-5 pt-6 pb-6">
           {/* Title */}
           <Text className="text-2xl font-bold text-foreground mb-3 leading-tight">{post.title}</Text>
-          
+
           {/* Date */}
           <View className="flex-row items-center gap-2 mb-6">
             <IconifyIcon name="lucide:calendar" size={14} color={getThemeColor('muted', isDark)} />

@@ -1,23 +1,23 @@
-import { View, Text, TouchableOpacity, ActivityIndicator, ScrollView, RefreshControl } from 'react-native';
-import { Input } from 'heroui-native';
+import { View, Text, ActivityIndicator, ScrollView, RefreshControl } from 'react-native';
 
 import { useRouter } from 'expo-router';
 import { useBlogInfinite } from '@/hooks';
-import { Card } from 'heroui-native';
 
-import DashboardHeader from '@/components/DashboardHeader';
+import { Screen } from '@/components/ui/Screen';
+import { ScreenHeader } from '@/components/ui/ScreenHeader';
+import { SearchField } from '@/components/ui/SearchField';
+import { Card } from '@/components/ui/Card';
+import { PressableScale } from '@/components/ui/PressableScale';
 import type { BlogPost } from '@/types';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { IconifyIcon } from '@/components/IconifyIcon';
 import { EmptyState, ErrorState, LoadingState } from '@/components/states';
 import { getThemeColor } from '@/theme/themeColors';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useState, useCallback } from 'react';
-import * as Haptics from 'expo-haptics';
+import { tap } from '@/theme/haptics';
 
 export default function BlogListScreen() {
   const router = useRouter();
-  const insets = useSafeAreaInsets();
   const { isDark } = useTheme();
   const {
     posts,
@@ -34,17 +34,25 @@ export default function BlogListScreen() {
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   const handleRefresh = useCallback(async () => {
-    Haptics.selectionAsync();
+    tap();
     setIsRefreshing(true);
-    setTimeout(() => setIsRefreshing(false), 1000);
-  }, []);
+    try {
+      await refetch();
+    } finally {
+      setIsRefreshing(false);
+    }
+  }, [refetch]);
 
   const renderPost = ({ item: post }: { item: BlogPost }) => (
-    <TouchableOpacity
-      onPress={() => { Haptics.selectionAsync(); router.push(`/blog/${post.slug}`); }}
-      activeOpacity={0.7}
+    <PressableScale
+      key={post.id}
+      onPress={() => router.push(`/blog/${post.slug}`)}
+      accessible
+      accessibilityRole="button"
+      accessibilityLabel={post.title}
+      className="mb-3"
     >
-      <Card className="mb-3">
+      <Card>
         <View>
           <Text className="text-lg text-foreground font-semibold mb-1">{post.title}</Text>
           {post.excerpt && (
@@ -60,7 +68,7 @@ export default function BlogListScreen() {
           </View>
         </View>
       </Card>
-    </TouchableOpacity>
+    </PressableScale>
   );
 
   const renderFooter = () => {
@@ -82,74 +90,42 @@ export default function BlogListScreen() {
   };
 
   return (
-    <View className="flex-1 bg-background">
-      <ScrollView
-        contentContainerStyle={{ flexGrow: 1, paddingBottom: 100 }}
-        showsVerticalScrollIndicator={false}
-        refreshControl={
-          <RefreshControl
-            refreshing={isRefreshing}
-            onRefresh={handleRefresh}
-            tintColor={getThemeColor('accent', isDark)}
-            colors={[getThemeColor('accent', isDark)]}
-          />
-        }
-      >
-        <View style={{ paddingTop: insets.top, paddingHorizontal: 16 }}>
-          <View className="pt-4 pb-3">
-            <View className="flex-row items-center mb-1">
-              <TouchableOpacity
-                onPress={() => { Haptics.selectionAsync(); router.back(); }}
-                className="mr-3 w-10 h-10 rounded-full items-center justify-center"
-                style={{ backgroundColor: getThemeColor('surface', isDark) }}
-                hitSlop={{ top: 4, bottom: 4, left: 4, right: 4 }}
-                accessible
-                accessibilityRole="button"
-                accessibilityLabel="Go back"
-              >
-                <IconifyIcon name="lucide:arrow-left" size={20} color={getThemeColor('foreground', isDark)} />
-              </TouchableOpacity>
-              <Text className="text-lg font-semibold text-foreground">Blog</Text>
-            </View>
-          </View>
+    <Screen
+      scroll
+      edges={['top', 'bottom']}
+      contentContainerStyle={{ paddingBottom: 100 }}
+      refreshing={isRefreshing}
+      onRefresh={handleRefresh}
+    >
+      <ScreenHeader title="Blog" className="pt-4 mb-3" />
 
-          <View className="mb-4">
-            <View className="flex-row items-center bg-default border border-border rounded-xl px-4 py-3" style={{ borderWidth: 1.5 }}>
-              <IconifyIcon name="lucide:search" size={18} color={getThemeColor('muted', isDark)} />
-              <View className="flex-1 ml-2">
-                <Input
-                  value={search}
-                  onChangeText={setSearch}
-                  placeholder="Search posts..."
-                  placeholderTextColor={getThemeColor('field-placeholder', isDark)}
-                  className="text-base"
-                />
-              </View>
-            </View>
-          </View>
+      <SearchField
+        value={search}
+        onChangeText={setSearch}
+        placeholder="Search posts..."
+        label="Search posts"
+      />
 
-          {isError ? (
-            <ErrorState onRetry={() => refetch()} />
-          ) : isLoading ? (
-            <LoadingState variant="skeleton" rows={3} label="Loading posts" />
-          ) : posts.length === 0 ? (
-            <EmptyState
-              icon="lucide:newspaper"
-              title={search ? 'No posts found' : 'No posts yet'}
-              description={
-                search
-                  ? `We couldn't find anything for "${search}".`
-                  : 'Check back later for updates'
-              }
-            />
-          ) : (
-            <View className="px-1">
-              {posts.map(post => renderPost({ item: post }))}
-            </View>
-          )}
-          {renderFooter()}
+      {isError ? (
+        <ErrorState onRetry={() => refetch()} />
+      ) : isLoading ? (
+        <LoadingState variant="skeleton" rows={3} label="Loading posts" />
+      ) : posts.length === 0 ? (
+        <EmptyState
+          icon="lucide:newspaper"
+          title={search ? 'No posts found' : 'No posts yet'}
+          description={
+            search
+              ? `We couldn't find anything for "${search}".`
+              : 'Check back later for updates'
+          }
+        />
+      ) : (
+        <View className="mt-1">
+          {posts.map(post => renderPost({ item: post }))}
         </View>
-      </ScrollView>
-    </View>
+      )}
+      {renderFooter()}
+    </Screen>
   );
 }

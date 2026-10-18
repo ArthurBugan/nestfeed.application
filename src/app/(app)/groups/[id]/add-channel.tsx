@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect, useMemo, useRef } from 'react';
-import { View, Text, TextInput, TouchableOpacity, FlatList, ActivityIndicator, Alert, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, FlatList, ActivityIndicator, Alert, KeyboardAvoidingView, Platform } from 'react-native';
 import { Image } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -12,7 +12,13 @@ import { getThemeColor } from '@/theme/themeColors';
 import { IconifyIcon } from '@/components/IconifyIcon';
 import { channelsApi } from '@/api/endpoints/channels';
 import type { Channel } from '@/types';
-import { Button } from 'heroui-native';
+import { Screen } from '@/components/ui/Screen';
+import { ScreenHeader } from '@/components/ui/ScreenHeader';
+import { SegmentedControl } from '@/components/ui/SegmentedControl';
+import { SearchField } from '@/components/ui/SearchField';
+import { Button } from '@/components/ui/Button';
+import { PressableScale } from '@/components/ui/PressableScale';
+import { Input } from '@/components/Input';
 
 const TABS = [
   { key: 'youtube', label: 'YouTube' },
@@ -254,7 +260,14 @@ export default function AddChannelToGroupScreen() {
     };
 
     return (
-      <TouchableOpacity onPress={toggle} activeOpacity={0.7} className="flex-row items-center px-3 py-3 mb-2 bg-surface rounded-xl shadow-sm">
+      <PressableScale
+        onPress={toggle}
+        className="flex-row items-center px-3 py-3 mb-2 bg-surface rounded-xl shadow-sm"
+        accessible
+        accessibilityRole="button"
+        accessibilityState={{ selected: isSelected }}
+        accessibilityLabel={item.name}
+      >
         <CheckIcon selected={isSelected} />
         {item.thumbnail || item.imageUrl ? (
           <Image
@@ -274,7 +287,7 @@ export default function AddChannelToGroupScreen() {
             <Text className="text-muted text-xs" numberOfLines={1}>{item.url}</Text>
           )}
         </View>
-      </TouchableOpacity>
+      </PressableScale>
     );
   }, [activeTab, toggleYoutube, toggleAnime, toggleWebsite, isDark]);
 
@@ -289,97 +302,70 @@ export default function AddChannelToGroupScreen() {
     });
   }, [activeTab, loadMore, loadMoreAnimes, loadMoreWebsites]);
 
-  const bgColor = getThemeColor('background', isDark);
-  const borderColor = getThemeColor('border', isDark);
   const accentColor = getThemeColor('accent', isDark);
-  const surfaceColor = getThemeColor('surface', isDark);
-  const foregroundColor = getThemeColor('foreground', isDark);
-  const mutedColor = getThemeColor('muted', isDark);
 
   return (
-    <KeyboardAvoidingView style={{ flex: 1, backgroundColor: bgColor }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-      <View style={{ flex: 1, paddingTop: insets.top }}>
-        <View className="px-5 pt-4 pb-3 border-b" style={{ borderColor }}>
-          <View className="flex-row items-center mb-1">
-            <TouchableOpacity onPress={() => router.back()} className="mr-3 p-1.5 -ml-1 rounded-full" style={{ backgroundColor: surfaceColor }} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }} accessible accessibilityRole="button" accessibilityLabel="Go back">
-              <IconifyIcon name="lucide:arrow-left" size={20} color={foregroundColor} />
-            </TouchableOpacity>
-            <Text className="text-lg font-semibold text-foreground">Add Channels</Text>
-          </View>
-          <Text className="text-sm text-muted">{group?.name ? `Add channels to ${group.name}` : 'Select channels to add'}</Text>
+    <KeyboardAvoidingView style={{ flex: 1 }} className="bg-background" behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+      <Screen edges={['top']} padded={false}>
+        <View className="px-5 pt-4 pb-3 border-b border-border">
+          <ScreenHeader
+            title="Add Channels"
+            size="compact"
+            subtitle={group?.name ? `Add channels to ${group.name}` : 'Select channels to add'}
+          />
         </View>
 
-        <View className="flex-row mx-5 mt-4 mb-3">
-          {TABS.map((tab) => {
-            const count = tab.key === 'youtube' ? selectedYoutubeIds.size
-              : tab.key === 'anime' ? selectedAnimeIds.size
-              : selectedWebsiteIds.size;
-            return (
-              <TouchableOpacity key={tab.key} onPress={() => setActiveTab(tab.key)} className="flex-1 py-1.5 items-center relative">
-                <Text className={`text-sm ${activeTab === tab.key ? 'text-foreground font-semibold' : 'text-muted font-normal'}`}>
-                  {tab.label}
-                </Text>
-                {count > 0 && (
-                  <View className="absolute -top-0.5 right-1.5 min-w-[16px] h-4 px-1 bg-accent/20 rounded-full items-center justify-center">
-                    <Text className="text-[10px] text-accent font-bold">{count}</Text>
-                  </View>
-                )}
-                {activeTab === tab.key && <View className="absolute bottom-0 w-8 h-0.5 bg-accent rounded-full" />}
-              </TouchableOpacity>
-            );
-          })}
+        {/* Tabs with per-tab selection count badges */}
+        <View className="mx-5 mt-4 mb-3 relative">
+          <SegmentedControl
+            options={TABS.map((tab) => ({ value: tab.key, label: tab.label }))}
+            value={activeTab}
+            onChange={setActiveTab}
+          />
+          <View pointerEvents="none" className="absolute left-0 right-0 top-0 bottom-0 flex-row">
+            {TABS.map((tab) => {
+              const count = tab.key === 'youtube' ? selectedYoutubeIds.size
+                : tab.key === 'anime' ? selectedAnimeIds.size
+                : selectedWebsiteIds.size;
+              // Always render the flex-1 slot so badges stay aligned over
+              // their own segment; only the badge itself is conditional.
+              return (
+                <View key={`${tab.key}-count`} className="flex-1 items-end justify-center pr-1">
+                  {count > 0 && (
+                    <View className="min-w-[16px] h-4 px-1 bg-accent/20 rounded-full items-center justify-center">
+                      <Text className="text-[10px] text-accent font-bold">{count}</Text>
+                    </View>
+                  )}
+                </View>
+              );
+            })}
+          </View>
         </View>
 
         <View className="px-5 pb-3">
           {activeTab !== 'website' ? (
-            <TextInput
+            <SearchField
               placeholder="Search channels..."
-              placeholderTextColor={mutedColor}
               value={search}
               onChangeText={setSearch}
-              style={{
-                backgroundColor: surfaceColor,
-                color: foregroundColor,
-                borderRadius: 12,
-                paddingHorizontal: 16,
-                paddingVertical: 12,
-                fontSize: 16,
-                borderWidth: 1,
-                borderColor,
-              }}
             />
           ) : (
-            <View className="flex-row items-center gap-2">
-              <TextInput
-                placeholder="Paste website URL..."
-                placeholderTextColor={mutedColor}
-                value={urlInput}
-                onChangeText={setUrlInput}
-                onSubmitEditing={handleFetchUrl}
-                style={{
-                  flex: 1,
-                  backgroundColor: surfaceColor,
-                  color: foregroundColor,
-                  borderRadius: 12,
-                  paddingHorizontal: 16,
-                  paddingVertical: 12,
-                  fontSize: 16,
-                  borderWidth: 1,
-                  borderColor,
-                }}
-              />
-              <TouchableOpacity
+            <View className="flex-row items-start gap-2">
+              <View className="flex-1">
+                <Input
+                  placeholder="Paste website URL..."
+                  value={urlInput}
+                  onChangeText={setUrlInput}
+                  onSubmitEditing={handleFetchUrl}
+                />
+              </View>
+              <Button
+                label="Fetch"
+                loading={isFetchingUrl}
+                disabled={!urlInput.trim()}
                 onPress={handleFetchUrl}
-                disabled={isFetchingUrl || !urlInput.trim()}
-                className="bg-accent px-4 py-3 rounded-xl"
-                activeOpacity={0.7}
-              >
-                {isFetchingUrl ? (
-                  <ActivityIndicator size="small" color="#fff" />
-                ) : (
-                  <Text className="text-accent-foreground font-semibold text-sm">Fetch</Text>
-                )}
-              </TouchableOpacity>
+                accessibilityLabel="Fetch website"
+              />
             </View>
           )}
         </View>
@@ -415,12 +401,19 @@ export default function AddChannelToGroupScreen() {
             }
           />
         </View>
-      </View>
+      </Screen>
 
-      <View style={{ paddingBottom: insets.bottom, borderColor }} className="absolute bottom-0 left-0 right-0 px-5 py-3 bg-background border-t">
-        <Button onPress={handleSave} fullWidth loading={batchUpdateChannels.isPending}>
-          {batchUpdateChannels.isPending ? 'Saving...' : `Add Selected (${totalSelected})`}
-        </Button>
+      {/* Absolute bottom save bar */}
+      <View
+        className="absolute bottom-0 left-0 right-0 bg-surface border-t border-border px-5 pt-3"
+        style={{ paddingBottom: insets.bottom + 12 }}
+      >
+        <Button
+          label={batchUpdateChannels.isPending ? 'Saving...' : `Add Selected (${totalSelected})`}
+          fullWidth
+          loading={batchUpdateChannels.isPending}
+          onPress={handleSave}
+        />
       </View>
     </KeyboardAvoidingView>
   );

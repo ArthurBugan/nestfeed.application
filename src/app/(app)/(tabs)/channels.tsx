@@ -1,20 +1,18 @@
-import { View, Text, TouchableOpacity, ActivityIndicator, RefreshControl } from 'react-native';
-import { Image } from 'react-native';
-import { Input } from 'heroui-native';
+import { View, ActivityIndicator, RefreshControl, Image } from 'react-native';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { useChannelsInfinite } from '@/hooks/useChannelsInfinite';
 import { useTheme } from '@/theme/ThemeProvider';
 import type { Channel } from '@/types';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useState, useMemo, useCallback } from 'react';
-import { IconifyIcon } from '@/components/IconifyIcon';
 import { InlineAd } from '@/components/Admob';
 import { EmptyState, ErrorState, LoadingState } from '@/components/states';
 import { FlashList } from '@shopify/flash-list';
 import { getThemeColor } from '@/theme/themeColors';
-import { shadows } from '@/theme/colors';
-import * as Haptics from 'expo-haptics';
-import DashboardHeader from '@/components/DashboardHeader';
+import { tap } from '@/theme/haptics';
+import { ScreenHeader } from '@/components/ui/ScreenHeader';
+import { SearchField } from '@/components/ui/SearchField';
+import { ListRow } from '@/components/ui/ListRow';
 
 type ListItem = Channel | { isAd: true; id: string };
 
@@ -44,7 +42,7 @@ export default function ChannelsListScreen() {
   );
 
   const handleRefresh = useCallback(async () => {
-    Haptics.selectionAsync();
+    tap();
     setIsRefreshing(true);
     await refetch();
     setIsRefreshing(false);
@@ -62,40 +60,29 @@ export default function ChannelsListScreen() {
     return result;
   }, [channels]);
 
-  const renderChannel = useCallback(({ item }: { item: Channel }) => (
-    <TouchableOpacity
-      className="mx-4 bg-surface rounded-xl p-3.5 mb-2 flex-row items-center gap-3"
-      style={shadows.sm}
-      onPress={() => { Haptics.selectionAsync(); router.push(`/channels/change-group/${item.id}`); }}
-      activeOpacity={0.7}
-      accessible
-      accessibilityRole="button"
-      accessibilityLabel={`Channel: ${item.name}`}
-    >
-      {(item.thumbnail || (item as any).imageUrl) ? (
-        <Image source={{ uri: item.thumbnail || item.imageUrl }} style={{ width: 36, height: 36, borderRadius: 12 }} />
-      ) : (
-        <View className="w-11 h-11 rounded-xl items-center justify-center" style={{ backgroundColor: getThemeColor('default', isDark) }}>
-          <IconifyIcon name="lucide:tv" size={20} color={getThemeColor('foreground', isDark)} />
-        </View>
-      )}
-      <View className="flex-1 min-w-0">
-        <Text className="text-base font-semibold text-foreground" numberOfLines={1}>{item.name}</Text>
-        {item.description && (
-          <Text className="text-xs text-muted mt-0.5" numberOfLines={2}>
-            {item.description}
-          </Text>
-        )}
-        {item.groupName && (
-          <View className="flex-row items-center gap-1 mt-1">
-            <IconifyIcon name="lucide:folder" size={11} color={getThemeColor('muted', isDark)} />
-            <Text className="text-xs text-muted">{item.groupName}</Text>
-          </View>
-        )}
-      </View>
-      <IconifyIcon name="lucide:chevron-right" size={16} color={getThemeColor('muted', isDark)} />
-    </TouchableOpacity>
-  ), [isDark, router]);
+  const renderChannel = useCallback(({ item }: { item: Channel }) => {
+    const hasThumbnail = !!(item.thumbnail || (item as any).imageUrl);
+
+    return (
+      <ListRow
+        className="mx-4 mb-2"
+        leading={
+          hasThumbnail ? (
+            <Image
+              source={{ uri: item.thumbnail || item.imageUrl }}
+              style={{ width: 44, height: 44, borderRadius: 12 }}
+            />
+          ) : undefined
+        }
+        icon={hasThumbnail ? undefined : 'lucide:tv'}
+        title={item.name}
+        subtitle={item.description || undefined}
+        value={item.groupName || undefined}
+        onPress={() => router.push(`/channels/change-group/${item.id}`)}
+        accessibilityLabel={`Channel: ${item.name}`}
+      />
+    );
+  }, [router]);
 
   const renderFooter = useCallback(() => {
     if (!isFetchingNextPage) return null;
@@ -109,15 +96,13 @@ export default function ChannelsListScreen() {
   const headerComponent = (
     <View style={{ paddingHorizontal: 16 }}>
       <View className="pt-4 pb-2">
-        <DashboardHeader title="Channels" />
+        <ScreenHeader title="Channels" leading="none" />
       </View>
       <View className="mb-4">
-        <Input
+        <SearchField
           placeholder="Search channels..."
-          placeholderTextColor={getThemeColor('field-placeholder', isDark)}
           value={search}
           onChangeText={setSearch}
-          className="rounded-xl"
         />
       </View>
     </View>

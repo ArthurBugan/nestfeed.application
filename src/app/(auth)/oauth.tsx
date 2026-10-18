@@ -1,11 +1,11 @@
 import { useEffect } from 'react';
-import { View, Text, ActivityIndicator } from 'react-native';
+import { Text, ActivityIndicator, View } from 'react-native';
 import { useRouter, useGlobalSearchParams } from 'expo-router';
 import { useHandleOAuthCallback } from '@/hooks';
 import * as WebBrowser from 'expo-web-browser';
 import { useTheme } from '@/theme/ThemeProvider';
 import { getThemeColor } from '@/theme/themeColors';
-import { IconifyIcon } from '@/components/IconifyIcon';
+import { Screen } from '@/components/ui/Screen';
 
 export default function OAuthCallback() {
   const { token } = useGlobalSearchParams();
@@ -33,16 +33,18 @@ export default function OAuthCallback() {
   }, [token]);
 
   return (
-    <View className="flex-1 bg-background items-center justify-center p-6">
-      <View className="w-16 h-16 rounded-2xl items-center justify-center mb-4" style={{ backgroundColor: `${getThemeColor('accent', isDark)}15` }}>
-        <ActivityIndicator size="large" color={getThemeColor('accent', isDark)} />
+    <Screen padded={false}>
+      <View className="flex-1 items-center justify-center p-6">
+        <View className="w-16 h-16 rounded-2xl items-center justify-center mb-4 bg-accent/10">
+          <ActivityIndicator size="large" color={getThemeColor('accent', isDark)} />
+        </View>
+        <Text className="text-foreground text-lg font-medium">
+          Completing login...
+        </Text>
+        <Text className="text-muted text-sm mt-2">
+          Please wait a moment
+        </Text>
       </View>
-      <Text className="text-foreground text-lg font-medium">
-        Completing login...
-      </Text>
-      <Text className="text-muted text-sm mt-2">
-        Please wait a moment
-      </Text>
-    </View>
+    </Screen>
   );
 }

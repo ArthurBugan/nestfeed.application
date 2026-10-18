@@ -1,15 +1,16 @@
 import { useEffect, useState, useRef } from 'react';
-import { View, Text, TouchableOpacity, Alert, KeyboardAvoidingView, Platform, ScrollView, ActivityIndicator } from 'react-native';
+import { View, Text, Alert, KeyboardAvoidingView, Platform, ScrollView, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useLogin, useGoogleLogin, useDiscordLogin, useAppleLogin, useIsOAuthLoading } from '@/hooks';
 import { useTheme } from '@/theme/ThemeProvider';
 import { IconifyIcon } from '@/components/IconifyIcon';
 import * as AppleAuthentication from 'expo-apple-authentication';
 import AdMobManager from '@/components/Admob';
-import { Input } from 'heroui-native';
+import { Input, type InputHandle } from '@/components/Input';
+import { Button } from '@/components/ui/Button';
+import { PressableScale } from '@/components/ui/PressableScale';
 import { getThemeColor } from '@/theme/themeColors';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import * as Haptics from 'expo-haptics';
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -24,7 +25,7 @@ export default function LoginScreen() {
   const discordLogin = useDiscordLogin();
   const appleLogin = useAppleLogin();
   const isOAuthLoading = useIsOAuthLoading();
-  const passwordInputRef = useRef<any>(null);
+  const passwordInputRef = useRef<InputHandle>(null);
 
   useEffect(() => {
     async function loadAppOpenAd() {
@@ -34,7 +35,6 @@ export default function LoginScreen() {
   }, []);
 
   const handleLogin = async () => {
-    Haptics.selectionAsync();
     if (!email || !password) {
       Alert.alert('Error', 'Please fill in all fields');
       return;
@@ -48,7 +48,6 @@ export default function LoginScreen() {
   };
 
   const handleGoogleLogin = async () => {
-    Haptics.selectionAsync();
     try {
       await googleLogin.signIn();
     } catch (error) {
@@ -57,7 +56,6 @@ export default function LoginScreen() {
   };
 
   const handleDiscordLogin = async () => {
-    Haptics.selectionAsync();
     try {
       await discordLogin.signIn();
     } catch (error) {
@@ -66,7 +64,6 @@ export default function LoginScreen() {
   };
 
   const handleAppleLogin = async () => {
-    Haptics.selectionAsync();
     try {
       await appleLogin.signIn();
     } catch (error) {
@@ -87,17 +84,25 @@ export default function LoginScreen() {
         showsVerticalScrollIndicator={false}
       >
         <View style={{ paddingTop: Math.max(insets.top, 24), paddingHorizontal: 24 }}>
+          {/* Brand Hero */}
+          <View className="flex-row items-center gap-2.5 mb-8">
+            <View className="w-11 h-11 rounded-2xl bg-accent items-center justify-center">
+              <IconifyIcon name="lucide:layers" size={22} color={getThemeColor('accent-foreground', isDark)} />
+            </View>
+            <Text className="text-3xl font-bold text-foreground">Nestfeed</Text>
+          </View>
+
           {/* Header */}
-          <View className="mb-10">
-            <Text className="text-3xl font-bold text-foreground mb-2">Welcome Back</Text>
+          <View className="mb-8">
+            <Text className="text-xl font-bold text-foreground mb-1">Welcome Back</Text>
             <Text className="text-base text-muted">Sign in to continue to Nestfeed</Text>
           </View>
 
           {/* Email/Password Form */}
-          <View className="gap-4 mb-8">
+          <View className="mb-8">
             <Input
+              label="Email"
               placeholder="Email"
-              placeholderTextColor={getThemeColor('field-placeholder', isDark)}
               value={email}
               onChangeText={setEmail}
               keyboardType="email-address"
@@ -109,9 +114,9 @@ export default function LoginScreen() {
               onSubmitEditing={() => passwordInputRef.current?.focus()}
             />
             <Input
-              ref={(ref) => { passwordInputRef.current = ref as any; }}
+              ref={passwordInputRef}
+              label="Password"
               placeholder="Password"
-              placeholderTextColor={getThemeColor('field-placeholder', isDark)}
               value={password}
               onChangeText={setPassword}
               secureTextEntry={true}
@@ -121,56 +126,64 @@ export default function LoginScreen() {
               onSubmitEditing={handleLogin}
             />
 
-            <TouchableOpacity
-              className="bg-accent rounded-xl p-4 items-center"
-              onPress={handleLogin}
+            <Button
+              label="Sign In"
+              fullWidth
+              loading={login.isPending}
               disabled={isLoading}
-              activeOpacity={0.7}
-            >
-              <Text className="text-accent-foreground text-base font-semibold">
-                {login.isPending ? 'Signing in...' : 'Sign In'}
-              </Text>
-            </TouchableOpacity>
+              onPress={handleLogin}
+              accessibilityLabel="Sign In"
+            />
           </View>
 
           {/* Forgot Password */}
           <View className="items-center mb-8">
-            <TouchableOpacity onPress={() => { Haptics.selectionAsync(); router.push('/(auth)/forgot-password'); }}>
+            <PressableScale
+              onPress={() => router.push('/(auth)/forgot-password')}
+              className="py-2 px-3"
+              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+              accessible
+              accessibilityRole="button"
+              accessibilityLabel="Forgot Password"
+            >
               <Text className="text-accent text-sm font-medium">Forgot Password?</Text>
-            </TouchableOpacity>
+            </PressableScale>
           </View>
 
           {/* Divider */}
           <View className="flex-row items-center my-6">
-            <View className="flex-1 h-px" style={{ backgroundColor: getThemeColor('border', isDark) }} />
+            <View className="flex-1 h-px bg-border" />
             <Text className="text-muted text-sm mx-4">or continue with</Text>
-            <View className="flex-1 h-px" style={{ backgroundColor: getThemeColor('border', isDark) }} />
+            <View className="flex-1 h-px bg-border" />
           </View>
 
           {/* Social Login */}
           <View className="gap-3 mb-6">
-            <TouchableOpacity
-              className="bg-white flex-row items-center rounded-xl p-3.5 border"
-              style={{ borderColor: getThemeColor('border', isDark) }}
+            <PressableScale
+              className="bg-white flex-row items-center rounded-xl p-3.5 border border-black/10"
               onPress={handleGoogleLogin}
               disabled={googleLogin.isLoading || isOAuthLoading}
-              activeOpacity={0.7}
+              accessible
+              accessibilityRole="button"
+              accessibilityLabel="Sign in with Google"
             >
               {googleLogin.isLoading || isOAuthLoading ? (
                 <ActivityIndicator size="small" color="#4285F4" />
               ) : (
-                <IconifyIcon name="mdi:google" size={22} color="black" />
+                <IconifyIcon name="mdi:google" size={22} color="#1F1F1F" />
               )}
-              <Text className="text-black font-medium text-base flex-1 text-center">
+              <Text className="text-[#1F1F1F] font-medium text-base flex-1 text-center">
                 Sign in with Google
               </Text>
-            </TouchableOpacity>
+            </PressableScale>
 
-            <TouchableOpacity
+            <PressableScale
               className="bg-[#5865F2] flex-row items-center rounded-xl p-3.5"
               onPress={handleDiscordLogin}
               disabled={discordLogin.isLoading || isOAuthLoading}
-              activeOpacity={0.7}
+              accessible
+              accessibilityRole="button"
+              accessibilityLabel="Sign in with Discord"
             >
               {discordLogin.isLoading || isOAuthLoading ? (
                 <ActivityIndicator size="small" color="#fff" />
@@ -180,7 +193,7 @@ export default function LoginScreen() {
               <Text className="text-white font-medium text-base flex-1 text-center">
                 Sign in with Discord
               </Text>
-            </TouchableOpacity>
+            </PressableScale>
 
             <AppleAuthentication.AppleAuthenticationButton
               buttonType={AppleAuthentication.AppleAuthenticationButtonType.SIGN_IN}
@@ -192,11 +205,18 @@ export default function LoginScreen() {
           </View>
 
           {/* Sign Up Link */}
-          <View className="flex-row justify-center pb-8">
+          <View className="flex-row justify-center pb-8 items-center">
             <Text className="text-muted text-sm">Don't have an account? </Text>
-            <TouchableOpacity onPress={() => { Haptics.selectionAsync(); router.push('/(auth)/register'); }}>
+            <PressableScale
+              onPress={() => router.push('/(auth)/register')}
+              className="py-2 px-2"
+              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+              accessible
+              accessibilityRole="button"
+              accessibilityLabel="Sign Up"
+            >
               <Text className="text-accent text-sm font-medium">Sign Up</Text>
-            </TouchableOpacity>
+            </PressableScale>
           </View>
         </View>
       </ScrollView>

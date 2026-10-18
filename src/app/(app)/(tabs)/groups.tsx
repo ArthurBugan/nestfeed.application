@@ -1,5 +1,4 @@
-import { View, Text, TouchableOpacity, ActivityIndicator, RefreshControl } from 'react-native';
-import { Input } from 'heroui-native';
+import { View, ActivityIndicator, RefreshControl } from 'react-native';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { useGroupsInfinite } from '@/hooks/useGroupsInfinite';
 import { useTheme } from '@/theme/ThemeProvider';
@@ -10,9 +9,12 @@ import { useState, useMemo, useCallback } from 'react';
 import { InlineAd } from '@/components/Admob';
 import { EmptyState, ErrorState, LoadingState } from '@/components/states';
 import { getThemeColor } from '@/theme/themeColors';
-import { shadows } from '@/theme/colors';
-import * as Haptics from 'expo-haptics';
-import DashboardHeader from '@/components/DashboardHeader';
+import { tap } from '@/theme/haptics';
+import { ScreenHeader } from '@/components/ui/ScreenHeader';
+import { SearchField } from '@/components/ui/SearchField';
+import { ListRow } from '@/components/ui/ListRow';
+import { Button } from '@/components/ui/Button';
+import { PressableScale } from '@/components/ui/PressableScale';
 import { FlashList } from '@shopify/flash-list';
 
 interface GroupWithChildren extends Group {
@@ -49,14 +51,13 @@ export default function GroupsListScreen() {
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   const handleRefresh = useCallback(async () => {
-    Haptics.selectionAsync();
+    tap();
     setIsRefreshing(true);
     await refetch();
     setIsRefreshing(false);
   }, [refetch]);
 
   const toggleExpand = useCallback((groupId: string) => {
-    Haptics.selectionAsync();
     setExpandedGroups(prev => {
       const newSet = new Set(prev);
       if (newSet.has(groupId)) newSet.delete(groupId);
@@ -107,32 +108,34 @@ export default function GroupsListScreen() {
     const isExpanded = expandedGroups.has(group.id);
 
     return (
-      <TouchableOpacity
-        className="bg-surface rounded-xl p-3.5 mb-2 flex-row items-center gap-3"
-        style={{ marginLeft: group._depth * 16, marginHorizontal: 16, ...shadows.sm }}
-        onPress={() => { Haptics.selectionAsync(); router.push(`/groups/${group.id}`); }}
-        activeOpacity={0.7}
-        accessible
-        accessibilityRole="button"
-        accessibilityLabel={`Group: ${group.name}`}
-      >
-        <View className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ backgroundColor: getThemeColor('default', isDark) }}>
-          <IconifyIcon name={group.icon || 'lucide:folder'} size={20} color={getThemeColor('foreground', isDark)} />
-        </View>
-        <View className="flex-1 min-w-0">
-          <Text className="text-base font-semibold text-foreground" numberOfLines={1}>{group.name}</Text>
-          {group.description && (
-            <Text className="text-xs text-muted mt-0.5" numberOfLines={1}>
-              {group.description}
-            </Text>
-          )}
-        </View>
-        {hasChildren && (
-          <TouchableOpacity onPress={() => toggleExpand(group.id)} className="w-11 h-11 rounded-lg bg-default items-center justify-center" accessible accessibilityRole="button" accessibilityLabel={`${isExpanded ? 'Collapse' : 'Expand'} ${group.name}`} accessibilityState={{ expanded: isExpanded }}>
-            <IconifyIcon name={isExpanded ? 'lucide:folder-open' : 'lucide:folder'} size={18} color={getThemeColor('muted', isDark)} />
-          </TouchableOpacity>
-        )}
-      </TouchableOpacity>
+      <View style={{ marginLeft: group._depth * 16, marginHorizontal: 16, marginBottom: 8 }}>
+        <ListRow
+          icon={group.icon || 'lucide:folder'}
+          title={group.name}
+          subtitle={group.description || undefined}
+          chevron={false}
+          onPress={() => router.push(`/groups/${group.id}`)}
+          accessibilityLabel={`Group: ${group.name}`}
+          trailing={
+            hasChildren ? (
+              <PressableScale
+                onPress={() => toggleExpand(group.id)}
+                className="w-11 h-11 rounded-lg items-center justify-center bg-default"
+                accessible
+                accessibilityRole="button"
+                accessibilityLabel={`${isExpanded ? 'Collapse' : 'Expand'} ${group.name}`}
+                accessibilityState={{ expanded: isExpanded }}
+              >
+                <IconifyIcon
+                  name={isExpanded ? 'lucide:folder-open' : 'lucide:folder'}
+                  size={18}
+                  color={getThemeColor('muted', isDark)}
+                />
+              </PressableScale>
+            ) : undefined
+          }
+        />
+      </View>
     );
   }, [isDark, router, expandedGroups, toggleExpand]);
 
@@ -150,21 +153,24 @@ export default function GroupsListScreen() {
   const headerComponent = (
     <View style={{ paddingHorizontal: 16 }}>
       <View className="pt-4 pb-2">
-        <DashboardHeader
+        <ScreenHeader
           title="Groups"
-          action={{
-            label: '+ New',
-            onPress: () => { Haptics.selectionAsync(); router.push('/groups/new'); }
-          }}
+          leading="none"
+          right={
+            <Button
+              label="+ New"
+              size="md"
+              onPress={() => router.push('/groups/new')}
+              accessibilityLabel="+ New"
+            />
+          }
         />
       </View>
       <View className="mb-4">
-        <Input
+        <SearchField
           placeholder="Search groups..."
-          placeholderTextColor={getThemeColor('field-placeholder', isDark)}
           value={search}
           onChangeText={setSearch}
-          className="rounded-xl"
         />
       </View>
     </View>

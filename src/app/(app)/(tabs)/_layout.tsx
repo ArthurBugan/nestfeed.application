@@ -1,12 +1,10 @@
-import { NativeTabs } from 'expo-router/unstable-native-tabs';
+import { NativeTabs } from 'expo-router/native-tabs';
 import { IconifyIcon } from '@/components/IconifyIcon';
 import { getThemeColor } from '@/theme/themeColors';
 import { useTheme } from '@/theme/ThemeProvider';
 
 export default function TabLayout() {
   const { isDark } = useTheme();
-  console.log('[TabLayout] useTheme isDark:', isDark);
-
   return (
     <NativeTabs
       iconColor={{
