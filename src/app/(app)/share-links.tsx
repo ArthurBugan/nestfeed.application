@@ -1,5 +1,7 @@
+import { useState } from 'react';
 import { View, Text, Alert, Share } from 'react-native';
-import { useShareLinks, useDeleteShareLink } from '@/hooks';
+import { useShareLinks, useUpdateShareLink, useDeleteShareLink } from '@/hooks';
+import { buildShareUrl } from '@/api/endpoints/shareLinks';
 
 import type { ShareLink } from '@/types';
 import { useTheme } from '@/theme/ThemeProvider';
@@ -11,8 +13,14 @@ import { Screen } from '@/components/ui/Screen';
 import { ScreenHeader } from '@/components/ui/ScreenHeader';
 import { Card } from '@/components/ui/Card';
 import { PressableScale } from '@/components/ui/PressableScale';
+import { Sheet } from '@/components/ui/Sheet';
+import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/Input';
+import { Toast } from '@/components/ui/Toast';
 import { tap } from '@/theme/haptics';
 
+const PERMISSION_OPTIONS = ['all', 'visualize', 'collaborate', 'none'] as const;
+const LINK_TYPE_OPTIONS = ['all', 'visualize', 'collaborate'] as const;
 export default function ShareLinksScreen() {
   const {
     data: response,
@@ -21,19 +29,60 @@ export default function ShareLinksScreen() {
     refetch,
   } = useShareLinks();
   const data = response?.data;
+  const updateShareLink = useUpdateShareLink();
   const deleteShareLink = useDeleteShareLink();
   const { isDark } = useTheme();
 
-  const handleShare = async (url: string) => {
+  const [editing, setEditing] = useState<ShareLink | null>(null);
+  const [editLinkCode, setEditLinkCode] = useState('');
+  const [editLinkType, setEditLinkType] = useState<string>('visualize');
+  const [editPermission, setEditPermission] = useState<string>('visualize');
+  const [saving, setSaving] = useState(false);
+
+  const label = (link: ShareLink) => link.groupName || link.linkType || 'Share link';
+
+  const handleEdit = (link: ShareLink) => {
     tap();
+    setEditing(link);
+    setEditLinkCode(link.linkCode ?? '');
+    setEditLinkType(link.linkType ?? 'visualize');
+    setEditPermission(link.permission ?? 'visualize');
+  };
+
+  const handleSave = async () => {
+    if (!editing) return;
+    setSaving(true);
     try {
-      await Share.share({ message: url });
+      await updateShareLink.mutateAsync({
+        id: editing.id,
+        data: {
+          linkCode: editLinkCode.trim() || editing.linkCode,
+          linkType: editLinkType,
+          permission: editPermission,
+        },
+      });
+      Toast.success('Share link updated');
+      setEditing(null);
     } catch {
-      Alert.alert('Error', 'Failed to share');
+      Toast.error('Failed to update share link');
+    } finally {
+      setSaving(false);
     }
   };
 
-  const handleDelete = async (id: string, name: string) => {
+  const handleShare = async (link: ShareLink) => {
+    tap();
+    const url =
+      link.linkCode && link.linkType ? buildShareUrl(link.linkType, link.linkCode) : undefined;
+    if (!url) return;
+    try {
+      await Share.share({ message: url });
+    } catch {
+      Toast.error('Failed to share');
+    }
+  };
+
+  const handleDelete = (id: string, name: string) => {
     tap();
     Alert.alert('Delete Share Link', `Delete "${name}"?`, [
       { text: 'Cancel', style: 'cancel' },
@@ -43,8 +92,9 @@ export default function ShareLinksScreen() {
         onPress: async () => {
           try {
             await deleteShareLink.mutateAsync(id);
+            Toast.success('Share link deleted');
           } catch {
-            Alert.alert('Error', 'Failed to delete');
+            Toast.error('Failed to delete');
           }
         },
       },
@@ -79,28 +129,44 @@ export default function ShareLinksScreen() {
                     <IconifyIcon name="lucide:link" size={20} className="text-foreground" />
                   </View>
                   <View className="flex-1 min-w-0">
-                    <Text className="text-base font-semibold text-foreground capitalize">{link.type}</Text>
-                    <Text className="text-muted text-xs" numberOfLines={1}>{link.shareUrl}</Text>
+                    <Text className="text-base font-semibold text-foreground" numberOfLines={1}>
+                      {label(link)}
+                    </Text>
+                    <Text className="text-muted text-xs" numberOfLines={1}>
+                      {link.linkCode ?? '—'}
+                      {link.permission ? ` · ${link.permission}` : ''}
+                    </Text>
                   </View>
                   <PressableScale
-                    onPress={() => link.shareUrl && handleShare(link.shareUrl)}
+                    onPress={() => handleEdit(link)}
                     className="w-9 h-9 rounded-lg items-center justify-center"
                     style={{ backgroundColor: alpha(getThemeColor('accent', isDark), 0.08) }}
                     hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
                     accessible
                     accessibilityRole="button"
-                    accessibilityLabel={`Share ${link.type} link`}
+                    accessibilityLabel={`Edit ${label(link)}`}
+                  >
+                    <IconifyIcon name="lucide:pencil" size={16} className="text-accent" />
+                  </PressableScale>
+                  <PressableScale
+                    onPress={() => handleShare(link)}
+                    className="w-9 h-9 rounded-lg items-center justify-center"
+                    style={{ backgroundColor: alpha(getThemeColor('accent', isDark), 0.08) }}
+                    hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                    accessible
+                    accessibilityRole="button"
+                    accessibilityLabel={`Share ${label(link)} link`}
                   >
                     <IconifyIcon name="lucide:share-2" size={16} className="text-accent" />
                   </PressableScale>
                   <PressableScale
-                    onPress={() => handleDelete(link.id, link.type)}
+                    onPress={() => handleDelete(link.id, label(link))}
                     className="w-9 h-9 rounded-lg items-center justify-center"
                     style={{ backgroundColor: alpha(getThemeColor('danger', isDark), 0.08) }}
                     hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
                     accessible
                     accessibilityRole="button"
-                    accessibilityLabel={`Delete ${link.type} link`}
+                    accessibilityLabel={`Delete ${label(link)} link`}
                   >
                     <IconifyIcon name="lucide:trash-2" size={16} className="text-danger" />
                   </PressableScale>
@@ -110,6 +176,40 @@ export default function ShareLinksScreen() {
           </View>
         )}
       </View>
+
+      <Sheet
+        open={!!editing}
+        onClose={() => setEditing(null)}
+        title="Edit share link"
+        snapPoints={['50%']}
+      >
+        {editing ? (
+          <View>
+            <Input
+              value={editLinkCode}
+              onChangeText={setEditLinkCode}
+              label="Link code"
+              autoCapitalize="characters"
+              testID="sharelink-code-input"
+            />
+            <Input
+              value={editLinkType}
+              onChangeText={setEditLinkType}
+              label="Link type"
+              testID="sharelink-type-input"
+            />
+            <Input
+              value={editPermission}
+              onChangeText={setEditPermission}
+              label="Permission"
+              testID="sharelink-permission-input"
+            />
+            <Button onPress={handleSave} disabled={saving} className="mt-2">
+              {saving ? 'Saving…' : 'Save changes'}
+            </Button>
+          </View>
+        ) : null}
+      </Sheet>
     </Screen>
   );
 }

@@ -1,12 +1,18 @@
 import { renderHook, act } from '@testing-library/react-native';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { shareLinksApi } from '@/api/endpoints/shareLinks';
-import { useShareLinks, useCreateShareLink, useDeleteShareLink } from '@/hooks/useShareLinks';
+import {
+  useShareLinks,
+  useCreateShareLink,
+  useUpdateShareLink,
+  useDeleteShareLink,
+} from '@/hooks/useShareLinks';
 
 jest.mock('@/api/endpoints/shareLinks', () => ({
   shareLinksApi: {
     list: jest.fn(),
     create: jest.fn(),
+    update: jest.fn(),
     delete: jest.fn(),
   },
 }));
@@ -38,8 +44,8 @@ describe('useShareLinks Hooks', () => {
     it('should fetch share links list', async () => {
       const mockResponse = {
         data: [
-          { id: '1', type: 'group', shareUrl: 'https://share.link/abc123' },
-          { id: '2', type: 'channel', shareUrl: 'https://share.link/def456' },
+          { id: '1', linkType: 'group', linkCode: 'abc123' },
+          { id: '2', linkType: 'channel', linkCode: 'def456' },
         ],
         pagination: { total: 2, page: 1, limit: 20, totalPages: 1 },
       };
@@ -133,6 +139,49 @@ describe('useShareLinks Hooks', () => {
           });
         })
       ).rejects.toThrow('Creation failed');
+
+      expect(result.current.isError).toBe(true);
+    });
+  });
+
+  describe('useUpdateShareLink', () => {
+    it('should update a share link', async () => {
+      const mockShareLink = { id: '1', linkType: 'group', linkCode: 'new-code' };
+      (shareLinksApi.update as jest.Mock).mockResolvedValueOnce(mockShareLink);
+
+      const { result } = renderHook(() => useUpdateShareLink(), {
+        wrapper: createWrapper(),
+      });
+
+      await act(async () => {
+        await result.current.mutateAsync({
+          id: 'sharelink-1',
+          data: { linkCode: 'new-code', permission: 'collaborate' },
+        });
+      });
+
+      expect(shareLinksApi.update).toHaveBeenCalledWith('sharelink-1', {
+        linkCode: 'new-code',
+        permission: 'collaborate',
+      });
+      expect(result.current.isSuccess).toBe(true);
+    });
+
+    it('should handle update failure', async () => {
+      (shareLinksApi.update as jest.Mock).mockRejectedValueOnce(new Error('Update failed'));
+
+      const { result } = renderHook(() => useUpdateShareLink(), {
+        wrapper: createWrapper(),
+      });
+
+      await expect(
+        act(async () => {
+          await result.current.mutateAsync({
+            id: 'sharelink-1',
+            data: { linkCode: 'new-code' },
+          });
+        })
+      ).rejects.toThrow('Update failed');
 
       expect(result.current.isError).toBe(true);
     });
