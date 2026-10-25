@@ -90,16 +90,16 @@ export interface Website {
 
 export interface ShareLink {
   id: string;
-  type?: 'group' | 'channel' | 'anime';
-  itemId?: string;
-  shareUrl?: string;
   groupId?: string;
-  group_id?: string;
+  groupCode?: string;
   linkCode?: string;
+  /** Share target: 'group' | 'collaborate' etc. */
   linkType?: string;
   permission?: string;
   createdAt?: string;
   expiresAt?: string;
+  groupName?: string;
+  groupIcon?: string;
 }
 
 export interface GroupShelf {

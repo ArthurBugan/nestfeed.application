@@ -6,6 +6,7 @@ jest.mock('@/api/client', () => ({
   default: {
     get: jest.fn(),
     post: jest.fn(),
+    patch: jest.fn(),
     delete: jest.fn(),
   },
 }));
@@ -16,16 +17,17 @@ describe('ShareLinks API Endpoints', () => {
   });
 
   describe('list', () => {
-    it('should call GET /api/v3/share-links', async () => {
+    it('should call GET /api/v3/share-links with pagination params', async () => {
       const mockResponse = {
         data: [],
         pagination: { total: 0, page: 1, limit: 20, totalPages: 0 },
       };
       (apiClient.get as jest.Mock).mockResolvedValueOnce(mockResponse);
 
-      const result = await shareLinksApi.list();
+      const params = { page: 2, limit: 10, search: 'tv' };
+      const result = await shareLinksApi.list(params);
 
-      expect(apiClient.get).toHaveBeenCalledWith('/api/v3/share-links');
+      expect(apiClient.get).toHaveBeenCalledWith('/api/v3/share-links', params);
       expect(result).toEqual(mockResponse);
     });
   });
@@ -50,6 +52,31 @@ describe('ShareLinks API Endpoints', () => {
       await shareLinksApi.delete('sharelink-1');
 
       expect(apiClient.delete).toHaveBeenCalledWith('/api/v3/share-links/sharelink-1');
+    });
+  });
+
+  describe('update', () => {
+    it('should call PATCH /api/v3/share-links/:id', async () => {
+      const mockShareLink = { id: '1', linkType: 'group', linkCode: 'abc123' };
+      (apiClient.patch as jest.Mock).mockResolvedValueOnce(mockShareLink);
+
+      const data = { linkCode: 'new-code', permission: 'collaborate' };
+      const result = await shareLinksApi.update('sharelink-1', data);
+
+      expect(apiClient.patch).toHaveBeenCalledWith(
+        '/api/v3/share-links/sharelink-1',
+        data
+      );
+      expect(result).toEqual(mockShareLink);
+    });
+  });
+
+  describe('buildShareUrl', () => {
+    it('should build the web share url', () => {
+      const { buildShareUrl } = require('@/api/endpoints/shareLinks');
+      expect(buildShareUrl('group', 'abc123')).toBe(
+        `${process.env.EXPO_PUBLIC_GROUPIFY_WEB_URL || 'https://groupify.dev'}/share/group/abc123`
+      );
     });
   });
 
