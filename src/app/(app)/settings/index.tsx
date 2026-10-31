@@ -83,12 +83,6 @@ export default function SettingsScreen() {
           subtitle="Theme, font size, language"
           onPress={() => router.push('/settings/appearance')}
         />
-        <ListRow
-          icon="lucide:credit-card"
-          title="Billing"
-          subtitle="Subscription, payment methods"
-          onPress={() => router.push('/settings/billing')}
-        />
       </ListGroup>
 
       {/* Preferences */}

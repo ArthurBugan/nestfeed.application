@@ -149,12 +149,6 @@
           "imageWidth": 200
         }
       ],
-      [
-        "expo-iap",
-        {
-          "iapkitApiKey": "${process.env.EXPO_PUBLIC_IAPKIT_API_KEY}"
-        }
-      ],
       "expo-tracking-transparency",
       "expo-status-bar"
     ],

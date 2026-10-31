@@ -108,11 +108,13 @@ function AppContentWithTheme() {
         textProps: { allowFontScaling: true, maxFontSizeMultiplier },
       }}
     >
-      <StatusBar style={isDark ? 'light' : 'dark'} />
-      <QueryClientProvider client={queryClient}>
-        <AppContent />
-        <AdMobManager style={{ marginTop: 10 }} />
-      </QueryClientProvider>
+      <Host style={{ flex: 1 }}>
+        <StatusBar style={isDark ? 'light' : 'dark'} />
+        <QueryClientProvider client={queryClient}>
+          <AppContent />
+          <AdMobManager style={{ marginTop: 10 }} />
+        </QueryClientProvider>
+      </Host>
     </HeroUINativeProvider>
   );
 }
@@ -145,9 +147,7 @@ function RootLayout() {
     <SafeAreaProvider>
       <ThemeProvider>
         <GestureHandlerRootView style={{ flex: 1 }}>
-          <Host>
-            <AppContentWithTheme />
-          </Host>
+          <AppContentWithTheme />
         </GestureHandlerRootView>
       </ThemeProvider>
     </SafeAreaProvider>

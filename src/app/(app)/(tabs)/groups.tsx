@@ -25,6 +25,9 @@ interface GroupWithChildren extends Group {
 
 type ListItem = GroupWithChildren | { isAd: true; id: string };
 
+/** Nested-group indent scale — literal classes so the CSS compiler emits them. */
+const INDENT_CLASSES = ['ml-4', 'ml-8', 'ml-12', 'ml-16', 'ml-20'] as const;
+
 export default function GroupsListScreen() {
   const router = useRouter();
   const { isDark } = useTheme();
@@ -113,38 +116,37 @@ export default function GroupsListScreen() {
     const isExpanded = expandedGroups.has(group.id);
 
     return (
-      <View style={{ marginLeft: group._depth * 16, marginHorizontal: 16, marginBottom: 8 }}>
-        <ListRow
-          icon={group.icon || 'lucide:folder'}
-          title={group.name}
-          subtitle={group.description || undefined}
-          chevron={false}
-          onPress={() =>
-            isWide
-              ? setSelectedGroup(group)
-              : router.push(`/groups/${group.id}`)
-          }
-          accessibilityLabel={`Group: ${group.name}`}
-          trailing={
-            hasChildren ? (
-              <PressableScale
-                onPress={() => toggleExpand(group.id)}
-                className="w-11 h-11 rounded-lg items-center justify-center bg-default"
-                accessible
-                accessibilityRole="button"
-                accessibilityLabel={`${isExpanded ? 'Collapse' : 'Expand'} ${group.name}`}
-                accessibilityState={{ expanded: isExpanded }}
-              >
-                <IconifyIcon
-                  name={isExpanded ? 'lucide:folder-open' : 'lucide:folder'}
-                  size={18}
-                  color={getThemeColor('muted', isDark)}
-                />
-              </PressableScale>
-            ) : undefined
-          }
-        />
-      </View>
+      <ListRow
+        className={`${INDENT_CLASSES[Math.min(group._depth, INDENT_CLASSES.length - 1)]} mr-4 mb-2`}
+        icon={group.icon || 'lucide:folder'}
+        title={group.name}
+        subtitle={group.description || undefined}
+        chevron={false}
+        onPress={() =>
+          isWide
+            ? setSelectedGroup(group)
+            : router.push(`/groups/${group.id}`)
+        }
+        accessibilityLabel={`Group: ${group.name}`}
+        trailing={
+          hasChildren ? (
+            <PressableScale
+              onPress={() => toggleExpand(group.id)}
+              className="w-11 h-11 rounded-lg items-center justify-center bg-default"
+              accessible
+              accessibilityRole="button"
+              accessibilityLabel={`${isExpanded ? 'Collapse' : 'Expand'} ${group.name}`}
+              accessibilityState={{ expanded: isExpanded }}
+            >
+              <IconifyIcon
+                name={isExpanded ? 'lucide:folder-open' : 'lucide:folder'}
+                size={18}
+                color={getThemeColor('muted', isDark)}
+              />
+            </PressableScale>
+          ) : undefined
+        }
+      />
     );
   }, [isDark, router, expandedGroups, toggleExpand, isWide]);
 
@@ -160,7 +162,7 @@ export default function GroupsListScreen() {
   const renderSkeleton = () => <LoadingState variant="skeleton" rows={5} label="Loading groups" />;
 
   const headerComponent = (
-    <View style={{ paddingHorizontal: 16 }}>
+    <View className="px-4">
       <View className="pt-4 pb-2">
         <ScreenHeader
           title="Groups"

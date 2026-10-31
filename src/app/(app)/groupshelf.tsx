@@ -100,6 +100,7 @@ export default function GroupShelfScreen() {
           onChangeText={setSearch}
           placeholder="Search groupshelf..."
           label="Search groupshelf"
+          className="mb-4"
         />
 
         {isLoading ? (

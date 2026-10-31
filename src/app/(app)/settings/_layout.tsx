@@ -6,7 +6,6 @@ export default function SettingsStack() {
       <Stack.Screen name="index" />
       <Stack.Screen name="account" />
       <Stack.Screen name="appearance" />
-      <Stack.Screen name="billing" />
       <Stack.Screen name="groups" />
     </Stack>
   );

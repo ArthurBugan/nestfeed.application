@@ -9,6 +9,18 @@
 
 @source './node_modules/heroui-native/lib';
 
+/* Tailwind v4 only generates utilities from tokens declared in `@theme`.
+   The radius scale MUST be registered here (in addition to the `@layer theme`
+   variables below, which feed the runtime CSS vars) or `rounded-card` /
+   `rounded-tile` are never emitted and every Card/ListRow renders square. */
+@theme {
+  /* Radius scale (specs/001 + 005): control 12 / card 16 / tile 26 / sheet 28 */
+  --radius-control: 12px;
+  --radius-card: 16px;
+  --radius-tile: 26px;
+  --radius-sheet: 28px;
+}
+
 @layer theme {
   :root {
     --radius: 0.75rem;

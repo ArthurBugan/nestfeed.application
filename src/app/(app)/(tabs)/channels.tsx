@@ -106,7 +106,7 @@ export default function ChannelsListScreen() {
   }, [isFetchingNextPage, isDark]);
 
   const headerComponent = (
-    <View style={{ paddingHorizontal: 16 }}>
+    <View className="px-4">
       <View className="pt-4 pb-2 flex-row items-center justify-between">
         <ScreenHeader title="Channels" leading="none" className="flex-1" />
         <PressableScale
