@@ -134,7 +134,7 @@ export default function AnimesListScreen() {
   const renderSkeleton = () => <LoadingState variant="skeleton" rows={5} label="Loading animes" />;
 
   const headerComponent = (
-    <View style={{ paddingHorizontal: 16 }}>
+    <View className="px-4">
       <View className="pt-4 pb-2">
         <ScreenHeader title="Animes" leading="none" />
       </View>

@@ -10,5 +10,4 @@ export * from './useBlog';
 export * from './useBlogInfinite';
 export * from './useGroupShelf';
 export * from './useSocialLogin';
-export * from './useAppIAP';
 export * from './useTwoPane';
