@@ -79,3 +79,30 @@ for (const file of mmFiles) {
 }
 
 console.log(`[patch-openobserve] imported React/RCTBridgeModule.h into ${patched} .mm file(s)`);
+
+// ---------------------------------------------------------------------------
+// Android (Kotlin) patch — newarch O2Sdk.kt
+//
+// Why: inside the anonymous LifecycleEventListener the line
+//   `val currentActivity: Activity? = currentActivity`
+// refers to itself; the property lives on `reactContext`, so every Kotlin
+// build (xcodebuild's Gradle sibling) fails with
+//   "Function invocation 'getCurrentActivity()' expected"
+// at android/src/newarch/.../O2Sdk.kt:204. The oldarch twin already does
+// `reactContext.currentActivity` — mirror that.
+// Idempotent via the same PATCH_MARKER file check.
+// ---------------------------------------------------------------------------
+const ktPath = path.join(sourcesDir, '..', '..', 'android', 'src', 'newarch', 'kotlin', 'com', 'openobserve', 'reactnative', 'O2Sdk.kt');
+
+if (fs.existsSync(ktPath)) {
+  const ktSource = fs.readFileSync(ktPath, 'utf8');
+  const BROKEN = 'val currentActivity: Activity? = currentActivity';
+  const FIXED = 'val currentActivity: Activity? = reactContext.currentActivity';
+
+  if (ktSource.includes(BROKEN)) {
+    fs.writeFileSync(ktPath, ktSource.replace(BROKEN, FIXED, 1));
+    console.log('[patch-openobserve] fixed self-referential currentActivity in newarch O2Sdk.kt');
+  }
+} else {
+  console.error('[patch-openobserve] newarch O2Sdk.kt not found — package layout changed? Skipping.');
+}
