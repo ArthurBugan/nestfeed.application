@@ -3,6 +3,12 @@ import '@testing-library/jest-dom';
 // Import shared mocks
 import '@/__tests__/__mocks__';
 
+// Mock the OpenObserve RUM SDK so tests never touch native modules nor send
+// data during test runs. All SDK methods become jest.fn() mocks.
+jest.mock('@openobserve/mobile-react-native', () => {
+  return require('@openobserve/mobile-react-native/jest');
+});
+
 // Set up global test helpers
 globalThis.ResizeObserver = jest.fn(() => ({
   observe: jest.fn(),
