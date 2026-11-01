@@ -109,6 +109,34 @@ stored geometry. Then `export`/`render` is faithful.
 - After reparenting/copying, stale stored `width/height/transform` on the new
   node won't show until a re-bake.
 
+### PITFALL: `render` serves a STALE contact-sheet cache (build the preview from `export`)
+
+`figcraft-cli render <file> -o <png> --page "Page 1"` **caches the rendered
+page by its page NAME** and serves it back as long as the name is unchanged.
+Consequences seen in the wild:
+- Edit the file (add/reorder frames, fix a layout) and re-`render` → you get
+  the **old** bytes (sha-unstable but visually identical to a previous run).
+- The committed `groupify-app.png` showed a 12-screen sheet with **Register
+  first and Dashboard missing**, even though `document.json` had 13 frames in
+  Dashboard-first order. The cache predates the redesign.
+- `render --page <unique-name>` does **not** bust it (still stale) — the cache
+  isn't keyed on name-only in a way a rename defeats; do **not** rely on
+  renaming the page to force a fresh render.
+
+**Rule: build `groupify-app.png` from `export`, not `render`.** `export` is
+genuinely file-driven (different input → different bytes). Reliable pipeline:
+
+```
+# per-screen fresh exports (one png per top-level frame)
+figcraft-cli export groupify-app.figcraft -o <dir> --format png --scale 1
+# then composite the 13 tiles into groupify-app.png (Dashboard first), or just
+# keep the per-screen set. Avoid `render` for the committed preview.
+```
+
+`export --node <frameId>` is also fresh and is the right tool for single-screen
+proofs (e.g. verify the Dashboard alone). Use `render` only when you are
+certain its output cache is warm/absent (a truly fresh CLI state).
+
 ## Screens
 
 13 frames (393×852 each) on one page: Dashboard(2), Groups(83), Channels(133),
