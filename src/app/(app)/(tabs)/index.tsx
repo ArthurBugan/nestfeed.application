@@ -1,5 +1,6 @@
 import { View, Text, Image, ActivityIndicator } from 'react-native';
 import { useRouter, useFocusEffect } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useMemo, useCallback, useState } from 'react';
 import { useDashboard } from '@/hooks/useDashboard';
 import { useAnimesInfinite } from '@/hooks/useAnimesInfinite';
@@ -15,6 +16,7 @@ import { Screen } from '@/components/ui/Screen';
 import { ScreenHeader } from '@/components/ui/ScreenHeader';
 import type { ThemeColorKey } from '@/theme/themeColors';
 import type { Anime } from '@/types';
+import { formatCount, latestAnimes } from './dashboardUtils';
 
 type Tint = 'accent' | 'teal' | 'lime' | 'success' | 'warning' | 'rose';
 
@@ -47,6 +49,7 @@ const TINT_ICON: Record<Tint, ThemeColorKey> = {
 export default function DashboardHome() {
   const router = useRouter();
   const { isDark } = useTheme();
+  const insets = useSafeAreaInsets();
 
   const { data: dashboard, refetch } = useDashboard();
   const { animes, isLoading: animeLoading, setIsActive } = useAnimesInfinite({ limit: 5 });
@@ -79,14 +82,7 @@ export default function DashboardHome() {
     [dashboard]
   );
 
-  const recentAnimes = useMemo(
-    () =>
-      animes
-        .filter((a) => a.updatedAt)
-        .sort((a, b) => (b.updatedAt ?? '').localeCompare(a.updatedAt ?? ''))
-        .slice(0, 3),
-    [animes]
-  );
+  const recentAnimes = useMemo(() => latestAnimes(animes, 3), [animes]);
 
   const actions = useMemo(
     () => [
@@ -98,13 +94,6 @@ export default function DashboardHome() {
     ],
     []
   );
-
-  const getCount = (n?: number | null) =>
-    n != null
-      ? n >= 10000
-        ? `${(n / 1000).toFixed(n % 1000 === 0 ? 0 : 1)}k`
-        : n.toLocaleString()
-      : '—';
 
   const renderAnimeRow = useCallback(
     ({ item }: { item: Anime }) => {
@@ -134,9 +123,17 @@ export default function DashboardHome() {
   );
 
   return (
-    <Screen scroll refreshing={isRefreshing} onRefresh={handleRefresh} edges={['bottom']}>
-      <View className="pb-6">
-        <View className="px-5 pt-4">
+    <Screen scroll refreshing={isRefreshing} onRefresh={handleRefresh} padded={false} edges={['bottom']}>
+      <View
+        style={{
+          paddingTop: insets.top,
+          paddingLeft: insets.left,
+          paddingRight: insets.right,
+          paddingBottom: 16,
+        }}
+        className="px-5"
+      >
+        <View className="pt-4">
           <ScreenHeader
             title="Dashboard"
             subtitle="Your content at a glance"
@@ -145,7 +142,7 @@ export default function DashboardHome() {
         </View>
 
         {/* Shortcut bento grid (P7) — 2 columns, no off-palette gradients */}
-        <View className="px-5 mt-4">
+        <View className="mt-4">
           <View className="flex-row flex-wrap justify-between gap-x-3">
             {shortcuts.map((s) => (
               <PressableScale
@@ -157,7 +154,7 @@ export default function DashboardHome() {
                 accessibilityRole="button"
                 accessibilityLabel={
                   s.count != null
-                    ? `${s.label}, ${getCount(s.count)} items. Opens ${s.label}.`
+                    ? `${s.label}, ${formatCount(s.count)} items. Opens ${s.label}.`
                     : `Opens ${s.label}.`
                 }
               >
@@ -172,7 +169,7 @@ export default function DashboardHome() {
                   />
                 </View>
                 <Text className="text-2xl font-bold text-foreground mt-3">
-                  {s.count != null ? getCount(s.count) : '—'}
+                  {formatCount(s.count)}
                 </Text>
                 <Text className="text-sm text-muted mt-0.5">{s.label}</Text>
               </PressableScale>
@@ -181,7 +178,7 @@ export default function DashboardHome() {
         </View>
 
         {/* Quick actions */}
-        <View className="px-5 mt-6">
+        <View className="mt-6">
           <Text className="text-sm font-semibold text-muted uppercase tracking-wider mb-3">
             Quick Actions
           </Text>
@@ -199,7 +196,7 @@ export default function DashboardHome() {
 
         {/* Recently added content */}
         {recentAnimes.length > 0 && (
-          <View className="px-5 mt-6">
+          <View className="mt-6">
             <View className="flex-row items-center justify-between mb-3">
               <Text className="text-sm font-semibold text-muted uppercase tracking-wider">
                 Recently Added
