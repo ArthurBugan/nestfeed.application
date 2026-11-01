@@ -93,8 +93,8 @@ android {
         applicationId 'com.groupifyapp'
         minSdk = rootProject.ext.minSdkVersion
         targetSdk = rootProject.ext.targetSdkVersion
-        versionCode 1
-        versionName "1.19.0"
+        versionCode 33
+        versionName "1.21.0"
 
         buildConfigField "String", "REACT_NATIVE_RELEASE_LEVEL", "\"${findProperty('reactNativeReleaseLevel') ?: 'stable'}\""
     }

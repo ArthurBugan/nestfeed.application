@@ -14,7 +14,8 @@
         "ITSAppUsesNonExemptEncryption": false,
         "GADDelayAppMeasurementInit": true
       },
-      "supportsTablet": true
+      "supportsTablet": true,
+      "buildNumber": "33"
     },
     "android": {
       "package": "com.groupifyapp",
@@ -37,7 +38,8 @@
             "DEFAULT"
           ]
         }
-      ]
+      ],
+      "versionCode": 33
     },
     "plugins": [
       "expo-router",
@@ -165,6 +167,6 @@
       }
     },
     "owner": "arthurbugan",
-    "version": "1.20.0"
+    "version": "1.21.0"
   }
 }
