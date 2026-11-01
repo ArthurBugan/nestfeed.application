@@ -17,6 +17,11 @@ import { Host } from 'react-native-portalize';
 import AdMobManager from '@/components/Admob';
 import * as Sentry from "@sentry/react-native";
 import { HeroUINativeProvider } from 'heroui-native';
+import { OpenObserveProvider } from '@openobserve/mobile-react-native';
+import {
+  getOpenObserveConfig,
+  useOpenObserveViewTracking,
+} from '@/services/openobserve';
 
 Sentry.init({
   dsn: `${process.env.EXPO_PUBLIC_SENTRY_DSN}`,
@@ -37,6 +42,8 @@ function AppContent() {
   const url = Linking.useURL();
   const { handleCallback } = useHandleOAuthCallback();
   const initialUrlHandled = useRef(false);
+
+  useOpenObserveViewTracking();
 
   useEffect(() => {
     const handleInitialUrl = async () => {
@@ -154,4 +161,18 @@ function RootLayout() {
   );
 }
 
-export default Sentry.wrap(RootLayout);
+// OpenObserve RUM wraps the whole tree to initialize the native SDK and start
+// automatic instrumentation. Skipped entirely when credentials aren't set.
+function OpenObserveRoot() {
+  const o2Config = getOpenObserveConfig();
+  if (!o2Config) {
+    return <RootLayout />;
+  }
+  return (
+    <OpenObserveProvider configuration={o2Config}>
+      <RootLayout />
+    </OpenObserveProvider>
+  );
+}
+
+export default Sentry.wrap(OpenObserveRoot);

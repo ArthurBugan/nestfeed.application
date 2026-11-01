@@ -75,9 +75,6 @@ PODS:
     - ExpoModulesCore
   - ExpoHaptics (58.0.7):
     - ExpoModulesCore
-  - ExpoIap (6.4.0):
-    - ExpoModulesCore
-    - openiap (= 4.0.6)
   - ExpoKeepAwake (58.0.3):
     - ExpoModulesCore
   - ExpoLinking (58.0.15):
@@ -177,7 +174,66 @@ PODS:
     - ReactNativeDependencies
     - SDWebImage (~> 5.10)
     - Yoga
-  - openiap (4.0.6)
+  - KSCrash/Core (2.5.0)
+  - KSCrash/Filters (2.5.0):
+    - KSCrash/Recording
+    - KSCrash/RecordingCore
+    - KSCrash/ReportingCore
+  - KSCrash/Recording (2.5.0):
+    - KSCrash/RecordingCore
+  - KSCrash/RecordingCore (2.5.0):
+    - KSCrash/Core
+  - KSCrash/ReportingCore (2.5.0):
+    - KSCrash/Core
+  - OpenObserveCore (0.1.0):
+    - OpenObserveInternal (= 0.1.0)
+  - OpenObserveCrashReporting (0.1.0):
+    - KSCrash/Filters (= 2.5.0)
+    - KSCrash/Recording (= 2.5.0)
+    - OpenObserveInternal (= 0.1.0)
+  - OpenObserveFlags (0.1.0):
+    - OpenObserveInternal (= 0.1.0)
+  - OpenObserveInternal (0.1.0)
+  - OpenObserveLogs (0.1.0):
+    - OpenObserveInternal (= 0.1.0)
+  - OpenObserveRUM (0.1.0):
+    - OpenObserveInternal (= 0.1.0)
+  - OpenObserveSDKReactNative (0.1.2):
+    - hermes-engine
+    - OpenObserveCore (= 0.1.0)
+    - OpenObserveCrashReporting (= 0.1.0)
+    - OpenObserveFlags (= 0.1.0)
+    - OpenObserveLogs (= 0.1.0)
+    - OpenObserveRUM (= 0.1.0)
+    - OpenObserveTrace (= 0.1.0)
+    - OpenObserveWebViewTracking (= 0.1.0)
+    - RCTRequired
+    - RCTTypeSafety
+    - React-bridging
+    - React-Core
+    - React-Core-prebuilt
+    - React-cxxstableapi
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-ImageManager
+    - React-jsi
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-renderercss
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/core
+    - ReactNativeDependencies
+    - Yoga
+  - OpenObserveTrace (0.1.0):
+    - OpenObserveInternal (= 0.1.0)
+    - OpenTelemetry-Swift-Api (~> 2.3.0)
+  - OpenObserveWebViewTracking (0.1.0):
+    - OpenObserveInternal (= 0.1.0)
+  - OpenTelemetry-Swift-Api (2.3.0)
   - RCT-Folly (2024.11.18.00):
     - RCT-Folly/Default (= 2024.11.18.00)
     - ReactNativeDependencies
@@ -2395,7 +2451,6 @@ DEPENDENCIES:
   - ExpoFont (from `../node_modules/expo-font/ios/ExpoFont.podspec`)
   - ExpoGlassEffect (from `../node_modules/expo-glass-effect/ios`)
   - ExpoHaptics (from `../node_modules/expo-haptics/ios`)
-  - ExpoIap (from `../node_modules/expo-iap/ios`)
   - ExpoKeepAwake (from `../node_modules/expo-keep-awake/ios`)
   - ExpoLinking (from `../node_modules/expo-linking/ios`)
   - "ExpoLogBox (from `../node_modules/@expo/log-box`)"
@@ -2417,6 +2472,7 @@ DEPENDENCIES:
   - glog (from `build/rndeps-facades/glog`)
   - hermes-engine (from `../node_modules/react-native/sdks/hermes-engine/hermes-engine.podspec`)
   - "Iconify (from `../node_modules/@huymobile/react-native-iconify`)"
+  - "OpenObserveSDKReactNative (from `../node_modules/@openobserve/mobile-react-native`)"
   - RCT-Folly (from `build/rndeps-facades/RCT-Folly`)
   - RCTDeprecation (from `build/rncore-facades/RCTDeprecation`)
   - RCTRequired (from `build/rncore-facades/RCTRequired`)
@@ -2512,7 +2568,16 @@ SPEC REPOS:
   trunk:
     - Google-Mobile-Ads-SDK
     - GoogleUserMessagingPlatform
-    - openiap
+    - KSCrash
+    - OpenObserveCore
+    - OpenObserveCrashReporting
+    - OpenObserveFlags
+    - OpenObserveInternal
+    - OpenObserveLogs
+    - OpenObserveRUM
+    - OpenObserveTrace
+    - OpenObserveWebViewTracking
+    - OpenTelemetry-Swift-Api
     - SDWebImage
     - SPAlert
     - SPIndicator
@@ -2546,8 +2611,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/expo-glass-effect/ios"
   ExpoHaptics:
     :path: "../node_modules/expo-haptics/ios"
-  ExpoIap:
-    :path: "../node_modules/expo-iap/ios"
   ExpoKeepAwake:
     :path: "../node_modules/expo-keep-awake/ios"
   ExpoLinking:
@@ -2591,6 +2654,8 @@ EXTERNAL SOURCES:
     :tag: hermes-v260318099.0.5
   Iconify:
     :path: "../node_modules/@huymobile/react-native-iconify"
+  OpenObserveSDKReactNative:
+    :path: "../node_modules/@openobserve/mobile-react-native"
   RCT-Folly:
     :path: build/rndeps-facades/RCT-Folly
   RCTDeprecation:
@@ -2785,7 +2850,6 @@ SPEC CHECKSUMS:
   ExpoFont: 77eaad26c6a7ef6be8d431963358def09d8e3a73
   ExpoGlassEffect: 6594e055df1e0b88d34cc189ba0b21589adec6bf
   ExpoHaptics: c95d1e2162895e710b68dd912eec619900ebdf33
-  ExpoIap: 1e4fa58b48d3da2bd81d393f6da2d946fd3e56a2
   ExpoKeepAwake: fd18a5d233329013c578030ad399d8e10b252b5f
   ExpoLinking: c4c98c2c889e183ab2cdd95c5d0739a3e187e6c0
   ExpoLogBox: ba4cb945593f38ea8b8d0a01bcb24f4ea458918f
@@ -2809,7 +2873,17 @@ SPEC CHECKSUMS:
   GoogleUserMessagingPlatform: befe603da6501006420c206222acd449bba45a9c
   hermes-engine: 79484fc4e58f328d01b9339ef899ca633d3702ee
   Iconify: cd669965fe9652e4c97a9bb554f6532f14df5277
-  openiap: 5a2b927f1d6b4ecec5d5b427d1579d1f05bee0f9
+  KSCrash: 80e1e24eaefbe5134934ae11ca8d7746586bc2ed
+  OpenObserveCore: 7f0bec2d398b2331a99c4ef5aca4f3b1c323877e
+  OpenObserveCrashReporting: eceea42b4f6200e80dddd9d564db5723800229ec
+  OpenObserveFlags: c43948db0db80ba603b79f0fd6bac52a3424c3e9
+  OpenObserveInternal: acea595df12eaf3f0f12c0adae897996e14ddace
+  OpenObserveLogs: 8429fbe2da22e23440b2ea3c7bdcc45e5964471c
+  OpenObserveRUM: afd9978cf063774b836df64ff221179488ac236a
+  OpenObserveSDKReactNative: c0d6549464d6587913da33da827db6ea8d3fe924
+  OpenObserveTrace: 4546a69405ed595f99f653b2c59cd5739a0b4547
+  OpenObserveWebViewTracking: 03ad2b3362dea454274a6b234b0c87fdd3e47d9c
+  OpenTelemetry-Swift-Api: 3d77582ab6837a63b65bf7d2eacc57d8f2595edd
   RCT-Folly: 82921e585c0400eda46fac1068297aa9dfb035e4
   RCTDeprecation: c62b9b3fbf0d26b76755f3ebd1c913a4fb469dde
   RCTRequired: d0563e2484633b657976195f0543e180133afd3a

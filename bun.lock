@@ -11,6 +11,7 @@
         "@gorhom/bottom-sheet": "^5.2.14",
         "@hookform/resolvers": "^7.0.0",
         "@huymobile/react-native-iconify": "^1.1.0",
+        "@openobserve/mobile-react-native": "^0.1.2",
         "@react-native-async-storage/async-storage": "3.1.1",
         "@sentry/react-native": "~8.33.0",
         "@shopify/flash-list": "2.3.3",
@@ -73,6 +74,7 @@
   },
   "trustedDependencies": [
     "react-native-enriched-markdown",
+    "@openobserve/mobile-react-native",
     "@huymobile/react-native-iconify",
   ],
   "packages": {
@@ -469,6 +471,8 @@
     "@noxcturnal/noxcturnal-win32-arm64-msvc": ["@noxcturnal/noxcturnal-win32-arm64-msvc@0.1.11", "", { "os": "win32", "cpu": "arm64" }, "sha512-Q0Q0ll/qPzakp/GBmVDB/XthqyCkfM2CE5gZ78t9Ix/bkZDe5O0G7OyNkXRsGu49VcorxoGbBgSyF6CK+OaYlQ=="],
 
     "@noxcturnal/noxcturnal-win32-x64-msvc": ["@noxcturnal/noxcturnal-win32-x64-msvc@0.1.11", "", { "os": "win32", "cpu": "x64" }, "sha512-as4HUwZkQegCcGoFzaLzlZbBqdx8BGgFhAoQsTsdJCUbNTxVH0f3R/AcRLOUJ6odfko0E2SSuJc70FI0zQ/IDg=="],
+
+    "@openobserve/mobile-react-native": ["@openobserve/mobile-react-native@0.1.2", "", { "dependencies": { "big-integer": "^1.6.52" }, "peerDependencies": { "react": ">=16.13.1", "react-native": ">=0.63.4 <1.0" } }, "sha512-auqrar8oTGnu54fXUfqcBCs/3IX5fYhD9znw0hqRw8Yxm3S82Sp9y3Jq6c1lwkMFePtSyOScV/oEg4vNflvwYw=="],
 
     "@oxc-project/types": ["@oxc-project/types@0.154.0", "", {}, "sha512-KYOUGQFlLWR+s4QMV2Q9ko38TZm7EdO87Qm7rvZLqk/webse/cDjtyxKhg/47l0byCbs/k46LT8qc4PKjAikzA=="],
 
